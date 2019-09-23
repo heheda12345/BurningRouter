@@ -236,7 +236,7 @@ wire eth_rx_axis_mac_tlast;
 wire eth_rx_axis_mac_tuser;
 wire [7:0] eth_tx_axis_mac_tdata;
 wire eth_tx_axis_mac_tvalid;
-wire eth_tx_axis_mac_tlast = 0;
+wire eth_tx_axis_mac_tlast;
 wire eth_tx_axis_mac_tuser = 0;
 wire eth_tx_axis_mac_tready;
 
@@ -283,8 +283,8 @@ eth_mac eth_mac_inst (
 /* =========== Demo code end =========== */
 
 
-wire [7:0] axis_fifo_din;
-wire [7:0] axis_fifo_dout;
+wire [8:0] axis_fifo_din;
+wire [8:0] axis_fifo_dout;
 wire axis_fifo_rd_en; 
 wire axis_fifo_rd_clk; 
 wire axis_fifo_empty; 
@@ -309,8 +309,16 @@ tabn_axis_fifo fifo_1 (
 assign axis_fifo_wr_clk = eth_rx_mac_aclk;
 assign axis_fifo_rd_clk = eth_tx_mac_aclk;
 
-assign axis_fifo_din = eth_rx_axis_mac_tdata;
-assign eth_tx_axis_mac_tdata = axis_fifo_dout;
+always @ (posedge eth_tx_mac_aclk) begin
+    if (axis_fifo_rst_state < 2)
+        axis_fifo_rst_state = axis_fifo_rst_state + 1;
+    else 
+        axis_fifo_rst = 0;
+end
+
+assign axis_fifo_din = {eth_rx_axis_mac_tlast, eth_rx_axis_mac_tdata};
+assign eth_tx_axis_mac_tdata = axis_fifo_dout[7:0];
+assign eth_tx_axis_mac_tlast = axis_fifo_dout[8] & eth_tx_axis_mac_tvalid;
 assign axis_fifo_wr_en = eth_rx_axis_mac_tvalid & ~axis_fifo_full;
 assign axis_fifo_rd_en = eth_tx_axis_mac_tready & ~axis_fifo_empty;
 assign eth_tx_axis_mac_tvalid = ~axis_fifo_empty;
