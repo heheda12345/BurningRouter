@@ -309,17 +309,41 @@ tabn_axis_fifo fifo_1 (
 assign axis_fifo_wr_clk = eth_rx_mac_aclk;
 assign axis_fifo_rd_clk = eth_tx_mac_aclk;
 
-always @ (posedge eth_tx_mac_aclk) begin
-    if (axis_fifo_rst_state < 2)
-        axis_fifo_rst_state = axis_fifo_rst_state + 1;
-    else 
-        axis_fifo_rst = 0;
-end
-
 assign axis_fifo_din = eth_rx_axis_mac_tdata;
 assign eth_tx_axis_mac_tdata = axis_fifo_dout;
 assign axis_fifo_wr_en = eth_rx_axis_mac_tvalid & ~axis_fifo_full;
 assign axis_fifo_rd_en = eth_tx_axis_mac_tready & ~axis_fifo_empty;
 assign eth_tx_axis_mac_tvalid = ~axis_fifo_empty;
+
+reg [31:0] destination;
+reg [31:0] source;
+parameter sleep_state = 3'b000;
+parameter destination_fifo2reg_state = 3'b001;
+parameter source_fifo2reg_state = 3'b010;
+parameter source_reg2axis_state = 3'b011;
+parameter destination_fifo2reg_state = 3'b100;
+parameter fifo2axis_state = 3'b101;
+parameter pause_state = 3'b110;
+reg [2:0] state = sleep_state;
+always @ (negedge eth_tx_mac_aclk) begin
+    case (state):
+        sleep_state: begin
+            // if (fifo的长度 >= 64)
+        end
+        destination_fifo2reg_state: begin
+        end
+        source_fifo2reg_state: begin
+        end
+        source_reg2axis_state: begin
+        end
+        destination_fifo2reg_state: begin
+        end
+        fifo2axis_state: begin
+            // if 读到了包的最后一个元素
+        end
+        pause_state: begin
+        end
+    endcase
+end
 
 endmodule
