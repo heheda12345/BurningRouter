@@ -1,10 +1,10 @@
 -- Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
 -- Tool Version: Vivado v.2018.3 (win64) Build 2405991 Thu Dec  6 23:38:27 MST 2018
--- Date        : Mon Sep 23 15:44:51 2019
+-- Date        : Mon Sep 23 21:31:57 2019
 -- Host        : DESKTOP-BS588P3 running 64-bit major release  (build 9200)
 -- Command     : write_vhdl -force -mode funcsim
---               f:/router/router/thinpad_top/thinpad_top.srcs/sources_1/ip/tabn_axis_fifo/tabn_axis_fifo_sim_netlist.vhdl
+--               F:/router/router/thinpad_top/thinpad_top.srcs/sources_1/ip/tabn_axis_fifo/tabn_axis_fifo_sim_netlist.vhdl
 -- Design      : tabn_axis_fifo
 -- Purpose     : This VHDL netlist is a functional simulation representation of the design and should not be modified or
 --               synthesized. This netlist cannot be used for SDF annotated simulation.
@@ -18,13 +18,13 @@ entity tabn_axis_fifo_builtin_prim_v6 is
   port (
     empty : out STD_LOGIC;
     full : out STD_LOGIC;
-    dout : out STD_LOGIC_VECTOR ( 7 downto 0 );
+    dout : out STD_LOGIC_VECTOR ( 8 downto 0 );
     rd_clk : in STD_LOGIC;
     rd_en : in STD_LOGIC;
     RST : in STD_LOGIC;
     wr_clk : in STD_LOGIC;
     wr_en : in STD_LOGIC;
-    din : in STD_LOGIC_VECTOR ( 7 downto 0 )
+    din : in STD_LOGIC_VECTOR ( 8 downto 0 )
   );
   attribute ORIG_REF_NAME : string;
   attribute ORIG_REF_NAME of tabn_axis_fifo_builtin_prim_v6 : entity is "builtin_prim_v6";
@@ -59,7 +59,6 @@ architecture STRUCTURE of tabn_axis_fifo_builtin_prim_v6 is
   signal \gf18e1_inst.sngfifo18e1_n_50\ : STD_LOGIC;
   signal \gf18e1_inst.sngfifo18e1_n_51\ : STD_LOGIC;
   signal \gf18e1_inst.sngfifo18e1_n_52\ : STD_LOGIC;
-  signal \gf18e1_inst.sngfifo18e1_n_53\ : STD_LOGIC;
   signal \gf18e1_inst.sngfifo18e1_n_64\ : STD_LOGIC;
   signal \gf18e1_inst.sngfifo18e1_n_65\ : STD_LOGIC;
   signal \gf18e1_inst.sngfifo18e1_n_8\ : STD_LOGIC;
@@ -94,8 +93,8 @@ begin
         port map (
       ALMOSTEMPTY => \gf18e1_inst.sngfifo18e1_n_0\,
       ALMOSTFULL => \gf18e1_inst.sngfifo18e1_n_1\,
-      DI(31 downto 8) => B"000000000000000000000000",
-      DI(7 downto 0) => din(7 downto 0),
+      DI(31 downto 9) => B"00000000000000000000000",
+      DI(8 downto 0) => din(8 downto 0),
       DIP(3 downto 0) => B"0000",
       DO(31 downto 16) => \NLW_gf18e1_inst.sngfifo18e1_DO_UNCONNECTED\(31 downto 16),
       DO(15) => \gf18e1_inst.sngfifo18e1_n_46\,
@@ -105,8 +104,7 @@ begin
       DO(11) => \gf18e1_inst.sngfifo18e1_n_50\,
       DO(10) => \gf18e1_inst.sngfifo18e1_n_51\,
       DO(9) => \gf18e1_inst.sngfifo18e1_n_52\,
-      DO(8) => \gf18e1_inst.sngfifo18e1_n_53\,
-      DO(7 downto 0) => dout(7 downto 0),
+      DO(8 downto 0) => dout(8 downto 0),
       DOP(3 downto 2) => \NLW_gf18e1_inst.sngfifo18e1_DOP_UNCONNECTED\(3 downto 2),
       DOP(1) => \gf18e1_inst.sngfifo18e1_n_64\,
       DOP(0) => \gf18e1_inst.sngfifo18e1_n_65\,
@@ -479,13 +477,13 @@ entity tabn_axis_fifo_builtin_extdepth_v6 is
   port (
     empty : out STD_LOGIC;
     full : out STD_LOGIC;
-    dout : out STD_LOGIC_VECTOR ( 7 downto 0 );
+    dout : out STD_LOGIC_VECTOR ( 8 downto 0 );
     rd_clk : in STD_LOGIC;
     rd_en : in STD_LOGIC;
     RST : in STD_LOGIC;
     wr_clk : in STD_LOGIC;
     wr_en : in STD_LOGIC;
-    din : in STD_LOGIC_VECTOR ( 7 downto 0 )
+    din : in STD_LOGIC_VECTOR ( 8 downto 0 )
   );
   attribute ORIG_REF_NAME : string;
   attribute ORIG_REF_NAME of tabn_axis_fifo_builtin_extdepth_v6 : entity is "builtin_extdepth_v6";
@@ -542,8 +540,8 @@ begin
 \gonep.inst_prim\: entity work.tabn_axis_fifo_builtin_prim_v6
      port map (
       RST => RST,
-      din(7 downto 0) => din(7 downto 0),
-      dout(7 downto 0) => dout(7 downto 0),
+      din(8 downto 0) => din(8 downto 0),
+      dout(8 downto 0) => dout(8 downto 0),
       empty => empty,
       full => full,
       rd_clk => rd_clk,
@@ -560,13 +558,13 @@ entity tabn_axis_fifo_builtin_top_v6 is
   port (
     empty : out STD_LOGIC;
     full : out STD_LOGIC;
-    dout : out STD_LOGIC_VECTOR ( 7 downto 0 );
+    dout : out STD_LOGIC_VECTOR ( 8 downto 0 );
     rd_clk : in STD_LOGIC;
     rd_en : in STD_LOGIC;
     RST : in STD_LOGIC;
     wr_clk : in STD_LOGIC;
     wr_en : in STD_LOGIC;
-    din : in STD_LOGIC_VECTOR ( 7 downto 0 )
+    din : in STD_LOGIC_VECTOR ( 8 downto 0 )
   );
   attribute ORIG_REF_NAME : string;
   attribute ORIG_REF_NAME of tabn_axis_fifo_builtin_top_v6 : entity is "builtin_top_v6";
@@ -577,8 +575,8 @@ begin
 \gextw[1].gnll_fifo.inst_extd\: entity work.tabn_axis_fifo_builtin_extdepth_v6
      port map (
       RST => RST,
-      din(7 downto 0) => din(7 downto 0),
-      dout(7 downto 0) => dout(7 downto 0),
+      din(8 downto 0) => din(8 downto 0),
+      dout(8 downto 0) => dout(8 downto 0),
       empty => empty,
       full => full,
       rd_clk => rd_clk,
@@ -595,12 +593,12 @@ entity tabn_axis_fifo_fifo_generator_v13_2_3_builtin is
   port (
     empty : out STD_LOGIC;
     full : out STD_LOGIC;
-    dout : out STD_LOGIC_VECTOR ( 7 downto 0 );
+    dout : out STD_LOGIC_VECTOR ( 8 downto 0 );
     wr_clk : in STD_LOGIC;
     rd_clk : in STD_LOGIC;
     rd_en : in STD_LOGIC;
     wr_en : in STD_LOGIC;
-    din : in STD_LOGIC_VECTOR ( 7 downto 0 );
+    din : in STD_LOGIC_VECTOR ( 8 downto 0 );
     rst : in STD_LOGIC
   );
   attribute ORIG_REF_NAME : string;
@@ -620,8 +618,8 @@ begin
 \v7_bi_fifo.fblk\: entity work.tabn_axis_fifo_builtin_top_v6
      port map (
       RST => wr_rst_i,
-      din(7 downto 0) => din(7 downto 0),
-      dout(7 downto 0) => dout(7 downto 0),
+      din(8 downto 0) => din(8 downto 0),
+      dout(8 downto 0) => dout(8 downto 0),
       empty => empty,
       full => full,
       rd_clk => rd_clk,
@@ -638,12 +636,12 @@ entity tabn_axis_fifo_fifo_generator_top is
   port (
     empty : out STD_LOGIC;
     full : out STD_LOGIC;
-    dout : out STD_LOGIC_VECTOR ( 7 downto 0 );
+    dout : out STD_LOGIC_VECTOR ( 8 downto 0 );
     wr_clk : in STD_LOGIC;
     rd_clk : in STD_LOGIC;
     rd_en : in STD_LOGIC;
     wr_en : in STD_LOGIC;
-    din : in STD_LOGIC_VECTOR ( 7 downto 0 );
+    din : in STD_LOGIC_VECTOR ( 8 downto 0 );
     rst : in STD_LOGIC
   );
   attribute ORIG_REF_NAME : string;
@@ -654,8 +652,8 @@ architecture STRUCTURE of tabn_axis_fifo_fifo_generator_top is
 begin
 \gbi.bi\: entity work.tabn_axis_fifo_fifo_generator_v13_2_3_builtin
      port map (
-      din(7 downto 0) => din(7 downto 0),
-      dout(7 downto 0) => dout(7 downto 0),
+      din(8 downto 0) => din(8 downto 0),
+      dout(8 downto 0) => dout(8 downto 0),
       empty => empty,
       full => full,
       rd_clk => rd_clk,
@@ -673,12 +671,12 @@ entity tabn_axis_fifo_fifo_generator_v13_2_3_synth is
   port (
     empty : out STD_LOGIC;
     full : out STD_LOGIC;
-    dout : out STD_LOGIC_VECTOR ( 7 downto 0 );
+    dout : out STD_LOGIC_VECTOR ( 8 downto 0 );
     wr_clk : in STD_LOGIC;
     rd_clk : in STD_LOGIC;
     rd_en : in STD_LOGIC;
     wr_en : in STD_LOGIC;
-    din : in STD_LOGIC_VECTOR ( 7 downto 0 );
+    din : in STD_LOGIC_VECTOR ( 8 downto 0 );
     rst : in STD_LOGIC
   );
   attribute ORIG_REF_NAME : string;
@@ -689,8 +687,8 @@ architecture STRUCTURE of tabn_axis_fifo_fifo_generator_v13_2_3_synth is
 begin
 \gconvfifo.rf\: entity work.tabn_axis_fifo_fifo_generator_top
      port map (
-      din(7 downto 0) => din(7 downto 0),
-      dout(7 downto 0) => dout(7 downto 0),
+      din(8 downto 0) => din(8 downto 0),
+      dout(8 downto 0) => dout(8 downto 0),
       empty => empty,
       full => full,
       rd_clk => rd_clk,
@@ -715,7 +713,7 @@ entity tabn_axis_fifo_fifo_generator_v13_2_3 is
     wr_rst : in STD_LOGIC;
     rd_clk : in STD_LOGIC;
     rd_rst : in STD_LOGIC;
-    din : in STD_LOGIC_VECTOR ( 7 downto 0 );
+    din : in STD_LOGIC_VECTOR ( 8 downto 0 );
     wr_en : in STD_LOGIC;
     rd_en : in STD_LOGIC;
     prog_empty_thresh : in STD_LOGIC_VECTOR ( 9 downto 0 );
@@ -728,7 +726,7 @@ entity tabn_axis_fifo_fifo_generator_v13_2_3 is
     injectdbiterr : in STD_LOGIC;
     injectsbiterr : in STD_LOGIC;
     sleep : in STD_LOGIC;
-    dout : out STD_LOGIC_VECTOR ( 7 downto 0 );
+    dout : out STD_LOGIC_VECTOR ( 8 downto 0 );
     full : out STD_LOGIC;
     almost_full : out STD_LOGIC;
     wr_ack : out STD_LOGIC;
@@ -997,7 +995,7 @@ entity tabn_axis_fifo_fifo_generator_v13_2_3 is
   attribute C_DEFAULT_VALUE : string;
   attribute C_DEFAULT_VALUE of tabn_axis_fifo_fifo_generator_v13_2_3 : entity is "BlankString";
   attribute C_DIN_WIDTH : integer;
-  attribute C_DIN_WIDTH of tabn_axis_fifo_fifo_generator_v13_2_3 : entity is 8;
+  attribute C_DIN_WIDTH of tabn_axis_fifo_fifo_generator_v13_2_3 : entity is 9;
   attribute C_DIN_WIDTH_AXIS : integer;
   attribute C_DIN_WIDTH_AXIS of tabn_axis_fifo_fifo_generator_v13_2_3 : entity is 1;
   attribute C_DIN_WIDTH_RACH : integer;
@@ -1013,7 +1011,7 @@ entity tabn_axis_fifo_fifo_generator_v13_2_3 is
   attribute C_DOUT_RST_VAL : string;
   attribute C_DOUT_RST_VAL of tabn_axis_fifo_fifo_generator_v13_2_3 : entity is "0";
   attribute C_DOUT_WIDTH : integer;
-  attribute C_DOUT_WIDTH of tabn_axis_fifo_fifo_generator_v13_2_3 : entity is 8;
+  attribute C_DOUT_WIDTH of tabn_axis_fifo_fifo_generator_v13_2_3 : entity is 9;
   attribute C_ENABLE_RLOCS : integer;
   attribute C_ENABLE_RLOCS of tabn_axis_fifo_fifo_generator_v13_2_3 : entity is 0;
   attribute C_ENABLE_RST_SYNC : integer;
@@ -1885,8 +1883,8 @@ VCC: unisim.vcomponents.VCC
     );
 inst_fifo_gen: entity work.tabn_axis_fifo_fifo_generator_v13_2_3_synth
      port map (
-      din(7 downto 0) => din(7 downto 0),
-      dout(7 downto 0) => dout(7 downto 0),
+      din(8 downto 0) => din(8 downto 0),
+      dout(8 downto 0) => dout(8 downto 0),
       empty => empty,
       full => full,
       rd_clk => rd_clk,
@@ -1905,10 +1903,10 @@ entity tabn_axis_fifo is
     rst : in STD_LOGIC;
     wr_clk : in STD_LOGIC;
     rd_clk : in STD_LOGIC;
-    din : in STD_LOGIC_VECTOR ( 7 downto 0 );
+    din : in STD_LOGIC_VECTOR ( 8 downto 0 );
     wr_en : in STD_LOGIC;
     rd_en : in STD_LOGIC;
-    dout : out STD_LOGIC_VECTOR ( 7 downto 0 );
+    dout : out STD_LOGIC_VECTOR ( 8 downto 0 );
     full : out STD_LOGIC;
     empty : out STD_LOGIC
   );
@@ -2105,7 +2103,7 @@ architecture STRUCTURE of tabn_axis_fifo is
   attribute C_DEFAULT_VALUE : string;
   attribute C_DEFAULT_VALUE of U0 : label is "BlankString";
   attribute C_DIN_WIDTH : integer;
-  attribute C_DIN_WIDTH of U0 : label is 8;
+  attribute C_DIN_WIDTH of U0 : label is 9;
   attribute C_DIN_WIDTH_AXIS : integer;
   attribute C_DIN_WIDTH_AXIS of U0 : label is 1;
   attribute C_DIN_WIDTH_RACH : integer;
@@ -2121,7 +2119,7 @@ architecture STRUCTURE of tabn_axis_fifo is
   attribute C_DOUT_RST_VAL : string;
   attribute C_DOUT_RST_VAL of U0 : label is "0";
   attribute C_DOUT_WIDTH : integer;
-  attribute C_DOUT_WIDTH of U0 : label is 8;
+  attribute C_DOUT_WIDTH of U0 : label is 9;
   attribute C_ENABLE_RLOCS : integer;
   attribute C_ENABLE_RLOCS of U0 : label is 0;
   attribute C_ENABLE_RST_SYNC : integer;
@@ -2550,8 +2548,8 @@ U0: entity work.tabn_axis_fifo_fifo_generator_v13_2_3
       clk => '0',
       data_count(9 downto 0) => NLW_U0_data_count_UNCONNECTED(9 downto 0),
       dbiterr => NLW_U0_dbiterr_UNCONNECTED,
-      din(7 downto 0) => din(7 downto 0),
-      dout(7 downto 0) => dout(7 downto 0),
+      din(8 downto 0) => din(8 downto 0),
+      dout(8 downto 0) => dout(8 downto 0),
       empty => empty,
       full => full,
       injectdbiterr => '0',
