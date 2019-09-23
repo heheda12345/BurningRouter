@@ -1,10 +1,10 @@
 // Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2018.3 (win64) Build 2405991 Thu Dec  6 23:38:27 MST 2018
-// Date        : Mon Sep 23 21:31:57 2019
-// Host        : DESKTOP-BS588P3 running 64-bit major release  (build 9200)
+// Date        : Mon Sep 23 22:18:50 2019
+// Host        : DESKTOP-9FUVL9G running 64-bit major release  (build 9200)
 // Command     : write_verilog -force -mode funcsim
-//               F:/router/router/thinpad_top/thinpad_top.srcs/sources_1/ip/tabn_axis_fifo/tabn_axis_fifo_sim_netlist.v
+//               D:/codes/hw-2019autumn/org-net/cod19grp2/thinpad_top.srcs/sources_1/ip/tabn_axis_fifo/tabn_axis_fifo_sim_netlist.v
 // Design      : tabn_axis_fifo
 // Purpose     : This verilog netlist is a functional simulation representation of the design and should not be modified
 //               or synthesized. This netlist cannot be used for SDF annotated simulation.
@@ -27,15 +27,15 @@ module tabn_axis_fifo
   input rst;
   (* x_interface_info = "xilinx.com:signal:clock:1.0 write_clk CLK" *) (* x_interface_parameter = "XIL_INTERFACENAME write_clk, FREQ_HZ 125000000, PHASE 0.000, INSERT_VIP 0" *) input wr_clk;
   (* x_interface_info = "xilinx.com:signal:clock:1.0 read_clk CLK" *) (* x_interface_parameter = "XIL_INTERFACENAME read_clk, FREQ_HZ 125000000, PHASE 0.000, INSERT_VIP 0" *) input rd_clk;
-  (* x_interface_info = "xilinx.com:interface:fifo_write:1.0 FIFO_WRITE WR_DATA" *) input [8:0]din;
+  (* x_interface_info = "xilinx.com:interface:fifo_write:1.0 FIFO_WRITE WR_DATA" *) input [9:0]din;
   (* x_interface_info = "xilinx.com:interface:fifo_write:1.0 FIFO_WRITE WR_EN" *) input wr_en;
   (* x_interface_info = "xilinx.com:interface:fifo_read:1.0 FIFO_READ RD_EN" *) input rd_en;
-  (* x_interface_info = "xilinx.com:interface:fifo_read:1.0 FIFO_READ RD_DATA" *) output [8:0]dout;
+  (* x_interface_info = "xilinx.com:interface:fifo_read:1.0 FIFO_READ RD_DATA" *) output [9:0]dout;
   (* x_interface_info = "xilinx.com:interface:fifo_write:1.0 FIFO_WRITE FULL" *) output full;
   (* x_interface_info = "xilinx.com:interface:fifo_read:1.0 FIFO_READ EMPTY" *) output empty;
 
-  wire [8:0]din;
-  wire [8:0]dout;
+  wire [9:0]din;
+  wire [9:0]dout;
   wire empty;
   wire full;
   wire rd_clk;
@@ -196,7 +196,7 @@ module tabn_axis_fifo
   (* C_COUNT_TYPE = "0" *) 
   (* C_DATA_COUNT_WIDTH = "10" *) 
   (* C_DEFAULT_VALUE = "BlankString" *) 
-  (* C_DIN_WIDTH = "9" *) 
+  (* C_DIN_WIDTH = "10" *) 
   (* C_DIN_WIDTH_AXIS = "1" *) 
   (* C_DIN_WIDTH_RACH = "32" *) 
   (* C_DIN_WIDTH_RDCH = "64" *) 
@@ -204,7 +204,7 @@ module tabn_axis_fifo
   (* C_DIN_WIDTH_WDCH = "64" *) 
   (* C_DIN_WIDTH_WRCH = "2" *) 
   (* C_DOUT_RST_VAL = "0" *) 
-  (* C_DOUT_WIDTH = "9" *) 
+  (* C_DOUT_WIDTH = "10" *) 
   (* C_ENABLE_RLOCS = "0" *) 
   (* C_ENABLE_RST_SYNC = "1" *) 
   (* C_EN_SAFETY_CKT = "0" *) 
@@ -616,19 +616,19 @@ module tabn_axis_fifo_builtin_extdepth_v6
     din);
   output empty;
   output full;
-  output [8:0]dout;
+  output [9:0]dout;
   input rd_clk;
   input rd_en;
   input RST;
   input wr_clk;
   input wr_en;
-  input [8:0]din;
+  input [9:0]din;
 
   wire RST;
   (* async_reg = "true" *) (* msgon = "true" *) wire dbr_as_reg;
   (* async_reg = "true" *) (* msgon = "true" *) wire dbr_d1;
-  wire [8:0]din;
-  wire [8:0]dout;
+  wire [9:0]din;
+  wire [9:0]dout;
   wire empty;
   wire full;
   wire rd_clk;
@@ -683,17 +683,17 @@ module tabn_axis_fifo_builtin_prim_v6
     din);
   output empty;
   output full;
-  output [8:0]dout;
+  output [9:0]dout;
   input rd_clk;
   input rd_en;
   input RST;
   input wr_clk;
   input wr_en;
-  input [8:0]din;
+  input [9:0]din;
 
   wire RST;
-  wire [8:0]din;
-  wire [8:0]dout;
+  wire [9:0]din;
+  wire [9:0]dout;
   wire empty;
   wire full;
   wire \gf18e1_inst.sngfifo18e1_n_0 ;
@@ -723,7 +723,6 @@ module tabn_axis_fifo_builtin_prim_v6
   wire \gf18e1_inst.sngfifo18e1_n_49 ;
   wire \gf18e1_inst.sngfifo18e1_n_50 ;
   wire \gf18e1_inst.sngfifo18e1_n_51 ;
-  wire \gf18e1_inst.sngfifo18e1_n_52 ;
   wire \gf18e1_inst.sngfifo18e1_n_64 ;
   wire \gf18e1_inst.sngfifo18e1_n_65 ;
   wire \gf18e1_inst.sngfifo18e1_n_8 ;
@@ -759,9 +758,9 @@ module tabn_axis_fifo_builtin_prim_v6
     \gf18e1_inst.sngfifo18e1 
        (.ALMOSTEMPTY(\gf18e1_inst.sngfifo18e1_n_0 ),
         .ALMOSTFULL(\gf18e1_inst.sngfifo18e1_n_1 ),
-        .DI({1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,din}),
+        .DI({1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,din}),
         .DIP({1'b0,1'b0,1'b0,1'b0}),
-        .DO({\NLW_gf18e1_inst.sngfifo18e1_DO_UNCONNECTED [31:16],\gf18e1_inst.sngfifo18e1_n_46 ,\gf18e1_inst.sngfifo18e1_n_47 ,\gf18e1_inst.sngfifo18e1_n_48 ,\gf18e1_inst.sngfifo18e1_n_49 ,\gf18e1_inst.sngfifo18e1_n_50 ,\gf18e1_inst.sngfifo18e1_n_51 ,\gf18e1_inst.sngfifo18e1_n_52 ,dout}),
+        .DO({\NLW_gf18e1_inst.sngfifo18e1_DO_UNCONNECTED [31:16],\gf18e1_inst.sngfifo18e1_n_46 ,\gf18e1_inst.sngfifo18e1_n_47 ,\gf18e1_inst.sngfifo18e1_n_48 ,\gf18e1_inst.sngfifo18e1_n_49 ,\gf18e1_inst.sngfifo18e1_n_50 ,\gf18e1_inst.sngfifo18e1_n_51 ,dout}),
         .DOP({\NLW_gf18e1_inst.sngfifo18e1_DOP_UNCONNECTED [3:2],\gf18e1_inst.sngfifo18e1_n_64 ,\gf18e1_inst.sngfifo18e1_n_65 }),
         .EMPTY(empty),
         .FULL(full),
@@ -791,17 +790,17 @@ module tabn_axis_fifo_builtin_top_v6
     din);
   output empty;
   output full;
-  output [8:0]dout;
+  output [9:0]dout;
   input rd_clk;
   input rd_en;
   input RST;
   input wr_clk;
   input wr_en;
-  input [8:0]din;
+  input [9:0]din;
 
   wire RST;
-  wire [8:0]din;
-  wire [8:0]dout;
+  wire [9:0]din;
+  wire [9:0]dout;
   wire empty;
   wire full;
   wire rd_clk;
@@ -834,16 +833,16 @@ module tabn_axis_fifo_fifo_generator_top
     rst);
   output empty;
   output full;
-  output [8:0]dout;
+  output [9:0]dout;
   input wr_clk;
   input rd_clk;
   input rd_en;
   input wr_en;
-  input [8:0]din;
+  input [9:0]din;
   input rst;
 
-  wire [8:0]din;
-  wire [8:0]dout;
+  wire [9:0]din;
+  wire [9:0]dout;
   wire empty;
   wire full;
   wire rd_clk;
@@ -873,10 +872,10 @@ endmodule
 (* C_AXI_DATA_WIDTH = "64" *) (* C_AXI_ID_WIDTH = "1" *) (* C_AXI_LEN_WIDTH = "8" *) 
 (* C_AXI_LOCK_WIDTH = "1" *) (* C_AXI_RUSER_WIDTH = "1" *) (* C_AXI_TYPE = "1" *) 
 (* C_AXI_WUSER_WIDTH = "1" *) (* C_COMMON_CLOCK = "0" *) (* C_COUNT_TYPE = "0" *) 
-(* C_DATA_COUNT_WIDTH = "10" *) (* C_DEFAULT_VALUE = "BlankString" *) (* C_DIN_WIDTH = "9" *) 
+(* C_DATA_COUNT_WIDTH = "10" *) (* C_DEFAULT_VALUE = "BlankString" *) (* C_DIN_WIDTH = "10" *) 
 (* C_DIN_WIDTH_AXIS = "1" *) (* C_DIN_WIDTH_RACH = "32" *) (* C_DIN_WIDTH_RDCH = "64" *) 
 (* C_DIN_WIDTH_WACH = "1" *) (* C_DIN_WIDTH_WDCH = "64" *) (* C_DIN_WIDTH_WRCH = "2" *) 
-(* C_DOUT_RST_VAL = "0" *) (* C_DOUT_WIDTH = "9" *) (* C_ENABLE_RLOCS = "0" *) 
+(* C_DOUT_RST_VAL = "0" *) (* C_DOUT_WIDTH = "10" *) (* C_ENABLE_RLOCS = "0" *) 
 (* C_ENABLE_RST_SYNC = "1" *) (* C_EN_SAFETY_CKT = "0" *) (* C_ERROR_INJECTION_TYPE = "0" *) 
 (* C_ERROR_INJECTION_TYPE_AXIS = "0" *) (* C_ERROR_INJECTION_TYPE_RACH = "0" *) (* C_ERROR_INJECTION_TYPE_RDCH = "0" *) 
 (* C_ERROR_INJECTION_TYPE_WACH = "0" *) (* C_ERROR_INJECTION_TYPE_WDCH = "0" *) (* C_ERROR_INJECTION_TYPE_WRCH = "0" *) 
@@ -1173,7 +1172,7 @@ module tabn_axis_fifo_fifo_generator_v13_2_3
   input wr_rst;
   input rd_clk;
   input rd_rst;
-  input [8:0]din;
+  input [9:0]din;
   input wr_en;
   input rd_en;
   input [9:0]prog_empty_thresh;
@@ -1186,7 +1185,7 @@ module tabn_axis_fifo_fifo_generator_v13_2_3
   input injectdbiterr;
   input injectsbiterr;
   input sleep;
-  output [8:0]dout;
+  output [9:0]dout;
   output full;
   output almost_full;
   output wr_ack;
@@ -1398,8 +1397,8 @@ module tabn_axis_fifo_fifo_generator_v13_2_3
 
   wire \<const0> ;
   wire \<const1> ;
-  wire [8:0]din;
-  wire [8:0]dout;
+  wire [9:0]din;
+  wire [9:0]dout;
   wire empty;
   wire full;
   wire rd_clk;
@@ -1962,16 +1961,16 @@ module tabn_axis_fifo_fifo_generator_v13_2_3_builtin
     rst);
   output empty;
   output full;
-  output [8:0]dout;
+  output [9:0]dout;
   input wr_clk;
   input rd_clk;
   input rd_en;
   input wr_en;
-  input [8:0]din;
+  input [9:0]din;
   input rst;
 
-  wire [8:0]din;
-  wire [8:0]dout;
+  wire [9:0]din;
+  wire [9:0]dout;
   wire empty;
   wire full;
   wire rd_clk;
@@ -2011,16 +2010,16 @@ module tabn_axis_fifo_fifo_generator_v13_2_3_synth
     rst);
   output empty;
   output full;
-  output [8:0]dout;
+  output [9:0]dout;
   input wr_clk;
   input rd_clk;
   input rd_en;
   input wr_en;
-  input [8:0]din;
+  input [9:0]din;
   input rst;
 
-  wire [8:0]din;
-  wire [8:0]dout;
+  wire [9:0]din;
+  wire [9:0]dout;
   wire empty;
   wire full;
   wire rd_clk;
