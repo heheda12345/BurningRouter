@@ -282,4 +282,44 @@ eth_mac eth_mac_inst (
 );
 /* =========== Demo code end =========== */
 
+
+wire [7:0] axis_fifo_din;
+wire [7:0] axis_fifo_dout;
+wire axis_fifo_rd_en; 
+wire axis_fifo_rd_clk; 
+wire axis_fifo_empty; 
+wire axis_fifo_wr_en; 
+wire axis_fifo_wr_clk; 
+wire axis_fifo_full;
+reg axis_fifo_rst = 1;
+reg[1:0] axis_fifo_rst_state = 0;
+
+tabn_axis_fifo fifo_1 (
+    .rd_en(axis_fifo_rd_en),
+    .wr_en(axis_fifo_wr_en),
+    .rst(axis_fifo_rst),
+    .rd_clk(axis_fifo_rd_clk),
+    .din(axis_fifo_din),
+    .empty(axis_fifo_empty),
+    .wr_clk(axis_fifo_wr_clk),
+    .dout(axis_fifo_dout),
+    .full(axis_fifo_full)
+);
+
+assign axis_fifo_wr_clk = eth_rx_mac_aclk;
+assign axis_fifo_rd_clk = eth_tx_mac_aclk;
+
+always @ (posedge eth_tx_mac_aclk) begin
+    if (axis_fifo_rst_state < 2)
+        axis_fifo_rst_state = axis_fifo_rst_state + 1;
+    else 
+        axis_fifo_rst = 0;
+end
+
+assign axis_fifo_din = eth_rx_axis_mac_tdata;
+assign eth_tx_axis_mac_tdata = axis_fifo_dout;
+assign axis_fifo_wr_en = eth_rx_axis_mac_tvalid & ~axis_fifo_full;
+assign axis_fifo_rd_en = eth_tx_axis_mac_tready & ~axis_fifo_empty;
+assign eth_tx_axis_mac_tvalid = ~axis_fifo_empty;
+
 endmodule
