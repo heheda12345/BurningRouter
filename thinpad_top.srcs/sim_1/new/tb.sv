@@ -48,6 +48,9 @@ wire uart_tsre;          //数据发送完毕标志
 wire [3:0] eth_rgmii_rd; //RGMII RX 数据
 wire eth_rgmii_rx_ctl;   //RGMII RX 控制
 wire eth_rgmii_rxc;      //RGMII RX 时钟
+wire [3:0] eth_rgmii_td; //RGMII TX 数据
+wire eth_rgmii_tx_ctl;   //RGMII TX 控制
+wire eth_rgmii_txc;      //RGMII TX 时钟
 
 //Windows需要注意路径分隔符的转义，例如"D:\\foo\\bar.bin"
 parameter BASE_RAM_INIT_FILE = "/tmp/main.bin"; //BaseRAM初始化文件，请修改为实际的绝对路径
@@ -120,7 +123,10 @@ thinpad_top dut(
     .flash_we_n(flash_we_n),
     .eth_rgmii_rd(eth_rgmii_rd),
     .eth_rgmii_rx_ctl(eth_rgmii_rx_ctl),
-    .eth_rgmii_rxc(eth_rgmii_rxc)
+    .eth_rgmii_rxc(eth_rgmii_rxc),
+    .eth_rgmii_td(eth_rgmii_td),
+    .eth_rgmii_tx_ctl(eth_rgmii_tx_ctl),
+    .eth_rgmii_txc(eth_rgmii_txc)
 );
 // 时钟源
 clock osc(
@@ -248,6 +254,9 @@ rgmii_model rgmii(
 
     .rgmii_rd(eth_rgmii_rd),
     .rgmii_rxc(eth_rgmii_rxc),
-    .rgmii_rx_ctl(eth_rgmii_rx_ctl)
+    .rgmii_rx_ctl(eth_rgmii_rx_ctl),
+    .rgmii_td(eth_rgmii_td),
+    .rgmii_txc(eth_rgmii_txc),
+    .rgmii_tx_ctl(eth_rgmii_tx_ctl)
 );
 endmodule
