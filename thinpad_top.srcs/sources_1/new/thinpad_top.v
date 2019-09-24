@@ -234,9 +234,9 @@ wire [7:0] eth_rx_axis_mac_tdata;
 wire eth_rx_axis_mac_tvalid;
 wire eth_rx_axis_mac_tlast;
 wire eth_rx_axis_mac_tuser;
-wire [7:0] eth_tx_axis_mac_tdata;
-wire eth_tx_axis_mac_tvalid;
-wire eth_tx_axis_mac_tlast;
+reg [7:0] eth_tx_axis_mac_tdata;
+reg eth_tx_axis_mac_tvalid = 0;
+reg eth_tx_axis_mac_tlast = 0;
 wire eth_tx_axis_mac_tuser = 0;
 wire eth_tx_axis_mac_tready;
 
@@ -283,16 +283,15 @@ eth_mac eth_mac_inst (
 /* =========== Demo code end =========== */
 
 
-wire [9:0] axis_fifo_din;
-wire [9:0] axis_fifo_dout;
-wire axis_fifo_rd_en; 
+wire[8:0] axis_fifo_din;
+wire[8:0] axis_fifo_dout;
+reg axis_fifo_rd_en; 
 wire axis_fifo_rd_clk; 
 wire axis_fifo_empty; 
-wire axis_fifo_wr_en; 
+reg axis_fifo_wr_en = 1; 
 wire axis_fifo_wr_clk; 
 wire axis_fifo_full;
 reg axis_fifo_rst = 1;
-reg[1:0] axis_fifo_rst_state = 0;
 
 tabn_axis_fifo fifo_1 (
     .rd_en(axis_fifo_rd_en),
@@ -309,6 +308,8 @@ tabn_axis_fifo fifo_1 (
 assign axis_fifo_wr_clk = eth_rx_mac_aclk;
 assign axis_fifo_rd_clk = eth_tx_mac_aclk;
 
+// reset until clock functions
+reg[1:0] axis_fifo_rst_state = 0;
 always @ (posedge eth_tx_mac_aclk) begin
     if (axis_fifo_rst_state < 2)
         axis_fifo_rst_state = axis_fifo_rst_state + 1;
@@ -316,75 +317,124 @@ always @ (posedge eth_tx_mac_aclk) begin
         axis_fifo_rst = 0;
 end
 
-parameter fifo_char_normal = 0;
-parameter fifo_char_last = 1;
-parameter fifo_char_src = 2;
-parameter fifo_char_dest = 3;
+// write into FIFO
+assign axis_fifo_din = {eth_rx_axis_mac_tdata, eth_rx_axis_mac_tlast};
 
-reg[3:0] input_char_cnt = 0;
-reg[1:0] input_char_tag = fifo_char_normal;
-reg[7:0] input_char_value = 8'b11111111;
-reg input_valid = 0;
+// assign eth_tx_axis_mac_tdata = axis_fifo_dout[7:0];
+// assign eth_tx_axis_mac_tlast = axis_fifo_dout[8] & eth_tx_axis_mac_tvalid; //@xxy TODO
+// assign axis_fifo_rd_en = eth_tx_axis_mac_tready & ~axis_fifo_empty;
+// assign eth_tx_axis_mac_tvalid = ~axis_fifo_empty;
 
-always @ (negedge eth_tx_mac_aclk) begin
-    if (eth_rx_axis_mac_tvalid) begin
-        if (input_char_cnt <= 12)
-            input_char_cnt = input_char_cnt + 1;
-        if (eth_rx_axis_mac_tlast) begin
-            input_char_tag = fifo_char_last;
-            input_char_cnt = 0;
-        end
-        else if (input_char_cnt <= 6)
-            input_char_tag = fifo_char_dest;
-        else if (input_char_cnt <= 12)
-            input_char_tag = fifo_char_src;
-        else
-            input_char_tag = fifo_char_normal;
-        input_char_value = eth_rx_axis_mac_tdata;
-        input_valid = 1;
-    end
-    else begin
-        input_valid = 0;
-        input_char_value = 0;
-        input_char_tag = 0;
-    end
- end
-    
+reg [47:0] destination;
+reg [47:0] source;
+parameter sleep_state = 4'b0000;
+parameter destination_fifo2reg_state = 4'b0001;
+parameter source_fifo2reg_state = 4'b0010;
+parameter source_reg2axis_state = 4'b0011;
+parameter destination_reg2axis_state = 4'b0100;
+parameter fifo2axis_state = 4'b0101;
+parameter destination_fifo2reg_pause_state = 4'b1001;
+parameter source_fifo2reg_pause_state = 4'b1010;
+parameter fifo2axis_pause_state = 4'b1011;
 
-assign axis_fifo_din = {input_char_tag, input_char_value};
-assign eth_tx_axis_mac_tdata = axis_fifo_dout[7:0];
-assign eth_tx_axis_mac_tlast = axis_fifo_dout[8] & eth_tx_axis_mac_tvalid; //@xxy TODO
-assign axis_fifo_wr_en = input_valid & ~axis_fifo_full;
-assign axis_fifo_rd_en = eth_tx_axis_mac_tready & ~axis_fifo_empty;
-assign eth_tx_axis_mac_tvalid = ~axis_fifo_empty;
+reg [5:0] address_index;
 
-reg [31:0] destination;
-reg [31:0] source;
-parameter sleep_state = 3'b000;
-parameter destination_fifo2reg_state = 3'b001;
-parameter source_fifo2reg_state = 3'b010;
-parameter source_reg2axis_state = 3'b011;
-parameter destination_fifo2reg_state = 3'b100;
-parameter fifo2axis_state = 3'b101;
-parameter pause_state = 3'b110;
-reg [2:0] state = sleep_state;
-always @ (negedge eth_tx_mac_aclk) begin
-    case (state):
+reg [3:0] state = sleep_state;
+// 需要维护的东西(need checked again)：
+// axis_fifo_rd_en, eth_tx_axis_mac_tvalid
+always @ (posedge eth_tx_mac_aclk) begin
+    case (state)
         sleep_state: begin
-            // if (fifo的长度 >= 64)
+            axis_fifo_rd_en = 0;
+            eth_tx_axis_mac_tvalid = 0;
+            eth_tx_axis_mac_tlast = 0;
+
+            if (~axis_fifo_empty) begin
+                address_index = 0;
+
+                state = destination_fifo2reg_state;
+            end
         end
         destination_fifo2reg_state: begin
+            axis_fifo_rd_en = 1;
+            if (~axis_fifo_empty) begin
+                destination[address_index +: 8] = axis_fifo_dout[7: 0];
+                if (address_index != 42) address_index = address_index + 8;
+                else begin
+                    address_index = 0;
+
+                    state = source_fifo2reg_state;
+                end
+            end
+            else state = destination_fifo2reg_pause_state;
         end
         source_fifo2reg_state: begin
+            if (~axis_fifo_empty) begin
+                source[address_index +: 8] = axis_fifo_dout[7: 0];
+                if (address_index != 42) address_index = address_index + 8;
+                else begin
+                    address_index = 0;
+                    eth_tx_axis_mac_tvalid = 1;
+                    axis_fifo_rd_en = 0;
+
+                    state = source_reg2axis_state;
+                end
+            end
+            else state = source_fifo2reg_pause_state;
         end
         source_reg2axis_state: begin
+            eth_tx_axis_mac_tdata = source[address_index +: 8];
+            if (eth_tx_axis_mac_tready) begin
+                if (address_index != 42) address_index = address_index + 8;
+                else begin
+                    address_index = 0;
+
+                    state = destination_reg2axis_state;
+                end
+            end
         end
-        destination_fifo2reg_state: begin
+        destination_reg2axis_state: begin
+            eth_tx_axis_mac_tdata = source[address_index +: 8];
+            if (eth_tx_axis_mac_tready) begin
+                if (address_index != 42) address_index = address_index + 8;
+                else begin
+                    address_index = 0;
+
+                    state = destination_reg2axis_state;
+                end
+            end
         end
         fifo2axis_state: begin
-            // if 读到了包的最后一个元素
+            if (eth_tx_axis_mac_tready) begin
+                if (~axis_fifo_empty) begin
+                    axis_fifo_rd_en = 1;
+                    eth_tx_axis_mac_tvalid = 1;
+                    eth_tx_axis_mac_tdata = axis_fifo_dout[7: 0];
+
+                    if (axis_fifo_dout[8] == 1) begin
+                        eth_tx_axis_mac_tlast = 1;
+                        state = sleep_state;
+                    end
+                end
+                else begin
+                    axis_fifo_rd_en = 0;
+                    eth_tx_axis_mac_tvalid = 0;
+
+                    state = fifo2axis_pause_state;
+                end
+            end
+            else axis_fifo_rd_en = 0;
         end
-        pause_state: begin
+        destination_fifo2reg_pause_state: begin
+            if (~axis_fifo_empty) state = destination_fifo2reg_state;
+        end
+        source_fifo2reg_pause_state: begin
+            if (~axis_fifo_empty) state = source_fifo2reg_state;
+        end
+        fifo2axis_pause_state: begin
+            axis_fifo_rd_en = 0;
+
+            if (~axis_fifo_empty) state = fifo2axis_state;
         end
     endcase
 end
