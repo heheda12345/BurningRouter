@@ -130,6 +130,11 @@ module rgmii_model (
         .R(1'b0)
     );
 
+    // Output trasmitted frame into file. 
+    // Each output frame a line. 
+    // Output file is located in 'thinpad_top.sim/sim_1/behav/xsim'
+    // If you see nothing in the file while simulating, 
+    //   press 'Restart' button on the toolbar to enforce file flushing. 
     reg receiving = 0;
     always @ (posedge rgmii_txc) begin
         if (out_en) begin
@@ -138,7 +143,7 @@ module rgmii_model (
             receiving <= 1;
         end
         else if (receiving) begin
-            $fwrite(fout, "");
+            $fwrite(fout, "\n");
             receiving <= 0;
         end
     end
