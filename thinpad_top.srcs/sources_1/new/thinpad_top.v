@@ -4,10 +4,10 @@ module thinpad_top(
     input wire clk_50M,           //50MHz 时钟输入
     input wire clk_11M0592,       //11.0592MHz 时钟输入
 
-    input wire clock_btn,         //BTN5手动时钟按钮�?关，带消抖电�?，按下时�?1
-    input wire reset_btn,         //BTN6手动复位按钮�?关，带消抖电�?，按下时�?1
+    input wire clock_btn,         //BTN5手动时钟按钮�关，带消抖电�?，按下时�?1
+    input wire reset_btn,         //BTN6手动复位按钮�关，带消抖电�?，按下时�?1
 
-    input  wire[3:0]  touch_btn,  //BTN1~BTN4，按�?�?关，按下时为1
+    input  wire[3:0]  touch_btn,  //BTN1~BTN4，按�?�关，按下时为1
     input  wire[31:0] dip_sw,     //32位拨码开关，拨到“ON”时�?1
     output wire[15:0] leds,       //16位LED，输出时1点亮
     output wire[7:0]  dpy0,       //数码管低位信号，包括小数点，输出1点亮
@@ -17,14 +17,14 @@ module thinpad_top(
     output wire uart_rdn,         //读串口信号，低有�?
     output wire uart_wrn,         //写串口信号，低有�?
     input wire uart_dataready,    //串口数据准�?�好
-    input wire uart_tbre,         //发�?�数�?标志
-    input wire uart_tsre,         //数据发�?�完毕标�?
+    input wire uart_tbre,         //发�数�?标志
+    input wire uart_tsre,         //数据发�完毕标�?
 
     //BaseRAM信号
     inout wire[31:0] base_ram_data,  //BaseRAM数据，低8位与CPLD串口控制器共�?
     output wire[19:0] base_ram_addr, //BaseRAM地址
     output wire[3:0] base_ram_be_n,  //BaseRAM字节使能，低有效。�?�果不使用字节使能，请保持为0
-    output wire base_ram_ce_n,       //BaseRAM片�?�，低有�?
+    output wire base_ram_ce_n,       //BaseRAM片�，低有�?
     output wire base_ram_oe_n,       //BaseRAM读使能，低有�?
     output wire base_ram_we_n,       //BaseRAM写使能，低有�?
 
@@ -32,25 +32,25 @@ module thinpad_top(
     inout wire[31:0] ext_ram_data,  //ExtRAM数据
     output wire[19:0] ext_ram_addr, //ExtRAM地址
     output wire[3:0] ext_ram_be_n,  //ExtRAM字节使能，低有效。�?�果不使用字节使能，请保持为0
-    output wire ext_ram_ce_n,       //ExtRAM片�?�，低有�?
+    output wire ext_ram_ce_n,       //ExtRAM片�，低有�?
     output wire ext_ram_oe_n,       //ExtRAM读使能，低有�?
     output wire ext_ram_we_n,       //ExtRAM写使能，低有�?
 
     //直连串口信号
-    output wire txd,  //直连串口发�?��??
+    output wire txd,  //直连串口发��??
     input  wire rxd,  //直连串口接收�?
 
-    //Flash存储器信号，参�?? JS28F640 �?片手�?
+    //Flash存储器信号，参�? JS28F640 �?片手�?
     output wire [22:0]flash_a,      //Flash地址，a0仅在8bit模式有效�?16bit模式无意�?
     inout  wire [15:0]flash_d,      //Flash数据
     output wire flash_rp_n,         //Flash复位信号，低有效
     output wire flash_vpen,         //Flash写保护信号，低电平时不能擦除、烧�?
-    output wire flash_ce_n,         //Flash片�?�信号，低有�?
+    output wire flash_ce_n,         //Flash片�信号，低有�?
     output wire flash_oe_n,         //Flash读使能信号，低有�?
     output wire flash_we_n,         //Flash写使能信号，低有�?
     output wire flash_byte_n,       //Flash 8bit模式选择，低有效。在使用flash�?16位模式时请�?�为1
 
-    //USB+SD 控制器信号，参�?? CH376T �?片手�?
+    //USB+SD 控制器信号，参�? CH376T �?片手�?
     output wire ch376t_sdi,
     output wire ch376t_sck,
     output wire ch376t_cs_n,
@@ -58,7 +58,7 @@ module thinpad_top(
     input  wire ch376t_int_n,
     input  wire ch376t_sdo,
 
-    //网络交换机信号，参�?? KSZ8795 �?片手册及 RGMII 规范
+    //网络交换机信号，参�? KSZ8795 �?片手册及 RGMII 规范
     input  wire [3:0] eth_rgmii_rd,
     input  wire eth_rgmii_rx_ctl,
     input  wire eth_rgmii_rxc,
@@ -234,9 +234,9 @@ wire [7:0] eth_rx_axis_mac_tdata;
 wire eth_rx_axis_mac_tvalid;
 wire eth_rx_axis_mac_tlast;
 wire eth_rx_axis_mac_tuser;
-reg [7:0] eth_tx_axis_mac_tdata;
-reg eth_tx_axis_mac_tvalid = 0;
-reg eth_tx_axis_mac_tlast = 0;
+wire [7:0] eth_tx_axis_mac_tdata;
+wire eth_tx_axis_mac_tvalid;
+wire eth_tx_axis_mac_tlast;
 wire eth_tx_axis_mac_tuser = 0;
 wire eth_tx_axis_mac_tready;
 
@@ -283,15 +283,16 @@ eth_mac eth_mac_inst (
 /* =========== Demo code end =========== */
 
 
-wire[8:0] axis_fifo_din;
-wire[8:0] axis_fifo_dout;
-reg axis_fifo_rd_en; 
+wire [8:0] axis_fifo_din;
+wire [8:0] axis_fifo_dout;
+reg axis_fifo_rd_en = 0; 
 wire axis_fifo_rd_clk; 
 wire axis_fifo_empty; 
-reg axis_fifo_wr_en = 1; 
+reg axis_fifo_wr_en; 
 wire axis_fifo_wr_clk; 
 wire axis_fifo_full;
 reg axis_fifo_rst = 1;
+reg[1:0] axis_fifo_rst_state = 0;
 
 tabn_axis_fifo fifo_1 (
     .rd_en(axis_fifo_rd_en),
@@ -308,8 +309,6 @@ tabn_axis_fifo fifo_1 (
 assign axis_fifo_wr_clk = eth_rx_mac_aclk;
 assign axis_fifo_rd_clk = eth_tx_mac_aclk;
 
-// reset until clock functions
-reg[1:0] axis_fifo_rst_state = 0;
 always @ (posedge eth_tx_mac_aclk) begin
     if (axis_fifo_rst_state < 2)
         axis_fifo_rst_state = axis_fifo_rst_state + 1;
@@ -317,126 +316,8 @@ always @ (posedge eth_tx_mac_aclk) begin
         axis_fifo_rst = 0;
 end
 
-// write into FIFO
-assign axis_fifo_din = {eth_rx_axis_mac_tdata, eth_rx_axis_mac_tlast};
+assign axis_fifo_din = {eth_rx_axis_mac_tlast, eth_rx_axis_mac_tdata};
 
-// assign eth_tx_axis_mac_tdata = axis_fifo_dout[7:0];
-// assign eth_tx_axis_mac_tlast = axis_fifo_dout[8] & eth_tx_axis_mac_tvalid; //@xxy TODO
-// assign axis_fifo_rd_en = eth_tx_axis_mac_tready & ~axis_fifo_empty;
-// assign eth_tx_axis_mac_tvalid = ~axis_fifo_empty;
-
-reg [47:0] destination;
-reg [47:0] source;
-parameter sleep_state = 4'b0000;
-parameter destination_fifo2reg_state = 4'b0001;
-parameter source_fifo2reg_state = 4'b0010;
-parameter source_reg2axis_state = 4'b0011;
-parameter destination_reg2axis_state = 4'b0100;
-parameter fifo2axis_state = 4'b0101;
-parameter destination_fifo2reg_pause_state = 4'b1001;
-parameter source_fifo2reg_pause_state = 4'b1010;
-parameter fifo2axis_pause_state = 4'b1011;
-
-reg [5:0] address_index;
-
-reg [3:0] state = sleep_state;
-// ��Ҫά���Ķ���(need checked again)��
-// axis_fifo_rd_en, eth_tx_axis_mac_tvalid
-always @ (posedge eth_tx_mac_aclk) begin
-    case (state)
-        sleep_state: begin
-            axis_fifo_rd_en = 0;
-            eth_tx_axis_mac_tvalid = 0;
-            eth_tx_axis_mac_tlast = 0;
-
-            if (~axis_fifo_empty) begin
-                address_index = 0;
-
-                state = destination_fifo2reg_state;
-            end
-        end
-        destination_fifo2reg_state: begin
-            axis_fifo_rd_en = 1;
-            if (~axis_fifo_empty) begin
-                destination[address_index +: 8] = axis_fifo_dout[7: 0];
-                if (address_index != 42) address_index = address_index + 8;
-                else begin
-                    address_index = 0;
-
-                    state = source_fifo2reg_state;
-                end
-            end
-            else state = destination_fifo2reg_pause_state;
-        end
-        source_fifo2reg_state: begin
-            if (~axis_fifo_empty) begin
-                source[address_index +: 8] = axis_fifo_dout[7: 0];
-                if (address_index != 42) address_index = address_index + 8;
-                else begin
-                    address_index = 0;
-                    eth_tx_axis_mac_tvalid = 1;
-                    axis_fifo_rd_en = 0;
-
-                    state = source_reg2axis_state;
-                end
-            end
-            else state = source_fifo2reg_pause_state;
-        end
-        source_reg2axis_state: begin
-            eth_tx_axis_mac_tdata = source[address_index +: 8];
-            if (eth_tx_axis_mac_tready) begin
-                if (address_index != 42) address_index = address_index + 8;
-                else begin
-                    address_index = 0;
-
-                    state = destination_reg2axis_state;
-                end
-            end
-        end
-        destination_reg2axis_state: begin
-            eth_tx_axis_mac_tdata = source[address_index +: 8];
-            if (eth_tx_axis_mac_tready) begin
-                if (address_index != 42) address_index = address_index + 8;
-                else begin
-                    address_index = 0;
-
-                    state = destination_reg2axis_state;
-                end
-            end
-        end
-        fifo2axis_state: begin
-            if (eth_tx_axis_mac_tready) begin
-                if (~axis_fifo_empty) begin
-                    axis_fifo_rd_en = 1;
-                    eth_tx_axis_mac_tvalid = 1;
-                    eth_tx_axis_mac_tdata = axis_fifo_dout[7: 0];
-
-                    if (axis_fifo_dout[8] == 1) begin
-                        eth_tx_axis_mac_tlast = 1;
-                        state = sleep_state;
-                    end
-                end
-                else begin
-                    axis_fifo_rd_en = 0;
-                    eth_tx_axis_mac_tvalid = 0;
-
-                    state = fifo2axis_pause_state;
-                end
-            end
-            else axis_fifo_rd_en = 0;
-        end
-        destination_fifo2reg_pause_state: begin
-            if (~axis_fifo_empty) state = destination_fifo2reg_state;
-        end
-        source_fifo2reg_pause_state: begin
-            if (~axis_fifo_empty) state = source_fifo2reg_state;
-        end
-        fifo2axis_pause_state: begin
-            axis_fifo_rd_en = 0;
-
-            if (~axis_fifo_empty) state = fifo2axis_state;
-        end
-    endcase
-end
+assign axis_fifo_wr_en = 1;
 
 endmodule
