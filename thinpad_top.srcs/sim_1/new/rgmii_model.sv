@@ -144,6 +144,7 @@ module rgmii_model (
         end
         else if (receiving) begin
             $fwrite(fout, "\n");
+            $fflush(fout);
             receiving <= 0;
         end
     end
