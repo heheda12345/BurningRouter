@@ -229,7 +229,7 @@ vga #(12, 800, 856, 976, 1040, 600, 637, 643, 666, 1, 1) vga800x600at75 (
     .data_enable(video_de)
 );
 
-// 浠ュお缃? MAC 閰嶇疆婕旂ず
+// 以太网 MAC 配置演示
 wire [7:0] eth_rx_axis_mac_tdata;
 wire eth_rx_axis_mac_tvalid;
 wire eth_rx_axis_mac_tlast;
