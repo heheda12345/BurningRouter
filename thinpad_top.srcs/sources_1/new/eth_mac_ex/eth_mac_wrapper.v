@@ -70,7 +70,8 @@ eth_mac_address_swap addr_swap_i(
     .tx_axis_fifo_tready(tx_axis_fifo_tready) // i
 );
 
-eth_mac_tx_client_fifo tx_fifo_i(
+
+eth_mac_tx_client_fifo #(.FULL_DUPLEX_ONLY(0))tx_fifo_i(
     .tx_fifo_aclk(clk), // i
     .tx_fifo_resetn(resetn), // i
     .tx_axis_fifo_tdata(tx_axis_fifo_tdata), // i
@@ -86,7 +87,7 @@ eth_mac_tx_client_fifo tx_fifo_i(
     .tx_axis_mac_tready(tx_axis_mac_tready), // i
     .tx_axis_mac_tuser(tx_axis_mac_tuser), // o
  
-    .tx_collision(1'b1), // i zc: not sure
+    .tx_collision(1'b0), // i zc: not sure
     .tx_retransmit(1'b0) // i
 );
 
