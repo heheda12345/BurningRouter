@@ -54,6 +54,22 @@ eth_mac_rx_client_fifo rx_fifo_i
     .rx_axis_mac_tuser(rx_axis_mac_tuser) // i
 );
 
+pkg_classify pkg_classify_inst(
+    .axi_tclk(clk), // i 
+    .axi_tresetn(resetn), // i
+    //.enable_address_swap(1'b1), // i
+
+    .rx_axis_fifo_tdata(rx_axis_fifo_tdata), // i
+    .rx_axis_fifo_tvalid(rx_axis_fifo_tvalid), // i
+    .rx_axis_fifo_tlast(rx_axis_fifo_tlast), // i
+    .rx_axis_fifo_tready(rx_axis_fifo_tready), // o
+
+    .tx_axis_fifo_tdata(tx_axis_fifo_tdata), // o
+    .tx_axis_fifo_tvalid(tx_axis_fifo_tvalid), // o
+    .tx_axis_fifo_tlast(tx_axis_fifo_tlast), // o
+    .tx_axis_fifo_tready(tx_axis_fifo_tready) // i
+);
+/*
 eth_mac_address_swap addr_swap_i(
     .axi_tclk(clk), // i 
     .axi_tresetn(resetn), // i
@@ -69,7 +85,7 @@ eth_mac_address_swap addr_swap_i(
     .tx_axis_fifo_tlast(tx_axis_fifo_tlast), // o
     .tx_axis_fifo_tready(tx_axis_fifo_tready) // i
 );
-
+*/
 
 eth_mac_tx_client_fifo #(.FULL_DUPLEX_ONLY(0))tx_fifo_i(
     .tx_fifo_aclk(clk), // i
