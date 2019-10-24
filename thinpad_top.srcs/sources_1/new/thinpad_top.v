@@ -161,8 +161,9 @@ SEG7_LUT segH(.oSEG1(dpy1), .iDIG(number[7:4])); //dpy1是高位数码管
 
 reg[15:0] led_bits;
 assign leds = led_bits;
+wire [15:0] led_debug;
 
-always@(posedge clock_btn or posedge reset_btn) begin
+/*always@(posedge clock_btn or posedge reset_btn) begin
     if(reset_btn)begin //复位按下，设置LED和数码管为初始值
         number<=0;
         led_bits <= 16'h1;
@@ -171,6 +172,9 @@ always@(posedge clock_btn or posedge reset_btn) begin
         number <= number+1;
         led_bits <= {led_bits[14:0],led_bits[15]};
     end
+end*/
+always @ (posedge clk_125M) begin
+    led_bits <= led_debug;
 end
 
 //直连串口接收发送演示，从直连串口收到的数据再发送出去
@@ -307,7 +311,9 @@ eth_mac_wrapper eth_mac_wraper_i(
     .tx_axis_mac_tvalid(eth_tx_axis_mac_tvalid),
     .tx_axis_mac_tlast(eth_tx_axis_mac_tlast),
     .tx_axis_mac_tready(eth_tx_axis_mac_tready),
-    .tx_axis_mac_tuser(eth_tx_axis_mac_tuser)
+    .tx_axis_mac_tuser(eth_tx_axis_mac_tuser), 
+    
+    .led_debug(led_debug)
 );
 
 

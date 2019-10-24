@@ -10,8 +10,10 @@ S5. swap dest, src. type(2) -> A. ARP(0x0806) B. IPv4(0x0800)
 */
 
 module pkg_classify(
-    input            axi_tclk,
+(*MARK_DEBUG="TRUE"*) input            axi_tclk,
     input            axi_tresetn,
+
+    output     [15:0] debug,
     
     // data from the RX FIFO
     input      [7:0] rx_axis_fifo_tdata,
@@ -42,7 +44,7 @@ localparam  IPV4 = 2'b01,
 wire axi_treset;
 assign axi_treset = !axi_tresetn;
 
-reg [2:0] read_state = IDLE, next_read_state = IDLE;
+(*MARK_DEBUG="TRUE"*) reg [2:0] read_state = IDLE, next_read_state = IDLE;
 reg [2:0] dst_counter, src_counter;
 reg type_counter, vlan_port_counter, vlan_type_counter;
 
@@ -51,15 +53,15 @@ reg [1:0] dst_mac_addr_match = 0;
 wire [47:0] MY_MAC_ADDR;
 wire [31:0] MY_IPV4_ADDR;
 
-wire sub_procedure_ready; // '1' when last type char is available
+(*MARK_DEBUG="TRUE"*) wire sub_procedure_ready; // '1' when last type char is available
 wire ipv4_ready, arp_ready;
 wire ipv4_complete, arp_complete;
 wire sub_procedure_complete;
 reg [1:0] sub_procedure_type = 2'b00;
 
-wire [11:0] mem_read_addr, mem_write_addr;
-wire [7:0] mem_read_data, mem_write_data;
-wire mem_read_ena, mem_write_ena;
+(*MARK_DEBUG="TRUE"*)wire [11:0] mem_read_addr, mem_write_addr;
+(*MARK_DEBUG="TRUE"*)wire [7:0] mem_read_data, mem_write_data;
+(*MARK_DEBUG="TRUE"*)wire mem_read_ena, mem_write_ena;
 // support read & write by this module
 reg top_mem_read_ena = 0, top_mem_write_ena = 0;
 reg [11:0] top_mem_read_addr = 0, top_mem_write_addr = 0;
@@ -86,6 +88,9 @@ reg [7:0] vlan_port = 0;
 assign MY_MAC_ADDR = 48'h020203030000;
 assign MY_IPV4_ADDR = 32'h0A000001;
 
+assign debug[2:0] = read_state;
+assign debug[5:4] = sub_procedure_type;
+
 always @ (posedge axi_tclk)
 begin
     read_state <= next_read_state;
@@ -95,7 +100,10 @@ assign top_rx_axis_fifo_tready = rx_axis_fifo_tvalid; // read as soon as availab
 
 always @ (*)
 begin
-    if (rx_axis_fifo_tvalid) begin
+    if (axi_treset) begin
+        next_read_state <= IDLE;
+    end
+    else if (rx_axis_fifo_tvalid) begin
         case (read_state)
             IDLE: begin
                 // new package?
@@ -132,6 +140,7 @@ begin
     else if (read_state == WAIT) begin 
         next_read_state <= sub_procedure_complete ? IDLE : WAIT;
     end
+    else next_read_state <= IDLE;
 end
 
 always @ (posedge axi_tclk) begin
@@ -238,7 +247,9 @@ arp_module arp_module_inst(
 
     .MY_MAC_ADDRESS(MY_MAC_ADDR),
     .MY_IPV4_ADDRESS(MY_IPV4_ADDR),
-    .vlan_port(vlan_port)
+    .vlan_port(vlan_port),
+
+    .debug(debug[15:8])
 );
 
 ipv4_module ipv4_module_inst(

@@ -6,19 +6,21 @@ module eth_mac_wrapper (
     // MAC-side (write-side) AxiStream interface
     input            rx_mac_aclk,
     input            rx_mac_resetn,
-    input [7:0]      rx_axis_mac_tdata,
-    input            rx_axis_mac_tvalid,
-    input            rx_axis_mac_tlast,
+    (*MARK_DEBUG="TRUE"*) input [7:0]      rx_axis_mac_tdata,
+    (*MARK_DEBUG="TRUE"*) input            rx_axis_mac_tvalid,
+    (*MARK_DEBUG="TRUE"*) input            rx_axis_mac_tlast,
     input            rx_axis_mac_tuser,
 
     // MAC-side (read-side) AxiStream interface
     input            tx_mac_aclk,
     input            tx_mac_resetn,
-    output [7:0]     tx_axis_mac_tdata,
-    output           tx_axis_mac_tvalid,
-    output           tx_axis_mac_tlast,
-    input            tx_axis_mac_tready,
-    output           tx_axis_mac_tuser
+    (*MARK_DEBUG="TRUE"*) output [7:0]     tx_axis_mac_tdata,
+    (*MARK_DEBUG="TRUE"*) output           tx_axis_mac_tvalid,
+    (*MARK_DEBUG="TRUE"*) output           tx_axis_mac_tlast,
+    (*MARK_DEBUG="TRUE"*) input            tx_axis_mac_tready,
+    output           tx_axis_mac_tuser,
+
+    output [15:0]    led_debug
 );
 
 
@@ -26,15 +28,15 @@ module eth_mac_wrapper (
 wire clk = rx_mac_aclk;
 wire resetn = rx_mac_resetn | tx_mac_resetn ;
 
-wire rx_axis_fifo_tvalid;
-wire [7:0] rx_axis_fifo_tdata;
-wire rx_axis_fifo_tlast;
-wire rx_axis_fifo_tready;
+(*MARK_DEBUG="TRUE"*)wire rx_axis_fifo_tvalid;
+(*MARK_DEBUG="TRUE"*)wire [7:0] rx_axis_fifo_tdata;
+(*MARK_DEBUG="TRUE"*)wire rx_axis_fifo_tlast;
+(*MARK_DEBUG="TRUE"*)wire rx_axis_fifo_tready;
 
-wire tx_axis_fifo_tvalid;
-wire [7:0] tx_axis_fifo_tdata;
-wire tx_axis_fifo_tlast;
-wire tx_axis_fifo_tready;
+(*MARK_DEBUG="TRUE"*)wire tx_axis_fifo_tvalid;
+(*MARK_DEBUG="TRUE"*)wire [7:0] tx_axis_fifo_tdata;
+(*MARK_DEBUG="TRUE"*)wire tx_axis_fifo_tlast;
+(*MARK_DEBUG="TRUE"*)wire tx_axis_fifo_tready;
 
 
 eth_mac_rx_client_fifo rx_fifo_i
@@ -58,6 +60,8 @@ pkg_classify pkg_classify_inst(
     .axi_tclk(clk), // i 
     .axi_tresetn(resetn), // i
     //.enable_address_swap(1'b1), // i
+
+    .debug(led_debug), 
 
     .rx_axis_fifo_tdata(rx_axis_fifo_tdata), // i
     .rx_axis_fifo_tvalid(rx_axis_fifo_tvalid), // i

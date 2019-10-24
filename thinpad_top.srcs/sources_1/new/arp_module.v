@@ -40,7 +40,9 @@ module arp_module(
 
     input [47:0] MY_MAC_ADDRESS,
     input [31:0] MY_IPV4_ADDRESS, 
-    input [7:0] vlan_port
+    input [7:0] vlan_port,
+
+    output [7:0] debug
 );
 
 localparam IDLE             = 4'b0000,
@@ -64,8 +66,8 @@ localparam WRITE_FRAME_DEST_MAC = 4'b0001,
 
 localparam WRITE_TOTAL = 46;
 
-reg [3:0] arp_read_state = IDLE, next_read_state;
-reg [3:0] arp_write_state = IDLE, next_write_state;
+(*MARK_DEBUG="TRUE"*) reg [3:0] arp_read_state = IDLE, next_read_state;
+(*MARK_DEBUG="TRUE"*) reg [3:0] arp_write_state = IDLE, next_write_state;
 reg [2:0] arp_counter1 = 0, 
           opcode_counter = 0,
           sender_mac_counter = 0, 
@@ -95,12 +97,18 @@ async_equal # ( .LEN(6) ) arp1_equal (
 );
 assign arp1_equal_enable = next_read_state == ARP1;
 
+assign debug[3:0] = arp_read_state;
+assign debug[7:4] = arp_write_state;
+//assign debug[15:8] = mem_write_addr[7:0];
+
 always @ (posedge clk) begin
     arp_read_state <= next_read_state;
     arp_write_state <= next_write_state;
 end
 always @ (*) begin
-    case (arp_read_state)
+    if (rst) 
+        next_read_state <= IDLE;
+    else case (arp_read_state)
         IDLE: begin
             next_read_state <= start ? START : IDLE;
         end
@@ -130,6 +138,7 @@ always @ (*) begin
                 else
                     next_read_state <= rx_end ? OVER : DISCARD;
             end
+            else next_read_state <= arp_read_state;
             //next_read_state <= rx_axis_fifo_tvalid && target_ip_counter == 4 ? (rx_end ? READ_WAITING : READ_REST) : READ_TARGET_IP;
         end
         READ_REST: begin
@@ -144,11 +153,14 @@ always @ (*) begin
         OVER: begin
             next_read_state <= IDLE;
         end
+        default: next_read_state <= IDLE;
     endcase
 end
 
 always @ (*) begin
-    case (arp_write_state)
+    if (rst) 
+        next_write_state <= IDLE;
+    else case (arp_write_state)
         IDLE: 
             next_write_state <= next_read_state == READ_REST || next_read_state == READ_WAITING ? WRITE_FRAME_DEST_MAC : IDLE;
         WRITE_FRAME_DEST_MAC: 
@@ -160,7 +172,8 @@ always @ (*) begin
         WRITE_PUSHING: 
             next_write_state <= write_counter < WRITE_TOTAL ? WRITE_PUSHING : OVER;
         OVER: 
-            next_write_state = IDLE;
+            next_write_state <= IDLE;
+        default: next_write_state <= IDLE;
     endcase
 end
 
@@ -272,69 +285,5 @@ assign arp_table_input_ipv4_addr = target_ip;
 assign arp_table_edit_enable = target_ip_counter == 4; // READ_TARGET_IP -> READ_REST/READ_WAITING
 assign arp_table_insert = arp_table_edit_enable && target_mac == MY_MAC_ADDRESS && !arp_table_exist;
 assign arp_table_update = arp_table_edit_enable && arp_table_exist;
-
-endmodule
-
-module async_setter
-#( parameter LEN = 6, ADDR_WIDTH = 3)
-(
-    input [7:0] data_input,
-    input [ADDR_WIDTH-1:0] index,
-    input enable,
-    input clk,
-    output reg [LEN*8-1:0] value = 0
-);
-
-genvar i;
-for (i = 0; i < LEN; i = i+1) begin
-    always @ (posedge clk)begin
-        if (enable && index == i) 
-            value[8*(LEN-i-1)+7:8*(LEN-i-1)] <= data_input;
-    end
-end
-endmodule
-
-module async_getter
-#( parameter LEN = 6, ADDR_WIDTH = 3)
-(
-    output [7:0] value,
-    input [ADDR_WIDTH-1:0] index,
-    input [LEN*8-1:0] data_input
-);
-wire [LEN*8-1:0] _value;
-
-genvar i;
-for (i = 1; i < LEN; i = i+1) begin
-    assign _value[8*(LEN-i-1)+7: 8*(LEN-i-1)] = _value[8*(LEN-i)+7: 8*(LEN-i)] | (i == index ? data_input[8*(LEN-i-1)+7: 8*(LEN-i-1)] : 0);
-end
-assign _value[LEN*8-1:LEN*8-8] = 0 == index ? data_input[LEN*8-1:LEN*8-8] : 0;
-assign value = _value[7:0];
-endmodule
-
-module async_equal
-#( parameter LEN = 6)
-(
-    input [7:0] data_input,
-    input [3:0] index,
-    input enable,
-    input clk,
-    input [LEN*8-1:0] operand, 
-    output reg result = 0
-);
-
-wire [LEN-1:0] eqif, prefix;
-genvar i;
-for (i = 0; i < LEN; i = i+1) begin
-    assign eqif[i] = index != i || data_input == operand[i*8+7: i*8];
-    assign prefix[i] = i == 0 ? eqif[0] : eqif[i] || eqif[i-1];
-end
-
-always @ (posedge clk) begin
-    if (!enable)
-        result <= 1;
-    else begin
-        result <= result & prefix[LEN-1];
-    end
-end
 
 endmodule
