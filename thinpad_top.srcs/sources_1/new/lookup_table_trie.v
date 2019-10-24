@@ -64,7 +64,7 @@ struct Trie {
 
     void insert(unsigned addr, uint8_t len, unsigned nexthop) {
         // printf("insert %x %d %d\n", addr, len, nexthop);
-        uint8_t next_dep = 28;
+        uint8_t dep;
         int cur = root, next_node, read_addr, write_addr;
         State nextState = INIT, state = PAUSE;
         bool read_enable = false, write_enable = false;
@@ -87,17 +87,17 @@ struct Trie {
             if (nextState == INS_READ || nextState == INS_ADDNODE) {
                 cur = next_node;
             }
-            if (nextState == INS_READ || nextState == INS_ADDNODE) {
-                if (state == INS_READ || state == INS_ADDNODE) { // 第一次不减
-                    next_dep = next_dep - 4;
-                    len -= 4;
-                }
-                // printf("child %d %u\n", next_dep, (addr >> next_dep) & 15);
-            }
+            if ((state == INS_READ || state == INS_ADDNODE) &&
+                (nextState == INS_READ || nextState == INS_ADDNODE)) {
+                dep -= 4;
+                len -= 4;
+            } 
+            
             state = nextState;
             read_enable = false;
             write_enable = false;
             // print_state(state);
+            // printf("dep %d len %d\n", dep, len);
             // syn end
 
             switch (state) {
@@ -110,7 +110,8 @@ struct Trie {
                     } else {
                         nextState = INS_READ;
                         next_node = read_addr = root;
-                        read_child = addr >> next_dep & 15;
+                        read_child = addr >> 28 & 15;
+                        dep = 28;
                         read_enable = true;
                     }
                     break;
@@ -122,18 +123,21 @@ struct Trie {
                         nextState = INS_UPDATE;
                         switch (len) {
                             case 4:
-                                upd_child = addr >> next_dep & 15;
+                                upd_child = addr >> dep & 15;
                                 upd_last = upd_child;
                                 break;
                             case 3:
-                                upd_child = addr >> next_dep & 14;
+                                upd_child = addr >> dep & 14;
                                 upd_last = upd_child | 1;
+                                break;
                             case 2:
-                                upd_child = addr >> next_dep & 12;
+                                upd_child = addr >> dep & 12;
                                 upd_last = upd_child | 3;
+                                break;
                             case 1:
-                                upd_child = addr >> next_dep & 8;
+                                upd_child = addr >> dep & 8;
                                 upd_last = upd_child | 7;
+                                break;
                             default:
                                 break;
                         }
@@ -145,13 +149,13 @@ struct Trie {
                         entry_to_write = entry_read;
                         entry_to_write.child = next_node = node_cnt;
                         write_addr = cur;
-                        write_child = addr >> next_dep & 15;
+                        write_child = addr >> dep & 15;
                         write_enable = true;
                         nextState = INS_ADDNODE;
                     } else {
                         nextState = INS_READ;
                         read_addr = next_node;
-                        read_child = addr >> next_dep & 15;
+                        read_child = addr >> (dep-4) & 15;
                         read_enable = true;
                     }
                     break;
@@ -161,18 +165,21 @@ struct Trie {
                         nextState = INS_UPDATE;
                         switch (len) {
                             case 4:
-                                upd_child = addr >> next_dep & 15;
+                                upd_child = addr >> dep & 15;
                                 upd_last = upd_child;
                                 break;
                             case 3:
-                                upd_child = addr >> next_dep & 14;
+                                upd_child = addr >> dep & 14;
                                 upd_last = upd_child | 1;
+                                break;
                             case 2:
-                                upd_child = addr >> next_dep & 12;
+                                upd_child = addr >> dep & 12;
                                 upd_last = upd_child | 3;
+                                break;
                             case 1:
-                                upd_child = addr >> next_dep & 8;
+                                upd_child = addr >> dep & 8;
                                 upd_last = upd_child | 7;
+                                break;
                             default:
                                 break;
                         }
@@ -184,7 +191,7 @@ struct Trie {
                         entry_to_write = TrieEntry();
                         entry_to_write.child = next_node = node_cnt;
                         write_addr = cur;
-                        write_child = addr >> next_dep & 15;
+                        write_child = addr >> dep & 15;
                         write_enable = true;
                         nextState = INS_ADDNODE;
                     }
@@ -214,6 +221,7 @@ struct Trie {
                 }
                 case WAIT_FOR_END: {
                     nextState = PAUSE;
+                    break;
                 }
             }
         }
@@ -298,6 +306,9 @@ void init(int n, int q, const RoutingTableEntry *a) {
         b[i] = i;
     for (int i=2; i<n; i++)
         swap(b[rd()%i], b[i]);
+    // for (int i=0; i<n; i++)
+    //     printf("%d ", b[i]);
+    // printf("\n");
     for (int i=0; i<n; i++)
         insert(a[b[i]]);
 }
@@ -307,26 +318,42 @@ unsigned query(unsigned addr) {
 	return ans;
 }
 
-// int main() {
-//     RoutingTableEntry entry[5];
-//     entry[0].addr = 0x11111111;
-//     entry[0].len = 0;
-//     entry[0].nexthop = 23;
-//     entry[1].addr = 0x22221111;
-//     entry[1].len = 32;
-//     entry[1].nexthop = 233;
-//     init(2, 0, entry);
-//     uint32_t nextHop;
-//     uint32_t child;
-//     uint8_t nextPort, maskLen;
-//     // tr.rootInfo.outit();
-//     // for (int i=1; i<=tr.node_cnt; i++) {
-//     //     printf("%d:\t", i);
-//     //     tr.tr[i][1].outit();
-//     //     printf("\t");
-//     //     tr.tr[i][2].outit();
-//     // }
-//     printf("%u\n", query(0x33333333));
-//     printf("%u\n", query(0x22221111));
-//     return 0;
-// }
+int main() {
+    int n;
+    scanf("%d", &n);
+    RoutingTableEntry* entry = new RoutingTableEntry[n]; 
+    for (int i=0; i<n; i++) {
+        unsigned addr;
+        int len, nexthop;
+        scanf("%u%d%d", &addr, &len, &nexthop);
+        entry[i].addr = addr;
+        entry[i].len = len;
+        entry[i].nexthop = nexthop;
+    }
+    init(n, 0, entry);
+    uint32_t nextHop;
+    uint32_t child;
+    uint8_t nextPort, maskLen;
+    tr.rootInfo.outit();
+    for (int i=1; i<=tr.node_cnt; i++) {
+        printf("%d:\t", i);
+        for (int j=0; j<16; j++) {
+            if (j)
+                printf("\t");
+            printf("[%02d] ", j);
+            tr.tr[i][j].outit();
+        }
+        // tr.tr[i][1].outit();
+        // printf("\t");
+        // tr.tr[i][2].outit();
+    }
+    int m;
+    scanf("%d", &m);
+    for (int i=0; i<m; i++) {
+        unsigned addr;
+        scanf("%u", &addr);
+        printf("%u\n", query(addr));
+    }
+    delete[] entry;
+    return 0;
+}
