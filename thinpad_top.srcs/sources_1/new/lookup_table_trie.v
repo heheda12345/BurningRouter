@@ -114,7 +114,7 @@ always @(posedge lku_clk) begin
         STATE_PAUSE: begin
                 // $display("state: pause");
                 if (modify_in_ready) begin
-                    $display("modify begin %h->%d", modify_in_addr, modify_in_nexthop);
+                    $display("modify begin %h->%h", modify_in_addr, modify_in_nexthop);
                     dep <= 28;
                     read_addr <= 1;
                     lookup_addr <= modify_in_addr;
@@ -258,14 +258,14 @@ always @(posedge lku_clk) begin
     if (state == STATE_WAIT_END && next_state == STATE_PAUSE) begin
         modify_finish <= 1;
         modify_succ <= 1;
-        $display("modify end");
+        $display("modify end, node cnt %d", node_cnt);
     end else begin
         modify_finish <= 0;
         modify_succ <= 0;
     end
     if (state == STATE_QUE_READ && next_state == STATE_PAUSE) begin
         query_out_ready <= 1;
-        $display("query end %d", query_out_nexthop);
+        $display("query end %h", query_out_nexthop);
     end else
         query_out_ready <= 0;
 end
