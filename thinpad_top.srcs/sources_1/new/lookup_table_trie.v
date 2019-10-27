@@ -1,318 +1,256 @@
-#include "router.h"
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <algorithm>
-#include <string>
-#include <arpa/inet.h>
-using namespace std;
-const int N = 1e7;
-struct TrieEntry {
-    TrieEntry(unsigned nextHop = 0, unsigned nextPort = 0, unsigned maskLen = 0, unsigned valid = 0) :
-        nextHop(nextHop), nextPort(nextPort), maskLen(maskLen), valid(valid) {
-            memset(child, 0, sizeof(child));
-        }
-    unsigned nextHop;
-    unsigned nextPort, maskLen;
-    unsigned valid;
-    unsigned child[16];
-    
-    void outit() {
-        printf("valid %u\tlen %u\thop %u\tchild ",
-            (unsigned) valid,
-            (unsigned) maskLen,
-            (unsigned) nextHop);
-        for (int i=0; i<4; i++) {
-            printf("[%u\t%u\t%u\t%u]\t", child[4*i], child[4*i+1], child[4*i+2], child[4*i+3]);
-        }
-        printf("\n");
-    }
-};
+module lookup_table_trie (
+    input wire lku_clk, lku_rst,
+    input wire opt, // 1-query 2-insert 3-delete(not implement)
+    output reg lku_ready,
 
-const int root = 1;
-enum State { INIT, INS_READ, INS_SET, INS_UPD_SELF, INS_UPD_ROOT, QUE_READ, PAUSE, WAIT_FOR_END};
+    // interface for query
+    input wire [31:0] query_in_addr,
+    input wire query_in_ready,
+    output reg [31:0] query_out_nexthop,
+    output reg [1:0] query_out_nextport,
+    output reg query_out_ready,
 
-void print_state(State state) {
-    switch (state) {
-        case INIT:
-            printf("INIT");
-            break;
-        case INS_READ:
-            printf("INS_READ");
-            break;
-        case INS_SET:
-            printf("INS_SET");
-            break;
-        case INS_UPD_ROOT:
-            printf("INS_UPD_ROOT");
-            break;
-        case INS_UPD_SELF:
-            printf("INS_UPD_SELF");
-            break;
-        case QUE_READ:
-            printf("QUE_READ");
-            break;
-        case PAUSE:
-            printf("PAUSE");
-            break;
-        case WAIT_FOR_END:
-            printf("WAIT_FOR_END");
-            break;
-        default:
-            printf("UNSUPPORT STATE");
-            break;
-    }
-    printf("\n");
-}
+    // interface for insert/delete
+    input wire [31:0] modify_in_addr,
+    input wire modify_in_ready,
+    input wire [1:0] modify_in_nexthop,
+    input wire [1:0] modify_in_nextport,
+    input wire [6:0] modify_in_len,
+    output reg modify_finish,
+    output reg modify_succ // not implement, assume there are enough space
+);
 
-struct Trie {
-    TrieEntry tr[N];
-    int node_cnt;
+parameter LOOKUP_OPT_QUERY = 1;
+parameter LOOKUP_OPT_INSERT = 2;
+parameter LOOKUP_OPT_DELETE = 3;
+// state 
+parameter STATE_PAUSE = 3'b000;
+parameter STATE_INS_READ = 3'b001;
+parameter STATE_INS_SET = 3'b010;
+parameter STATE_INS_UPD_SELF = 3'b011;
+parameter STATE_INS_UPD_ROOT = 3'b100;
+parameter STATE_QUE_READ = 3'b101;
+parameter STATE_WAIT_END = 3'b110;
 
-    void init() {
-        node_cnt = 1;
-    }
+parameter ENTRY_WIDTH = 293;
+parameter ENTRY_ADDR_WIDTH = 16;
+parameter ENTRY_ADDR_MAX = 1024;
 
-    void insert(unsigned addr, unsigned len, unsigned nexthop) {
-        // printf("insert %x %u %d\n", addr, len, nexthop);
-        // init
-        State state = PAUSE;
-        bool read_enable = 0, write_enable = 0;
-        int upd_mask[4] = {8, 12, 14, 15};
-        int upd_extend[4] = {7, 3, 1, 0};
+//one trie node
+parameter CHILD_BEGIN = 0;
+parameter CHILD_END = 255;
+parameter NXT_HOP_BEGIN = 256;
+parameter NXT_HOP_END   = 287;
+parameter NXT_PORT_BEGIN = 288;
+parameter NXT_PORT_END = 289;
+parameter LEN_BEGIN = 290;
+parameter LEN_END = 291;
+parameter VALID_POS = 292;
+
+reg[ENTRY_ADDR_WIDTH-1: 0] read_addr, write_addr;
+reg[ENTRY_WIDTH-1: 0] entry, entry_read, entry_to_write;
+reg read_enable = 0, write_enable = 0;
+reg[2:0] state = STATE_PAUSE, next_state = STATE_PAUSE;
+reg[31:0] lookup_addr;
+reg[1:0] lookup_port;
+reg[31:0] lookup_nexthop;
+reg[6:0] len, dep;
+reg[ENTRY_ADDR_WIDTH-1:0] cur, node_cnt;
+
+reg[3:0] upd_child;
+reg set_entry_upd_child = 0, set_entry_write_child = 0;
+
+parameter[3:0] upd_mask[4] = {8, 12, 14, 15};
+parameter[3:0] upd_extend[4] = {7, 3, 1, 0};
+
+assign cur_child = lookup_addr >> dep & 15;
+assign cur_mask_child = lookup_addr >> dep & upd_mask[(len-1)&3];
+
+pm_memory_sdpram #(
+    .ADDR_WIDTH_A(ENTRY_ADDR_WIDTH),
+    .ADDR_WIDTH_B(ENTRY_ADDR_WIDTH),
+    .READ_DATA_WIDTH_B(ENTRY_WIDTH),
+    .READ_LATENCY_B(0),
+    .WRITE_DATA_WIDTH_A(ENTRY_WIDTH),
+    .MEMORY_SiZE(ENTRY_ADDR_MAX * ENTRY_WIDTH),
+    .USE_MEM_INIT(1)
+) trie_sdpram (
+    .addra(write_addr),
+    .clka(lku_clk),
+    .dina(entry_to_write),
+    .ena(write_enable),
+    .wea(8'b11111111),
+
+    .addrb(read_addr),
+    .clkb(lku_clk),
+    .enb(read_enable),
+    .doutb(entry_read)
+);
+
+initial begin
+    node_cnt = 1;
+end
+
+always @(posedge lku_clk) begin
+    state <= next_state;
+end
+
+// state machine
+always @(posedge lku_clk) begin
+    case (next_state)
+        STATE_PAUSE:
+            if (modify_in_ready) begin
+                dep <= 28;
+                read_addr <= 1;
+                lookup_addr <= modify_in_addr;
+                lookup_port <= modify_in_nextport;
+                lookup_nexthop <= modify_in_nexthop;
+                len <= modify_in_len;
+                if (modify_in_len == 0)
+                    next_state <= STATE_INS_UPD_ROOT;
+                else
+                    next_state <= STATE_INS_READ;
+                write_enable <= 0;
+                read_enable <= 1;
+            end else if (query_in_ready) begin
+                dep <= 28;
+                read_addr <= 1;
+                next_state <= STATE_QUE_READ;
+                query_out_nexthop <= 0;
+                query_out_nextport <= 0;
+                read_enable <= 1;
+                write_enable <= 0;
+            end else begin
+                next_state <= STATE_PAUSE;
+                read_enable <= 0;
+                write_enable <= 0;
+            end
+        STATE_INS_UPD_ROOT:
+            entry_to_write <= {1'b1, 2'b00, lookup_port, lookup_nexthop, entry_read[CHILD_END:CHILD_BEGIN]};
+            write_addr <= 1;
+            write_enable <= 1;
+            read_enable <= 0;
+            next_state <= WAIT_FOR_END;
+        STATE_INS_READ:
+            if (len <= 4) begin
+                upd_child <= cur_mask_child;
+                upd_last <= cur_mask_child | upd_extend[len-1];
+                cur <= read_addr;
+                if (entry_read[(cur_mask_child<<4)+15:(cur_mask_child<<4)] == 0) begin
+                    node_cnt <= node_cnt + 1;
+                    entry <= entry_read;
+                    set_entry_upd_child <= 1;
+                    entry_read <= 0;
+                    read_addr <= node_cnt + 1;
+                    read_enable <= 0;
+                    write_enable <= 0;
+                end else begin
+                    read_addr <= entry_read[(cur_mask_child<<4)+15:(cur_mask_child<<4)]
+                    read_enable <= 1;
+                    write_enable <= 0;
+                end
+                next_state <= STATE_INS_SET;
+            end else begin
+                upd_child <= cur_child;
+                entry <= entry_read;
+                if (entry_read[(cur_child<<4)+15 : cur_child<<4] == 0) begin
+                    entry_to_write <= entry_read;
+                    set_entry_write_child <= 1;
+                    write_addr <= read_addr;
+                    write_enable <= 1;
+                    read_enable <= 0;
+                    entry_read <= 0;
+                    read_addr <= node_cnt + 1;
+                    node_cnt <= node_cnt + 1;
+                    // do len-=4, dep-=4 in set_entry_write_child
+                end else begin
+                    read_addr <= entry_read[(cur_child<<4)+15 : cur_child<<4];
+                    read_enable <= 1;
+                    write_enable <= 0;
+                    len <= len-4;
+                    dep <= dep-4;
+                end
+                next_state <= STATE_INS_READ;
+            end
+        STATE_INS_SET: 
+            if (entry_read[VALID_POS] == 0 || entry_read[LEN_END:LEN_BEGIN] < len-1)
+                entry_to_write <= {1'b1, len-1, lookup_port, lookup_nexthop, entry_read[CHILD_END: CHILD_BEGIN]}
+            else
+                entry_to_write <= entry_read;
+            write_enable <= 1;
+            write_addr <= read_addr;
+            if (upd_child != upd_last) begin
+                if (entry[((upd_child+1) << 4) + 15: ((upd_child+1) << 4)] == 4'b0000) begin
+                    entry <= entry_read;
+                    set_entry_upd_child <= 1;
+                    entry_read <= 0;
+                    read_addr <= node_cnt + 1;
+                    node_cnt <= node_cnt + 1;
+                    read_enable <= 0;
+                end else begin
+                    read_addr <= entry[((upd_child+1) << 4) + 15: ((upd_child+1) << 4)];
+                    read_enable <= 1;
+                end
+                upd_child <= upd_child + 1;
+                next_state <= STATE_INS_SET;
+            end else begin
+                next_state <= STATE_INS_UPD_SELF;
+                read_enable <= 0;
+                write_enable <= 0;
+            end
+        STATE_INS_UPD_SELF:
+            entry_to_write <= entry;
+            write_addr <= cur;
+            write_enable <= 1;
+            read_enable <= 0;
+            next_state <= WAIT_FOR_END;
+        WAIT_FOR_END:
+            next_state <= STATE_PAUSE;
+            read_enable <= 0;
+            write_enable <= 0;
         
-        //init end
-        int dep;
-        int read_addr, write_addr, cur;
-        TrieEntry entry, entry_read, entry_to_write;
-        int upd_child, upd_last;
+        STATE_QUE_READ:
+            if (entry_read[VALID_POS] == 1) begin
+                query_out_nexthop <= entry_read[NXT_HOP_END: NXT_HOP_BEGIN];
+                query_out_nextport <= entry_read[NXT_PORT_END: NXT_PORT_BEGIN];
+            end
+            write_enable <= 0;
+            if (entry_read[(cur_child<<4)+15 : cur_child<<4] > 0) begin
+                read_addr <= entry_read[(cur_child<<4)+15 : cur_child<<4];
+                read_enable <= 1;
+                next_state <= STATE_QUE_READ;
+                dep <= dep-4;
+            end else begin
+                next_state <= STATE_PAUSE;
+                read_enable <= 0;
+            end
+    endcase
+end
 
-        // PAUSE
-        dep = 28;
-        read_addr = 1;
-        read_enable = 1;
-        if (len == 0) {
-            state = INS_UPD_ROOT;
-        } else {
-            state = INS_READ;
-        }
+always @(posedge lku_clk) begin
+    if (state == WAIT_FOR_END && next_state == STATE_PAUSE) begin
+        modify_finish <= 1;
+        modify_succ <= 1;
+    end else begin
+        modify_finish <= 0;
+        modify_succ <= 0;
+    end
+    if (state == STATE_QUE_READ && next_state == STATE_PAUSE)
+        query_out_ready <= 1;
+    else
+        query_out_ready <= 0;
+end
 
-        while (state != PAUSE) {
-            //syn
-            if (read_enable) {
-                entry_read = tr[read_addr];
-                // printf("read  %d: ", read_addr);
-                // entry_read.outit();
-            }
-            if (write_enable) {
-                tr[write_addr] = entry_to_write;
-                // printf("write %d: ", write_addr);
-                // entry_to_write.outit();
-            }
-            read_enable = write_enable = 0;
-            // printf("\n");
-            // print_state(state);
-            // printf("cur_read "); entry_read.outit();
-            //syn end
+always @(posedge set_entry_upd_child) begin
+    set_entry_upd_child <= 0;
+    entry[(upd_child<<4)+15 : upd_child<<4] <= node_cnt;
+end
 
-            switch (state) {
-                case INS_UPD_ROOT: {
-                    entry_to_write = entry_read;
-                    entry_to_write.nextHop = nexthop;
-                    entry_to_write.valid = 1;
-                    write_enable = true;
-                    write_addr = 1;
-                    state = WAIT_FOR_END;
-                    break;
-                }
-                case INS_READ: {
-                    if (len <= 4) {
-                        upd_child = addr >> dep & upd_mask[len-1];
-                        upd_last = upd_child | upd_extend[len-1];
-                        entry = entry_read;
-                        cur = read_addr;
-                        // printf("cur %d upd_child %d upd_last %d\n", cur, upd_child, upd_last);
-                        if (entry.child[upd_child] == 0) {
-                            node_cnt++;
-                            entry.child[upd_child] = node_cnt;
-                            entry_read = TrieEntry();
-                            read_addr = node_cnt; // 装作这是读出来的
-                        } else {
-                            read_addr = entry.child[upd_child];
-                            read_enable = true;
-                        }
-                        state = INS_SET;
-                    } else {
-                        upd_child = addr >> dep & 15;
-                        // printf("upd_child %d\n", upd_child);
-                        entry = entry_read;
-                        if (entry.child[upd_child] == 0) {
-                            entry_to_write = entry_read;
-                            node_cnt++;
-                            // printf("node_cnt %d\n", node_cnt);
-                            entry_to_write.child[upd_child] = node_cnt;
-                            write_addr = read_addr;
-                            write_enable = true;
-                            entry_read = TrieEntry();
-                            // printf("setentry "); entry_read.outit();
-                            read_addr = node_cnt;
-                        } else {
-                            read_addr = entry.child[upd_child];
-                            read_enable = true;
-                        }
-                        len -= 4;
-                        dep -= 4;
-                        state = INS_READ;
-                    }
-                    break;
-                }
-                case INS_SET: {
-                    entry_to_write = entry_read;
-                    if (!entry_to_write.valid || entry_to_write.maskLen < len-1) {
-                        entry_to_write.maskLen = len-1;
-                        entry_to_write.nextHop = nexthop;
-                        entry_to_write.valid = 1;
-                    }
-                    write_enable = true;
-                    write_addr = read_addr;
-                    if (upd_child != upd_last) {
-                        upd_child++;
-                        if (entry.child[upd_child] == 0) {
-                            node_cnt++;
-                            // printf("node_cnt %d\n", node_cnt);
-                            entry.child[upd_child] = node_cnt;
-                            entry_read = TrieEntry();
-                            read_addr = node_cnt; // 装作这是读出来的
-                        } else {
-                            read_addr = entry.child[upd_child];
-                            read_enable = true;
-                        }
-                        state = INS_SET;
-                    } else {
-                        state = INS_UPD_SELF;
-                    }
-                    break;
-                }
-                case INS_UPD_SELF: {
-                    entry_to_write = entry;
-                    write_addr = cur;
-                    write_enable = true;
-                    state = WAIT_FOR_END;
-                    break;
-                }
-                case WAIT_FOR_END: {
-                    // no work, just wait...
-                    state = PAUSE;
-                    break;
-                }
-            }
-        }
-    }
+always @(posedge set_entry_write_child) begin
+    set_entry_write_child <= 0;
+    entry_to_write[(cur_child<<4)+15 : cur_child<<4] <= node_cnt;
+    len <= len-4;
+    dep <= dep-4;
+end
 
-    unsigned query(unsigned addr) {
-        // printf("query %x\n", addr);
-        State state;
-        bool read_enable = 0;
-        //init end
-        int dep;
-        int read_addr;
-        int ans = 0;
-        int upd_child;
-        TrieEntry entry, entry_read;
-        {
-            // PAUSE
-            dep = 28;
-            read_addr = 1;
-            read_enable = 1;
-            state = QUE_READ;
-        }
-        while (state != PAUSE) {
-            // print_state(state);
-            //syn
-            if (read_enable) {
-                entry_read = tr[read_addr];
-            }
-            read_enable = 0;
-            // state machine
-            switch (state)
-            {
-                case QUE_READ:
-                    if (entry_read.valid)
-                        ans = entry_read.nextHop;
-                    upd_child = addr >> dep & 15;
-                    if (entry_read.child[upd_child] > 0) {
-                        read_addr = entry_read.child[upd_child];
-                        read_enable = true;
-                        state = QUE_READ;
-                        dep -= 4;
-                    } else {
-                        state = PAUSE;
-                    }
-                    break;
-            }
-        }
-        return ans;
-    }
-} tr;
-
-unsigned rd() {
-    unsigned ret = 23;
-    for (int i=0; i<5; i++)
-        ret = ret * 23333 + rand();
-    return ret;
-}
-
-void insert(const RoutingTableEntry &entry) {
-    tr.insert(htonl(entry.addr), entry.len, entry.nexthop);
-}
-
-void init(int n, int q, const RoutingTableEntry *a) {
-    int *b = new int[n];
-    tr.init();
-    for (int i=0; i<n; i++)
-        b[i] = i;
-    for (int i=2; i<n; i++)
-        swap(b[rd()%i], b[i]);
-    // for (int i=0; i<n; i++)
-    //     printf("%d ", b[i]);
-    // printf("\n");
-    for (int i=0; i<n; i++)
-        insert(a[b[i]]);
-    delete[] b;
-}
-
-unsigned query(unsigned addr) {
-    unsigned ans = tr.query(htonl(addr));
-	return ans;
-}
-
-int main() {
-    int n;
-    scanf("%d", &n);
-    RoutingTableEntry* entry = new RoutingTableEntry[n]; 
-    for (int i=0; i<n; i++) {
-        unsigned addr;
-        int len, nexthop;
-        scanf("%u%d%d", &addr, &len, &nexthop);
-        entry[i].addr = addr;
-        entry[i].len = len;
-        entry[i].nexthop = nexthop;
-    }
-    init(n, 0, entry);
-    uint32_t nextHop;
-    uint32_t child;
-    uint8_t nextPort, maskLen;
-    // for (int i=1; i<=tr.node_cnt; i++) {
-    //     printf("%d:\t", i);
-    //     tr.tr[i].outit();
-    // }
-    int m;
-    scanf("%d", &m);
-    for (int i=0; i<m; i++) {
-        unsigned addr;
-        scanf("%u", &addr);
-        printf("%u\n", query(addr));
-    }
-    delete[] entry;
-    return 0;
-}
+endmodule
