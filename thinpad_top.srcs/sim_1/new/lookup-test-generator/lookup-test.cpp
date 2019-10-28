@@ -281,7 +281,7 @@ void init() {
 
 int main() {
     srand(time(0));
-    int n = 200;
+    int n = 300;
     freopen("lookup.in", "w", stdout);
     printf("%d\n", n);
     int m = n >> 1;
