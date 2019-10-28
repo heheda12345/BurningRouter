@@ -64,7 +64,7 @@ module rgmii_model (
     end
 
     always packet_clk = #1000 ~packet_clk;
-
+/*
     always_ff @ (posedge clk_125M) begin
         count <= packet_clk ? count + 1 : 0;
         if (packet_clk && count < frame_size[frame_index] - 1) begin
@@ -77,9 +77,23 @@ module rgmii_model (
             data2 <= 4'b0;
         end
     end
-
     always_ff @ (negedge packet_clk) begin
         frame_index = (frame_index + 1) % frame_count;
+    end
+    */
+    always_ff @ (posedge clk_125M) begin
+        if (count < frame_size[frame_index] - 1) begin
+            count <= count + 1;
+            trans <= 1'b1;
+            data1 <= frame_data[frame_index][count][3:0];
+            data2 <= frame_data[frame_index][count][7:4];
+        end else begin
+            trans <= 1'b0;
+            data1 <= 4'b0;
+            data2 <= 4'b0;
+            count <= 0;
+            frame_index <= (frame_index + 1) % frame_count;
+        end
     end
 
     genvar i;

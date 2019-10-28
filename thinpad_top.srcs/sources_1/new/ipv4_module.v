@@ -22,17 +22,27 @@ module ipv4_module(
     input rx_axis_fifo_tvalid,
     input rx_axis_fifo_tlast,
     output rx_axis_fifo_tready,
+    /*
     output [7:0] tx_axis_fifo_tdata,
     output reg tx_axis_fifo_tvalid,
     output reg tx_axis_fifo_tlast,
     input tx_axis_fifo_tready,
+    */
     // RAM-write
     output reg mem_write_ena = 0,
     output reg [7:0] mem_write_data = 0,
     output reg [11:0] mem_write_addr = 0,
+    /*
     output mem_read_ena,
     input [7:0] mem_read_data,
     output reg [11:0] mem_read_addr = 0
+    */
+    input buf_ready, 
+    output wire buf_start, 
+    output wire buf_last,
+    output wire [11:0] buf_end_addr,
+    input [11:0] buf_start_addr
+    //input 
 );
 
 localparam IDLE             = 4'h0,
@@ -53,7 +63,8 @@ localparam IDLE             = 4'h0,
            WAIT             = 4'he,
            OVER             = 4'hf;
 
-localparam WRITE = 4'b0001;
+localparam WRITE_PUSH               = 4'h1, 
+           WRITE_DEST_MAC_ADDR = 4'h2 ;
 
 localparam WRITE_TOTAL = 46;
 
@@ -127,18 +138,19 @@ always @ (*) begin
             );
         end
         BODY: begin
-            if (rx_last) next_read_state <= WAIT;
+            if (rx_last) next_read_state <= next_write_state == IDLE ? OVER : WAIT;
             else next_read_state <= rx_axis_fifo_tvalid && total_counter == total_length ? TAIL : BODY;
             //next_read_state <= total_counter == total_length ? (rx_last ? WAIT : TAIL) : BODY;
         end
         TAIL: begin
-            next_read_state <= rx_last ? WAIT : TAIL;
+            next_read_state <= rx_last ? (next_write_state == IDLE ? OVER : WAIT) : TAIL;
         end
         DISCARD: begin
             next_read_state <= rx_axis_fifo_tvalid && rx_axis_fifo_tlast ? OVER : DISCARD;
         end
+        // pipeline, so ... no waiting?
         WAIT: begin
-            next_read_state <= mem_read_addr == mem_write_addr ? OVER : WAIT;
+            next_read_state <= next_write_state == IDLE ? OVER : WAIT;
         end
         OVER: begin
             next_read_state <= IDLE;
@@ -155,11 +167,16 @@ end
 always @ (*) begin
     case (ipv4_write_state)
         IDLE: begin
-            next_write_state <= ipv4_read_state == BODY ? WRITE : IDLE;
+            next_write_state <= ipv4_read_state == DEST && next_read_state != DEST ? WRITE_DEST_MAC_ADDR : IDLE;
         end
-        WRITE: begin
-            next_write_state <= mem_read_addr != mem_write_addr ? WRITE : OVER;
-            // PROBLEM: if rx is not ready for a period such that the reader pointer catches up with the writer...
+        WRITE_DEST_MAC_ADDR : begin
+            next_write_state <= buf_ready ? WRITE_PUSH : WAIT;
+        end
+        WAIT: begin
+            next_write_state <= buf_ready ? WRITE_PUSH : WAIT;
+        end
+        WRITE_PUSH: begin
+            next_write_state <= OVER;
         end
         OVER: begin
             next_write_state <= IDLE;
@@ -186,38 +203,48 @@ always @ (posedge clk) begin
     end
 end
 
+// BRAM writing is 1 clock period behind FIFO reading
 always @ (posedge clk) begin
     if (ipv4_read_state == START) 
-        mem_write_addr <= 18;
+        mem_write_addr <= buf_start_addr + 18;
     else if (ipv4_read_state == IDLE || ipv4_read_state == OVER) 
-        mem_write_addr <= 0;
-    else if (next_read_state > START && next_read_state <= BODY)
+        mem_write_addr <= buf_start_addr;
+    else if (next_read_state > START && ipv4_read_state <= BODY)
         mem_write_addr <= rx_axis_fifo_tvalid ? mem_write_addr + 1 : mem_write_addr;
     else 
         mem_write_addr <= mem_write_addr;
+
     mem_write_ena <= next_read_state > START && next_read_state <= BODY;
+
     if (next_read_state == TTL)
         mem_write_data <= rx_axis_fifo_tdata - 1; // TTL --
     else mem_write_data <= rx_axis_fifo_tdata;
 end
+
+/*
 always @ (posedge clk) begin
-    if (ipv4_write_state == WRITE) begin
+    if (ipv4_write_state == WRITE_PUSH) begin
         if (tx_axis_fifo_tready)
             mem_read_addr <= mem_read_addr + 1;
     end
     else
-        mem_read_addr <= 0;
-end
-assign mem_read_ena = ipv4_write_state == WRITE;
+        mem_read_addr <= buf_start_addr;
+end*/
+//assign mem_read_ena = ipv4_write_state == WRITE_PUSH;
+assign buf_start = next_write_state == WRITE_PUSH && buf_ready;
+assign buf_last = ipv4_read_state <= BODY && next_read_state > BODY;
+assign buf_end_addr = mem_write_addr;
 
-assign complete = ipv4_write_state == OVER;
+assign complete = ipv4_read_state == OVER;
 
+/*
 // send out packet
 assign tx_axis_fifo_tdata = mem_read_data;
 always @ (posedge clk) begin
-    tx_axis_fifo_tvalid <= ipv4_write_state == WRITE;
+    tx_axis_fifo_tvalid <= ipv4_write_state == WRITE_PUSH;
     tx_axis_fifo_tlast <= next_write_state == OVER && ipv4_read_state == WAIT;
 end
+*/
 
 async_setter # (.LEN(4)) src_ip_setter (
     .value(src_ip),

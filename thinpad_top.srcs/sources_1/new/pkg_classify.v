@@ -63,18 +63,15 @@ reg [1:0] sub_procedure_type = 2'b00;
 (*MARK_DEBUG="TRUE"*)wire [7:0] mem_read_data, mem_write_data;
 (*MARK_DEBUG="TRUE"*)wire mem_read_ena, mem_write_ena;
 // support read & write by this module
-reg top_mem_read_ena = 0, top_mem_write_ena = 0;
-reg [11:0] top_mem_read_addr = 0, top_mem_write_addr = 0;
+reg top_mem_write_ena = 0;
+reg [11:0] top_mem_write_addr = 0;
 reg [7:0] top_mem_write_data = 0;
 // read & write by its sub module
-wire ipv4_mem_read_ena, ipv4_mem_write_ena, arp_mem_read_ena, arp_mem_write_ena;
-wire [11:0] ipv4_mem_read_addr, ipv4_mem_write_addr, arp_mem_read_addr, arp_mem_write_addr;
+wire ipv4_buf_start, ipv4_mem_write_ena, arp_buf_start, arp_mem_write_ena, ipv4_buf_last, arp_buf_last;
+wire [11:0] ipv4_buf_end_addr, ipv4_mem_write_addr, arp_buf_end_addr, arp_mem_write_addr;
 wire [7:0] ipv4_mem_write_data, arp_mem_write_data;
 
 wire ipv4_rx_axis_fifo_tready, arp_rx_axis_fifo_tready, top_rx_axis_fifo_tready;
-wire [7:0] ipv4_tx_axis_fifo_tdata, arp_tx_axis_fifo_tdata, top_tx_axis_fifo_tdata;
-wire ipv4_tx_axis_fifo_tvalid, arp_tx_axis_fifo_tvalid, top_tx_axis_fifo_tvalid;
-wire ipv4_tx_axis_fifo_tlast, arp_tx_axis_fifo_tlast, top_tx_axis_fifo_tlast;
 
 wire arp_table_update, arp_table_insert, arp_table_exist;
 wire [7:0] arp_table_input_vlan_port;
@@ -216,6 +213,28 @@ arp_table arp_table_inst (
     //.query_index(0)
 );
 
+wire [11:0] buf_end_addr, buf_start_addr;
+wire buf_ready, buf_finish, buf_start, buf_last;
+
+buffer_pushing buffer_pushing_i (
+    .clk(axi_tclk), 
+    .end_addr(buf_end_addr), // i
+    .start_addr(buf_start_addr), // o
+    .ready(buf_ready), // o
+    .start(buf_start), // i
+    .last(buf_last), // i
+    .finish(buf_finish), // o
+
+    .tx_axis_fifo_tdata(tx_axis_fifo_tdata),
+    .tx_axis_fifo_tlast(tx_axis_fifo_tlast),
+    .tx_axis_fifo_tvalid(tx_axis_fifo_tvalid),
+    .tx_axis_fifo_tready(tx_axis_fifo_tready),
+
+    .mem_read_ena(mem_read_ena),
+    .mem_read_data(mem_read_data),
+    .mem_read_addr(mem_read_addr)
+);
+
 arp_module arp_module_inst(
     .clk(axi_tclk),
     .rst(axi_treset), 
@@ -226,17 +245,15 @@ arp_module arp_module_inst(
     .rx_axis_fifo_tvalid(rx_axis_fifo_tvalid),
     .rx_axis_fifo_tlast(rx_axis_fifo_tlast),
     .rx_axis_fifo_tready(arp_rx_axis_fifo_tready),
-    .tx_axis_fifo_tdata(arp_tx_axis_fifo_tdata),
-    .tx_axis_fifo_tvalid(arp_tx_axis_fifo_tvalid),
-    .tx_axis_fifo_tlast(arp_tx_axis_fifo_tlast),
-    .tx_axis_fifo_tready(tx_axis_fifo_tready),
     // RAM-write
     .mem_write_ena(arp_mem_write_ena),
     .mem_write_data(arp_mem_write_data),
     .mem_write_addr(arp_mem_write_addr),
-    .mem_read_ena(arp_mem_read_ena),
-    .mem_read_data(mem_read_data),
-    .mem_read_addr(arp_mem_read_addr),
+    .buf_ready(buf_ready), // i
+    .buf_start(arp_buf_start), // o
+    .buf_last(arp_buf_last), // o
+    .buf_start_addr(buf_start_addr), // i
+    .buf_end_addr(arp_buf_end_addr), // o
     // ARP Table
     .arp_table_update(arp_table_update),
     .arp_table_insert(arp_table_insert),
@@ -262,17 +279,15 @@ ipv4_module ipv4_module_inst(
     .rx_axis_fifo_tvalid(rx_axis_fifo_tvalid),
     .rx_axis_fifo_tlast(rx_axis_fifo_tlast),
     .rx_axis_fifo_tready(ipv4_rx_axis_fifo_tready),
-    .tx_axis_fifo_tdata(ipv4_tx_axis_fifo_tdata),
-    .tx_axis_fifo_tvalid(ipv4_tx_axis_fifo_tvalid),
-    .tx_axis_fifo_tlast(ipv4_tx_axis_fifo_tlast),
-    .tx_axis_fifo_tready(tx_axis_fifo_tready),
     // RAM-write
     .mem_write_ena(ipv4_mem_write_ena),
     .mem_write_data(ipv4_mem_write_data),
     .mem_write_addr(ipv4_mem_write_addr),
-    .mem_read_ena(ipv4_mem_read_ena),
-    .mem_read_data(mem_read_data),
-    .mem_read_addr(ipv4_mem_read_addr)
+    .buf_ready(buf_ready), // i
+    .buf_start(ipv4_buf_start), // o
+    .buf_last(ipv4_buf_last), // o
+    .buf_start_addr(buf_start_addr), // i
+    .buf_end_addr(ipv4_buf_end_addr) // o
 );
 
 // store MAC address into RAM
@@ -282,17 +297,17 @@ always @ (posedge axi_tclk) begin
     top_mem_write_data <= rx_axis_fifo_tdata;
     case (next_read_state)
         READ_DEST: 
-            top_mem_write_addr <= 6 + dst_counter;
+            top_mem_write_addr <= buf_start_addr + 6 + dst_counter;
         READ_SRC:
-            top_mem_write_addr <= src_counter;
+            top_mem_write_addr <= buf_start_addr + src_counter;
         READ_TYPE:
-            top_mem_write_addr <= 12 + type_counter;
+            top_mem_write_addr <= buf_start_addr + 12 + type_counter;
         READ_VLAN_PORT:
-            top_mem_write_addr <= 14 + vlan_port_counter;
+            top_mem_write_addr <= buf_start_addr + 14 + vlan_port_counter;
         READ_VLAN_TYPE:
-            top_mem_write_addr <= 16 + vlan_type_counter;
+            top_mem_write_addr <= buf_start_addr + 16 + vlan_type_counter;
         default: 
-            top_mem_write_addr <= 0;
+            top_mem_write_addr <= buf_start_addr;
     endcase
 end
 
@@ -313,22 +328,27 @@ blk_mem_gen_0 blk_mem_inst (
 assign mem_write_addr = read_state == WAIT && sub_procedure_type == ARP ? arp_mem_write_addr : (
     read_state == WAIT && sub_procedure_type == IPV4 ? ipv4_mem_write_addr : top_mem_write_addr
 );
-assign mem_read_addr = read_state == WAIT && sub_procedure_type == ARP ? arp_mem_read_addr : (
-    read_state == WAIT && sub_procedure_type == IPV4 ? ipv4_mem_read_addr : top_mem_read_addr
-);
 assign mem_write_ena = read_state == WAIT && sub_procedure_type == ARP ? arp_mem_write_ena : (
     read_state == WAIT && sub_procedure_type == IPV4 ? ipv4_mem_write_ena : top_mem_write_ena
-);
-assign mem_read_ena = read_state == WAIT && sub_procedure_type == ARP ? arp_mem_read_ena : (
-    read_state == WAIT && sub_procedure_type == IPV4 ? ipv4_mem_read_ena : top_mem_read_ena
 );
 assign mem_write_data = read_state == WAIT && sub_procedure_type == ARP ? arp_mem_write_data : (
     read_state == WAIT && sub_procedure_type == IPV4 ? ipv4_mem_write_data : top_mem_write_data
 );
 
+assign buf_start = read_state == WAIT && sub_procedure_type == ARP ? arp_buf_start : (
+    read_state == WAIT && sub_procedure_type == IPV4 ? ipv4_buf_start : 0
+);
+assign buf_last = read_state == WAIT && sub_procedure_type == ARP ? arp_buf_last : (
+    read_state == WAIT && sub_procedure_type == IPV4 ? ipv4_buf_last : 0
+);
+assign buf_end_addr = read_state == WAIT && sub_procedure_type == ARP ? arp_buf_end_addr : (
+    read_state == WAIT && sub_procedure_type == IPV4 ? ipv4_buf_end_addr : 0
+);
+
 assign rx_axis_fifo_tready = sub_procedure_type == ARP ? arp_rx_axis_fifo_tready : (
     sub_procedure_type == IPV4 ? ipv4_rx_axis_fifo_tready : top_rx_axis_fifo_tready
 );
+/*
 assign tx_axis_fifo_tlast = sub_procedure_type == ARP ? arp_tx_axis_fifo_tlast : (
     sub_procedure_type == IPV4 ? ipv4_tx_axis_fifo_tlast : top_tx_axis_fifo_tlast
 );
@@ -341,6 +361,6 @@ assign tx_axis_fifo_tvalid = sub_procedure_type == ARP ? arp_tx_axis_fifo_tvalid
 
 assign top_tx_axis_fifo_tdata = 0;
 assign top_tx_axis_fifo_tvalid = 0;
-assign top_tx_axis_fifo_tlast = 0;
+assign top_tx_axis_fifo_tlast = 0;*/
 
 endmodule // pkg_classify

@@ -19,17 +19,10 @@ module arp_module(
     input rx_axis_fifo_tvalid,
     input rx_axis_fifo_tlast,
     output rx_axis_fifo_tready,
-    output [7:0] tx_axis_fifo_tdata,
-    output tx_axis_fifo_tvalid,
-    output tx_axis_fifo_tlast,
-    input tx_axis_fifo_tready,
     // RAM-write
     output reg mem_write_ena = 0,
     output reg [7:0] mem_write_data = 0,
     output reg [11:0] mem_write_addr = 0,
-    output mem_read_ena,
-    input [7:0] mem_read_data,
-    output [11:0] mem_read_addr,
     // ARP Table
     output arp_table_update,
     output arp_table_insert,
@@ -37,6 +30,12 @@ module arp_module(
     output [7:0] arp_table_input_vlan_port, 
     output [47:0] arp_table_input_mac_addr,
     output [31:0] arp_table_input_ipv4_addr, 
+    // Pushing
+    input buf_ready, 
+    output wire buf_start, 
+    output wire buf_last,
+    output wire [11:0] buf_end_addr,
+    input [11:0] buf_start_addr,
 
     input [47:0] MY_MAC_ADDRESS,
     input [31:0] MY_IPV4_ADDRESS, 
@@ -148,7 +147,7 @@ always @ (*) begin
             next_read_state <= rx_end ? OVER : DISCARD;
         end
         READ_WAITING: begin
-            next_read_state <= write_counter < WRITE_TOTAL ? READ_WAITING : OVER;
+            next_read_state <= next_write_state == OVER || next_write_state == IDLE ? OVER : READ_WAITING;
         end
         OVER: begin
             next_read_state <= IDLE;
@@ -162,15 +161,17 @@ always @ (*) begin
         next_write_state <= IDLE;
     else case (arp_write_state)
         IDLE: 
-            next_write_state <= next_read_state == READ_REST || next_read_state == READ_WAITING ? WRITE_FRAME_DEST_MAC : IDLE;
+            next_write_state <= (next_read_state == READ_REST || next_read_state == READ_WAITING) && 
+                    arp_read_state == READ_TARGET_IP ? WRITE_FRAME_DEST_MAC : IDLE;
         WRITE_FRAME_DEST_MAC: 
             next_write_state <= general_write_counter == 5 ? WRITE_SENDER_MAC : WRITE_FRAME_DEST_MAC;
         WRITE_SENDER_MAC:
             next_write_state <= general_write_counter == 5 ? WRITE_OPCODE : WRITE_SENDER_MAC;
         WRITE_OPCODE:
-            next_write_state <= tx_axis_fifo_tready ? WRITE_PUSHING : WRITE_OPCODE;
+            next_write_state <= buf_ready ? WRITE_PUSHING : WRITE_OPCODE;
+        // pipeline, so ... no waiting!
         WRITE_PUSHING: 
-            next_write_state <= write_counter < WRITE_TOTAL ? WRITE_PUSHING : OVER;
+            next_write_state <= OVER;
         OVER: 
             next_write_state <= IDLE;
         default: next_write_state <= IDLE;
@@ -187,7 +188,7 @@ always @ (posedge clk) begin
     target_ip_counter <= rx_axis_fifo_tvalid && (next_read_state == READ_TARGET_IP) ? target_ip_counter + 1 : 0;
     opcode_counter <= rx_axis_fifo_tvalid && (next_read_state == OPCODE) ? opcode_counter + 1 : 0;
     //write_sender_mac_counter <= next_write_state == WRITE_SENDER_MAC ? write_sender_mac_counter + 1 : 0;
-    write_counter <= next_write_state == WRITE_PUSHING && tx_axis_fifo_tready ? write_counter + 1 : 0;
+    //write_counter <= next_write_state == WRITE_PUSHING && tx_axis_fifo_tready ? write_counter + 1 : 0;
     //general_read_counter <= rx_axis_fifo_tvalid ? ( (next_read_state != arp_read_state ? 0 : general_write_counter + 1) ) : general_read_counter;
     general_write_counter <= next_write_state != arp_write_state ? 0 : general_write_counter + 1;
 end
@@ -242,17 +243,17 @@ wire fifo_writing;
 assign fifo_writing = next_read_state >= ARP1 && next_read_state <= READ_TARGET_IP;
 always @ (posedge clk) begin
     if (arp_write_state == WRITE_FRAME_DEST_MAC) begin
-        mem_write_addr <= 6 + general_write_counter;
+        mem_write_addr <= buf_start_addr + 6 + general_write_counter;
         mem_write_data <= my_mac_addr_i;
         mem_write_ena <= 1;
     end
     else if (arp_write_state == WRITE_SENDER_MAC) begin
-        mem_write_addr <= 26 + general_write_counter;
+        mem_write_addr <= buf_start_addr + 26 + general_write_counter;
         mem_write_data <= my_mac_addr_i;
         mem_write_ena <= 1;
     end
     else if (arp_write_state == WRITE_OPCODE) begin
-        mem_write_addr <= 25;
+        mem_write_addr <= buf_start_addr + 25;
         mem_write_data <= opCode;
         mem_write_ena <= 1;
     end
@@ -260,23 +261,27 @@ always @ (posedge clk) begin
         mem_write_data <= fifo_writing ? rx_axis_fifo_tdata : 0;
         mem_write_ena <= fifo_writing;
         case(next_read_state)
-            ARP1:            mem_write_addr <= 18 + arp_counter1;
-            OPCODE:          mem_write_addr <= 24 + opcode_counter;
-            READ_SENDER_MAC: mem_write_addr <= 36 + sender_mac_counter;
-            READ_SENDER_IP:  mem_write_addr <= 42 + sender_ip_counter;
-            READ_TARGET_MAC: mem_write_addr <= 26 + target_mac_counter;
-            READ_TARGET_IP:  mem_write_addr <= 32 + target_ip_counter;
-            default:         mem_write_addr <= 0;
+            ARP1:            mem_write_addr <= buf_start_addr + 18 + arp_counter1;
+            OPCODE:          mem_write_addr <= buf_start_addr + 24 + opcode_counter;
+            READ_SENDER_MAC: mem_write_addr <= buf_start_addr + 36 + sender_mac_counter;
+            READ_SENDER_IP:  mem_write_addr <= buf_start_addr + 42 + sender_ip_counter;
+            READ_TARGET_MAC: mem_write_addr <= buf_start_addr + 26 + target_mac_counter;
+            READ_TARGET_IP:  mem_write_addr <= buf_start_addr + 32 + target_ip_counter;
+            default:         mem_write_addr <= buf_start_addr;
         endcase
     end
 end
-
+/*
 // write into tx FIFO
 assign tx_axis_fifo_tvalid = tx_axis_fifo_tready && (arp_write_state == WRITE_PUSHING);
 assign tx_axis_fifo_tdata = mem_read_data;
 assign tx_axis_fifo_tlast = tx_axis_fifo_tvalid && next_write_state == OVER;
 assign mem_read_addr = write_counter;
 assign mem_read_ena = tx_axis_fifo_tready && (next_write_state == WRITE_PUSHING);
+*/
+assign buf_start = next_write_state == WRITE_PUSHING && buf_ready;
+assign buf_last = buf_start;
+assign buf_end_addr = buf_start_addr + WRITE_TOTAL;
 
 // ARP Table manipulations
 assign arp_table_input_vlan_port = vlan_port;
