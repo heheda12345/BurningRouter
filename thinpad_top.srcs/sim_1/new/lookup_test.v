@@ -14,7 +14,7 @@ reg[31:0] lku_modify_in_nexthop;
 reg[1:0] lku_modify_in_nextport;
 reg[6:0] lku_modify_in_len;
 wire lku_modify_finish;
-wire lku_modify_succ;
+wire lku_full;
 
 
 parameter STATE_PAUSE = 3'b000;
@@ -49,7 +49,7 @@ lookup_table_trie ltt_inst(
     .modify_in_nexthop(lku_modify_in_nexthop),
     .modify_in_len(lku_modify_in_len),
     .modify_finish(lku_modify_finish),
-    .modify_succ(lku_modify_succ)
+    .full(lku_full)
 );
 
 initial begin
@@ -69,7 +69,7 @@ always @(posedge lku_clk) begin
                 next_state <= STATE_GET_TEST;
                 cur_test <= 0;
                 $fscanf(input_fd, "%d", tot_test);
-                $display("[lookup] test start, tot test %d", tot_test);
+                $display("[lookup-test] test start, tot test %d", tot_test);
                 $fscanf(input_fd, "%d%h%h%d%d", type, src, dest, port, len);
                 $display("get from file: %d %h %h %d %d", type, src, dest, port, len);
             end
@@ -79,7 +79,7 @@ always @(posedge lku_clk) begin
                 if (cur_test == tot_test)
                     next_state <= STATE_SUCC;
                 else if (type == 0) begin
-                    $display("[lookup] test %d modify begin", cur_test);
+                    $display("[lookup-test] test %d modify begin", cur_test);
                     lku_modify_in_addr <= src;
                     lku_modify_in_len <= len;
                     lku_modify_in_nexthop <= dest;
@@ -87,7 +87,7 @@ always @(posedge lku_clk) begin
                     lku_modify_in_ready <= 1;
                     next_state <= STATE_INSERT;
                 end else begin
-                    $display("[lookup] test %d query begin", cur_test);
+                    $display("[lookup-test] test %d query begin", cur_test);
                     lku_query_in_addr <= src;
                     lku_query_in_ready <= 1;
                     next_state <= STATE_QUERY;
@@ -106,10 +106,10 @@ always @(posedge lku_clk) begin
             if (lku_query_out_ready) begin
                 if (lku_query_out_nexthop != dest ||
                     lku_query_out_nextport != port) begin
-                    $display("[lookup] fail test %d, get hop %h, port %d", cur_test, lku_query_out_nexthop, lku_query_out_nextport);
+                    $display("[lookup-test] fail test %d, get hop %h, port %d", cur_test, lku_query_out_nexthop, lku_query_out_nextport);
                     next_state <= STATE_FAIL;
                 end else begin
-                    $display("[lookup] pass query %d, get hop %h, port %d", cur_test, lku_query_out_nexthop, lku_query_out_nextport);
+                    $display("[lookup-test] pass query %d, get hop %h, port %d", cur_test, lku_query_out_nexthop, lku_query_out_nextport);
                     next_state <= STATE_GET_TEST;
                 end
             end else
@@ -120,15 +120,19 @@ always @(posedge lku_clk) begin
             if (state == STATE_GET_TEST)
                 lku_modify_in_ready <= 0;
             if (lku_modify_finish) begin
-                $display("[lookup] test %d modify end", cur_test);
-                next_state <= STATE_GET_TEST;
+                $display("[lookup-test] test %d modify end", cur_test);
+                if (lku_full) begin
+                    $display("[lookup-test] full, stop test");
+                    next_state <= STATE_SUCC;
+                end else
+                    next_state <= STATE_GET_TEST;
             end else
                 next_state <= STATE_INSERT;
         end
         
         STATE_SUCC: begin
             if (state != STATE_SUCC)
-                $display("[lookup] Congratulations! All test pass!");
+                $display("[lookup-test] Congratulations! All test pass!");
             next_state <= STATE_SUCC;
         end
     endcase

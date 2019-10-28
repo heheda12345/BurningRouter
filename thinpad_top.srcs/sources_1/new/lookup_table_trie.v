@@ -15,7 +15,7 @@ module lookup_table_trie (
     input wire [1:0] modify_in_nextport,
     input wire [6:0] modify_in_len,
     output reg modify_finish,
-    output reg modify_succ // not implement, assume there are enough space
+    output reg full
 );
 
 parameter LOOKUP_OPT_QUERY = 1;
@@ -32,7 +32,7 @@ parameter STATE_WAIT_END = 3'b110;
 
 parameter ENTRY_WIDTH = 197;
 parameter ENTRY_ADDR_WIDTH = 10;
-parameter ENTRY_ADDR_MAX = (1<<(ENTRY_ADDR_WIDTH + 1));
+parameter ENTRY_ADDR_MAX = (1<<ENTRY_ADDR_WIDTH);
 
 //one trie node
 parameter CHILD_BEGIN = 0;
@@ -69,7 +69,7 @@ assign cur_mask_child = lookup_addr >> dep & upd_mask[(len-1)&3];
 xpm_memory_sdpram #(
     .ADDR_WIDTH_A(ENTRY_ADDR_WIDTH),
     .ADDR_WIDTH_B(ENTRY_ADDR_WIDTH),
-    .MEMORY_SIZE(ENTRY_WIDTH << ENTRY_ADDR_WIDTH),
+    .MEMORY_SIZE(ENTRY_WIDTH * ENTRY_ADDR_MAX),
     .READ_DATA_WIDTH_B(ENTRY_WIDTH),
     .READ_LATENCY_B(0),
     .WRITE_DATA_WIDTH_A(ENTRY_WIDTH),
@@ -96,6 +96,7 @@ initial begin
     upd_extend[1] <= 3;
     upd_extend[2] <= 1;
     upd_extend[3] <= 0;
+    full <= 0;
 end
 
 always @(posedge lku_clk) begin
@@ -112,8 +113,8 @@ always @(posedge lku_clk) begin
     case (next_state)
         STATE_PAUSE: begin
                 // $display("state: pause");
-                if (modify_in_ready) begin
-                    // $display("modify begin %h->%h", modify_in_addr, modify_in_nexthop);
+                if (modify_in_ready && !full) begin
+                    $display("[lookup] modify begin %h->%h", modify_in_addr, modify_in_nexthop);
                     dep <= 28;
                     read_addr <= 1;
                     lookup_addr <= modify_in_addr;
@@ -130,7 +131,7 @@ always @(posedge lku_clk) begin
                     write_enable <= 0;
                     read_enable <= 1;
                 end else if (query_in_ready) begin
-                    // $display("query begin %h", query_in_addr);
+                    $display("[lookup] query begin %h", query_in_addr);
                     dep <= 28;
                     read_addr <= 1;
                     next_state <= STATE_QUE_READ;
@@ -259,15 +260,13 @@ end
 always @(posedge lku_clk) begin
     if (state == STATE_WAIT_END && next_state == STATE_PAUSE) begin
         modify_finish <= 1;
-        modify_succ <= 1;
-        $display("modify end, node cnt %d", node_cnt);
+        $display("[lookup] modify end, node cnt %d", node_cnt);
     end else begin
         modify_finish <= 0;
-        modify_succ <= 0;
     end
     if (state == STATE_QUE_READ && next_state == STATE_PAUSE) begin
         query_out_ready <= 1;
-        $display("query end %h", query_out_nexthop);
+        $display("[lookup] query end %h", query_out_nexthop);
     end else
         query_out_ready <= 0;
 end
@@ -291,6 +290,12 @@ always @(bram_entry_read or read_enable) begin
         entry_read <= bram_entry_read;
     else
         entry_read <= 0;
+end
+
+always @(node_cnt) begin
+    if (node_cnt + 20 > ENTRY_ADDR_MAX) begin
+        full <= 1;
+    end
 end
 
 endmodule
