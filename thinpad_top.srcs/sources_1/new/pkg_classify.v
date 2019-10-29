@@ -24,7 +24,10 @@ module pkg_classify(
     output     [7:0] tx_axis_fifo_tdata,
     output           tx_axis_fifo_tvalid,
     output           tx_axis_fifo_tlast,
-    input            tx_axis_fifo_tready
+    input            tx_axis_fifo_tready,
+
+    output is_ipv4,
+    output is_arp
 );
 
 //parameter MAC_BROADCAST = 48'hffffffffffff;
@@ -377,24 +380,27 @@ blk_mem_gen_0 blk_mem_inst (
     .doutb(mem_read_data)
 );
 
-assign mem_write_addr = read_state == WAIT && sub_procedure_type == ARP ? arp_mem_write_addr : (
-    read_state == WAIT && sub_procedure_type == IPV4 ? ipv4_mem_write_addr : top_mem_write_addr
+assign is_arp = read_state == WAIT && sub_procedure_type == ARP;
+assign is_ipv4 = read_state == WAIT && sub_procedure_type == IPV4;
+
+assign mem_write_addr = is_arp ? arp_mem_write_addr : (
+    is_ipv4 ? ipv4_mem_write_addr : top_mem_write_addr
 );
-assign mem_write_ena = read_state == WAIT && sub_procedure_type == ARP ? arp_mem_write_ena : (
-    read_state == WAIT && sub_procedure_type == IPV4 ? ipv4_mem_write_ena : top_mem_write_ena
+assign mem_write_ena = is_arp ? arp_mem_write_ena : (
+    is_ipv4 ? ipv4_mem_write_ena : top_mem_write_ena
 );
-assign mem_write_data = read_state == WAIT && sub_procedure_type == ARP ? arp_mem_write_data : (
-    read_state == WAIT && sub_procedure_type == IPV4 ? ipv4_mem_write_data : top_mem_write_data
+assign mem_write_data = is_arp ? arp_mem_write_data : (
+    is_ipv4 ? ipv4_mem_write_data : top_mem_write_data
 );
 
-assign buf_start = read_state == WAIT && sub_procedure_type == ARP ? arp_buf_start : (
-    read_state == WAIT && sub_procedure_type == IPV4 ? ipv4_buf_start : 0
+assign buf_start = is_arp ? arp_buf_start : (
+    is_ipv4 ? ipv4_buf_start : 0
 );
-assign buf_last = read_state == WAIT && sub_procedure_type == ARP ? arp_buf_last : (
-    read_state == WAIT && sub_procedure_type == IPV4 ? ipv4_buf_last : 0
+assign buf_last = is_arp ? arp_buf_last : (
+    is_ipv4 ? ipv4_buf_last : 0
 );
-assign buf_end_addr = read_state == WAIT && sub_procedure_type == ARP ? arp_buf_end_addr : (
-    read_state == WAIT && sub_procedure_type == IPV4 ? ipv4_buf_end_addr : 0
+assign buf_end_addr = is_arp ? arp_buf_end_addr : (
+    is_ipv4 ? ipv4_buf_end_addr : 0
 );
 
 assign rx_axis_fifo_tready = sub_procedure_type == ARP ? arp_rx_axis_fifo_tready : (
