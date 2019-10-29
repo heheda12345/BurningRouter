@@ -1,5 +1,5 @@
 module arp_table
-#(parameter VLAN_PORT_WIDTH = 8, TABLE_ENTRY_WIDTH = 4)
+#(parameter VLAN_PORT_WIDTH = 8, TABLE_ENTRY_WIDTH = 2) ////////////////////////////
 (
     input clk,
     input syn_rst, 

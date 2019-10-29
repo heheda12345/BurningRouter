@@ -302,7 +302,7 @@ always @ (posedge clk) begin
             mem_write_addr <= buf_start_addr;
             mem_write_counter <= 0;
         end
-        else if (next_read_state > START && ipv4_read_state <= BODY) begin
+        else if (next_read_state > START && next_read_state <= BODY) begin
             mem_write_addr <= rx_axis_fifo_tvalid ? buf_start_addr + mem_write_counter + 1 : buf_start_addr + mem_write_counter;
             mem_write_counter <= rx_axis_fifo_tvalid ? mem_write_counter + 1 : mem_write_counter;
         end
@@ -379,8 +379,11 @@ always @(posedge clk) begin
     if (lookup_query_out_ready) begin
         dest_vlan_port_r <= dest_vlan_port;
         dest_ipv4_address_r <= lookup_query_out_nexthop;
-        arp_table_output_mac_addr_r <= arp_table_output_mac_addr;
     end
+end
+always @(lookup_query_out_ready or arp_table_output_mac_addr) begin
+    if (lookup_query_out_ready)
+        arp_table_output_mac_addr_r <= arp_table_output_mac_addr;
 end
 
 assign lookup_query_in_addr = dst_ip;
