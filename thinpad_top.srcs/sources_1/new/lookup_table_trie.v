@@ -31,12 +31,12 @@ parameter STATE_QUE_READ = 3'b101;
 parameter STATE_WAIT_END = 3'b110;
 
 parameter ENTRY_WIDTH = 197;
-parameter ENTRY_ADDR_WIDTH = 10;
+parameter ENTRY_ADDR_WIDTH = 6;
 parameter ENTRY_ADDR_MAX = (1<<ENTRY_ADDR_WIDTH);
 
 //one trie node
 parameter CHILD_BEGIN = 0;
-parameter CHILD_END = ENTRY_ADDR_WIDTH << 4;
+parameter CHILD_END = (ENTRY_ADDR_WIDTH << 4) - 1;
 parameter NXT_HOP_BEGIN = CHILD_END + 1;
 parameter NXT_HOP_END   = CHILD_END + 32;
 parameter NXT_PORT_BEGIN = CHILD_END + 33;
