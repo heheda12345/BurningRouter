@@ -91,7 +91,7 @@ reg [3:0] header_length = 0;
 reg [5:0] header_counter = 0;
 reg [3:0] write_counter = 0;
 reg [15:0] total_length = 0, total_counter = 0;
-reg [23:0] checksum = 0; // little-endian
+(*MARK_DEBUG="TRUE"*)reg [23:0] checksum = 0; // little-endian
 reg [15:0] checksum_text = 0;
 wire [31:0] dst_ip;
 wire [7:0] dest_vlan_port, dest_mac_addr;
@@ -258,6 +258,7 @@ always @(posedge clk) begin
             checksum[23:8] <= checksum[23:8] + rx_axis_fifo_tdata;
         else checksum <= checksum + rx_axis_fifo_tdata;
     end
+    else checksum <= 0;
     if (next_read_state == CHECKSUM) begin
         if (header_counter[0] == 0) 
             checksum_text[15:8] <= rx_axis_fifo_tdata;

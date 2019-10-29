@@ -100,9 +100,33 @@ assign debug[5:4] = sub_procedure_type;
 
 // manual forward table
 initial begin
-    lookup_modify_in_addr <= 32'h0a000103;
-    lookup_modify_in_nexthop <= 32'h0a000002;
+    lookup_modify_in_addr <= 32'h0a00000b;
+    lookup_modify_in_nexthop <= 32'h0a000001;
     lookup_modify_in_nextport <= 2'h0;
+    lookup_modify_in_len <= 32;
+    lookup_modify_in_ready <= 1;
+    #10
+    lookup_modify_in_ready <= 0;
+    #10
+    lookup_modify_in_addr <= 32'h0a00000c;
+    lookup_modify_in_nexthop <= 32'h0a000002;
+    lookup_modify_in_nextport <= 2'h1;
+    lookup_modify_in_len <= 32;
+    lookup_modify_in_ready <= 1;
+    #10
+    lookup_modify_in_ready <= 0;
+    #10
+    lookup_modify_in_addr <= 32'h0a00000d;
+    lookup_modify_in_nexthop <= 32'h0a000003;
+    lookup_modify_in_nextport <= 2'h2;
+    lookup_modify_in_len <= 32;
+    lookup_modify_in_ready <= 1;
+    #10
+    lookup_modify_in_ready <= 0;
+    #10
+    lookup_modify_in_addr <= 32'h0a00000e;
+    lookup_modify_in_nexthop <= 32'h0a000004;
+    lookup_modify_in_nextport <= 2'h3;
     lookup_modify_in_len <= 32;
     lookup_modify_in_ready <= 1;
     #10
