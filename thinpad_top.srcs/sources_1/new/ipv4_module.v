@@ -44,7 +44,8 @@ module ipv4_module(
     input [47:0] arp_table_output_mac_addr, 
     input arp_table_query_exist,
     
-    input [31:0] MY_IPV4_ADDRESS
+    input [31:0] MY_IPV4_ADDRESS, 
+    input [47:0] MY_MAC_ADDRESS
 );
 
 localparam IDLE             = 5'h0,
@@ -70,8 +71,9 @@ localparam WRITE_WAIT          = 5'h1,
            WRITE_VLAN_PORT     = 5'h3,
            WRITE_CHECKSUM      = 5'h4, 
            WRITE_BLOCKED       = 5'h5,
-           WRITE_PUSH          = 5'h6,
-           WRITE_TOCPU          = 5'h6;
+           WRITE_ARPREQUEST    = 5'h6,
+           WRITE_PUSH          = 5'h7,
+           WRITE_TOCPU         = 5'h8;
 
 localparam WRITE_TOTAL = 46;
 
@@ -95,6 +97,10 @@ wire [31:0] dst_ip;
 wire [7:0] dest_vlan_port, dest_mac_addr;
 reg [7:0] dest_vlan_port_r;
 reg [47:0] arp_table_output_mac_addr_r;
+reg [31:0] dest_ipv4_address_r;
+wire [7:0] arp_request_data;
+wire [5:0] arp_request_counter;
+wire arp_request_last;
 
 always @ (posedge clk) begin
     ipv4_read_state <= next_read_state;
@@ -139,7 +145,7 @@ always @ (*) begin
         DEST: begin
             if (rx_axis_fifo_tvalid && header_counter == 20) begin
                 if (header_counter[5:2] == header_length) begin
-                    // it is possible that this number overflows. Why we do not check it?
+                    // it is possible that this number overflows. Why do we not check it?
                     // 1. if checksum could have been proved to be right but considered wrong as a result of overflowing, 
                     //    the correct checksum must be 0x1fffe, so checksum[15:0] == checksum[23:16] == 0xffff, where it 
                     //    is impossible for the latter half equation to hold.
@@ -169,7 +175,9 @@ always @ (*) begin
             next_read_state <= rx_last ? (ipv4_write_state == IDLE || ipv4_write_state == OVER ? OVER : WAIT) : TAIL;
         end
         DISCARD: begin
-            next_read_state <= rx_axis_fifo_tvalid && rx_axis_fifo_tlast ? OVER : DISCARD;
+            next_read_state <= rx_axis_fifo_tvalid && rx_axis_fifo_tlast ? (
+                ipv4_write_state == IDLE || ipv4_write_state == OVER ? OVER : WAIT
+            ) : DISCARD;
         end
         // pipeline, so ... no waiting?
         WAIT: begin
@@ -195,7 +203,7 @@ always @ (*) begin
             ) : IDLE;
         end
         WRITE_WAIT: begin
-            next_write_state <= lookup_query_out_ready ? (arp_table_query_exist ? WRITE_DEST_MAC_ADDR : OVER) : WRITE_WAIT;
+            next_write_state <= lookup_query_out_ready ? (arp_table_query_exist ? WRITE_DEST_MAC_ADDR : WRITE_ARPREQUEST) : WRITE_WAIT;
         end
         WRITE_DEST_MAC_ADDR : begin
             next_write_state <= write_counter == 6 ? WRITE_VLAN_PORT : WRITE_DEST_MAC_ADDR;
@@ -208,6 +216,9 @@ always @ (*) begin
         end
         WRITE_BLOCKED: begin
             next_write_state <= buf_ready ? WRITE_PUSH : WRITE_BLOCKED;
+        end
+        WRITE_ARPREQUEST: begin
+            next_write_state <= arp_request_last ? WRITE_PUSH : WRITE_ARPREQUEST; // to be implemented...
         end
         WRITE_PUSH: begin
             next_write_state <= OVER;
@@ -261,7 +272,13 @@ end
 
 // BRAM writing is 1 clock period behind FIFO reading
 always @ (posedge clk) begin
-    if (next_write_state == WRITE_DEST_MAC_ADDR) begin
+    if (next_write_state == WRITE_ARPREQUEST) begin
+        mem_write_data <= arp_request_data;
+        mem_write_ena <= 1;
+        mem_write_addr <= buf_start_addr + arp_request_counter;
+        mem_write_counter <= arp_request_counter;
+    end
+    else if (next_write_state == WRITE_DEST_MAC_ADDR) begin
         mem_write_addr <= buf_start_addr + write_counter;
         mem_write_ena <= 1;
         mem_write_data <= dest_mac_addr;
@@ -322,6 +339,20 @@ always @ (posedge clk) begin
 end
 */
 
+arp_request_sender arp_request_sender_inst (
+    .clk(clk), 
+    .rst(rst), 
+    .ready(next_write_state == WRITE_ARPREQUEST), 
+    .opcode(1), 
+    .last(arp_request_last), 
+    .arp_counter(arp_request_counter), 
+    .my_mac_address(MY_MAC_ADDRESS), 
+    .my_ipv4_address(MY_IPV4_ADDRESS),
+    .target_ipv4_address(dest_ipv4_address_r), 
+    .target_vlan_port(dest_vlan_port_r),
+    .data(arp_request_data)
+);
+
 async_setter # (.LEN(4), .ADDR_WIDTH(2)) src_ip_setter (
     .value(src_ip),
     .clk(clk), 
@@ -346,6 +377,7 @@ assign dest_vlan_port = lookup_query_out_ready ? lookup_query_out_nextport + 1 :
 always @(posedge clk) begin
     if (lookup_query_out_ready) begin
         dest_vlan_port_r <= dest_vlan_port;
+        dest_ipv4_address_r <= lookup_query_out_nexthop;
         arp_table_output_mac_addr_r <= arp_table_output_mac_addr;
     end
 end

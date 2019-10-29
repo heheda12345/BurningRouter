@@ -338,6 +338,7 @@ ipv4_module ipv4_module_inst(
     .arp_table_output_mac_addr(arp_table_query_output_mac_addr), 
     .arp_table_query_exist(arp_table_query_exist),
 
+    .MY_MAC_ADDRESS(MY_MAC_ADDR),
     .MY_IPV4_ADDRESS(MY_IPV4_ADDR)
 );
 

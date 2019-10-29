@@ -292,3 +292,71 @@ assign arp_table_insert = arp_table_edit_enable && target_ip == MY_IPV4_ADDRESS 
 assign arp_table_update = arp_table_edit_enable && arp_table_exist;
 
 endmodule
+
+module arp_request_sender(
+    input clk, 
+    input rst, 
+    input ready,
+    output reg last = 0,
+    output reg [5:0] arp_counter = 0,
+
+    input [7:0] opcode, 
+    input [47:0] my_mac_address,
+    input [31:0] my_ipv4_address, 
+    input [31:0] target_ipv4_address,
+    input [7:0] target_vlan_port,
+    output reg [7:0] data
+);
+
+wire [7:0] my_mac_address_i1, my_mac_address_i2, pattern_i, target_ipv4_address_i, my_ipv4_address_i;
+
+always @(posedge clk) begin
+    arp_counter <= !rst && !last ? (ready ? arp_counter + 1 : arp_counter) : 0;
+    last <= !ready ? 0 : (arp_counter >= 46 ? 1 : 0);
+end
+
+async_getter # (.LEN(6)) my_mac_address_getter1 (
+    .value(my_mac_address_i1), 
+    .index(arp_counter - 6), 
+    .data_input(my_mac_address)
+);
+async_getter # (.LEN(6)) my_mac_address_getter2 (
+    .value(my_mac_address_i2), 
+    .index(arp_counter - 26), 
+    .data_input(my_mac_address)
+);
+async_getter # (.LEN(4), .ADDR_WIDTH(2)) my_ipv4_address_getter (
+    .value(my_ipv4_address_i), 
+    .index(arp_counter[1:0]), 
+    .data_input(my_ipv4_address)
+);
+async_getter # (.LEN(4), .ADDR_WIDTH(2)) target_ipv4_address_getter (
+    .value(target_ipv4_address_i), 
+    .index(arp_counter - 42), 
+    .data_input(target_ipv4_address)
+);
+async_getter # (.LEN(24), .ADDR_WIDTH(6)) pattern_getter (
+    .data_input(192'hffffffffffff000000000000810000000806000108000604), 
+    .index(arp_counter), 
+    .value(pattern_i)
+);
+
+always @(*) begin
+    if (6 <= arp_counter && arp_counter <= 11)
+        data <= my_mac_address_i1;
+    else if (arp_counter == 15)
+        data <= target_vlan_port;
+    else if (arp_counter == 25)
+        data <= opcode;
+    else if (arp_counter >= 26 && arp_counter < 32)
+        data <= my_mac_address_i2;
+    else if (arp_counter >= 32 && arp_counter < 36)
+        data <= my_ipv4_address_i;
+    else if (arp_counter >= 42 && arp_counter < 46)
+        data <= target_ipv4_address_i;
+    else if (arp_counter < 24) 
+        data <= pattern_i;
+    else data <= 0;
+end
+
+endmodule // arp_request_sender
