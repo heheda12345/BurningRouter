@@ -233,11 +233,11 @@ always @ (*) begin
     endcase
 end
 
-assign rx_axis_fifo_tready = rx_axis_fifo_tvalid && (ipv4_read_state >= START && ipv4_read_state <= DISCARD);
+assign rx_axis_fifo_tready = rx_axis_fifo_tvalid && (ipv4_read_state >= START && ipv4_read_state <= DISCARD) && !(next_write_state >= WRITE_DEST_MAC_ADDR && next_write_state <= WRITE_CHECKSUM);
 
 always @ (posedge clk) begin
-    header_counter <= rx_axis_fifo_tvalid && (next_read_state >= HEADER_LEN && next_read_state < BODY) ? header_counter + 1 : 0;
-    total_counter <= rx_axis_fifo_tvalid && (next_read_state >= HEADER_LEN && next_read_state <= BODY) ? total_counter + 1 : 0;
+    header_counter <= next_read_state >= HEADER_LEN && next_read_state < BODY ? (rx_axis_fifo_tready ?header_counter + 1 : header_counter) : 0;
+    total_counter <= next_read_state >= HEADER_LEN && next_read_state <= BODY ? (rx_axis_fifo_tready ?total_counter + 1 : total_counter) : 0;
     write_counter <= next_write_state >= WRITE_DEST_MAC_ADDR && next_write_state <= WRITE_CHECKSUM ? write_counter + 1 : 0;
 end
 
@@ -303,8 +303,8 @@ always @ (posedge clk) begin
             mem_write_counter <= 0;
         end
         else if (next_read_state > START && next_read_state <= BODY) begin
-            mem_write_addr <= rx_axis_fifo_tvalid ? buf_start_addr + mem_write_counter + 1 : buf_start_addr + mem_write_counter;
-            mem_write_counter <= rx_axis_fifo_tvalid ? mem_write_counter + 1 : mem_write_counter;
+            mem_write_addr <= rx_axis_fifo_tready ? buf_start_addr + mem_write_counter + 1 : buf_start_addr + mem_write_counter;
+            mem_write_counter <= rx_axis_fifo_tready ? mem_write_counter + 1 : mem_write_counter;
         end
 
         mem_write_ena <= next_read_state > START && next_read_state <= BODY;
