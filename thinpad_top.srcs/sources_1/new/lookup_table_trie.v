@@ -36,14 +36,14 @@ parameter ENTRY_ADDR_MAX = (1<<ENTRY_ADDR_WIDTH);
 
 //one trie node
 parameter CHILD_BEGIN = 0;
-parameter CHILD_END = 159;
-parameter NXT_HOP_BEGIN = 160;
-parameter NXT_HOP_END   = 191;
-parameter NXT_PORT_BEGIN = 192;
-parameter NXT_PORT_END = 193;
-parameter LEN_BEGIN = 194;
-parameter LEN_END = 195;
-parameter VALID_POS = 196;
+parameter CHILD_END = ENTRY_ADDR_WIDTH << 4;
+parameter NXT_HOP_BEGIN = CHILD_END + 1;
+parameter NXT_HOP_END   = CHILD_END + 32;
+parameter NXT_PORT_BEGIN = CHILD_END + 33;
+parameter NXT_PORT_END = CHILD_END + 34;
+parameter LEN_BEGIN = CHILD_END + 35;
+parameter LEN_END = CHILD_END + 36;
+parameter VALID_POS = CHILD_END + 37;
 
 reg[ENTRY_ADDR_WIDTH-1: 0] write_addr, read_addr;
 reg[ENTRY_WIDTH-1: 0] entry, entry_to_write, entry_read;
