@@ -58,7 +58,6 @@ reg[ENTRY_ADDR_WIDTH-1:0] cur, node_cnt;
 
 reg[3:0] upd_child, upd_last;
 wire[3:0] cur_child, cur_mask_child;
-reg set_entry_upd_child = 0, set_entry_write_child = 0;
 
 reg[3:0] upd_mask[3:0];
 reg[3:0] upd_extend[3:0];
@@ -160,10 +159,10 @@ always @(posedge lku_clk) begin
                     upd_child <= cur_mask_child;
                     upd_last <= cur_mask_child | upd_extend[len-1];
                     cur <= read_addr;
-                    entry <= entry_read;
                     if (entry_read[(cur_mask_child+1)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH] == 0) begin
                         node_cnt <= node_cnt + 1;
-                        set_entry_upd_child <= 1;
+                        entry <= entry_read | 
+                            ((node_cnt + 1) << (cur_mask_child * ENTRY_ADDR_WIDTH));
                         read_addr <= node_cnt + 1;
                         read_enable <= 0;
                         write_enable <= 0;
@@ -171,27 +170,27 @@ always @(posedge lku_clk) begin
                         read_addr <= entry_read[(cur_mask_child+1)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH];
                         read_enable <= 1;
                         write_enable <= 0;
+                        entry <= entry_read;
                     end
                     next_state <= STATE_INS_SET;
                 end else begin
                     upd_child <= cur_child;
                     entry <= entry_read;
+                    len <= len-4;
+                    dep <= dep-4;
                     // $display("check child: %d %d", cur_child, entry_read[(cur_child<<4)+15-: 16]);
                     if (entry_read[(cur_child+1)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH] == 0) begin
-                        entry_to_write <= entry_read;
-                        set_entry_write_child <= 1;
+                        entry_to_write <= entry_read | 
+                            ((node_cnt+1) << (cur_child * ENTRY_ADDR_WIDTH));
                         write_addr <= read_addr;
                         write_enable <= 1;
                         read_enable <= 0;
                         read_addr <= node_cnt + 1;
                         node_cnt <= node_cnt + 1;
-                        // do len-=4, dep-=4 in set_entry_write_child
                     end else begin
                         read_addr <= entry_read[(cur_child+1)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH];
                         read_enable <= 1;
                         write_enable <= 0;
-                        len <= len-4;
-                        dep <= dep-4;
                     end
                     next_state <= STATE_INS_READ;
                 end
@@ -206,7 +205,7 @@ always @(posedge lku_clk) begin
                 write_addr <= read_addr;
                 if (upd_child != upd_last) begin
                     if (entry[(upd_child+2)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH] == 4'b0000) begin
-                        set_entry_upd_child <= 1;
+                        entry[(upd_child+2)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH] <= node_cnt + 1;
                         read_addr <= node_cnt + 1;
                         node_cnt <= node_cnt + 1;
                         read_enable <= 0;
@@ -272,18 +271,6 @@ always @(posedge lku_clk) begin
 end
 
 // simulate c++
-always @(posedge set_entry_upd_child) begin
-    set_entry_upd_child <= 0;
-    entry[(upd_child+1)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH] <= node_cnt;
-end
-
-always @(posedge set_entry_write_child) begin
-    // $display("set entry write child %d: cnt %d", cur_child, node_cnt);
-    set_entry_write_child <= 0;
-    entry_to_write[(cur_child+1)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH] <= node_cnt;
-    len <= len-4;
-    dep <= dep-4;
-end
 
 always @(bram_entry_read or read_enable) begin
     if (read_enable == 1)

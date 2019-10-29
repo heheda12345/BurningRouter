@@ -135,6 +135,10 @@ always @(posedge lku_clk) begin
                 $display("[lookup-test] Congratulations! All test pass!");
             next_state <= STATE_SUCC;
         end
+
+        STATE_FAIL: begin
+            next_state <= STATE_FAIL;
+        end
     endcase
 end    
    
