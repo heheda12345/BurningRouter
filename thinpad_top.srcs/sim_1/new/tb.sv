@@ -1,74 +1,89 @@
 `timescale 1ns / 1ps
 module tb;
 
-wire clk_50M, clk_11M0592;
+wire clk_50M, clk_11M0592, clk_125M, clk_125M_90deg;
 
-reg clock_btn = 0;         //BTN5手动时钟按钮开关，带消抖电路，按下时为1
-reg reset_btn = 0;         //BTN6手动复位按钮开关，带消抖电路，按下时为1
+reg clock_btn = 0;         //BTN5鎵嬪姩鏃堕挓鎸夐挳锟???鍏筹紝甯︽秷鎶栫數璺紝鎸変笅鏃朵负1
+reg reset_btn = 0;         //BTN6鎵嬪姩澶嶄綅鎸夐挳锟???鍏筹紝甯︽秷鎶栫數璺紝鎸変笅鏃朵负1
 
-reg[3:0]  touch_btn;  //BTN1~BTN4，按钮开关，按下时为1
-reg[31:0] dip_sw;     //32位拨码开关，拨到“ON”时为1
+reg[3:0]  touch_btn;  //BTN1~BTN4锛屾寜閽紑鍏筹紝鎸変笅鏃朵负1
+reg[31:0] dip_sw;     //32浣嶆嫧鐮佸紑鍏筹紝鎷ㄥ埌鈥淥N鈥濇椂锟???1
 
-wire[15:0] leds;       //16位LED，输出时1点亮
-wire[7:0]  dpy0;       //数码管低位信号，包括小数点，输出1点亮
-wire[7:0]  dpy1;       //数码管高位信号，包括小数点，输出1点亮
+wire[15:0] leds;       //16浣峀ED锛岃緭鍑烘椂1鐐逛寒
+wire[7:0]  dpy0;       //鏁扮爜绠′綆浣嶄俊鍙凤紝鍖呮嫭灏忔暟鐐癸紝杈撳嚭1鐐逛寒
+wire[7:0]  dpy1;       //鏁扮爜绠￠珮浣嶄俊鍙凤紝鍖呮嫭灏忔暟鐐癸紝杈撳嚭1鐐逛寒
 
-wire txd;  //直连串口发送端
-wire rxd;  //直连串口接收端
+wire txd;  //鐩磋繛涓插彛鍙戯拷?锟界
+wire rxd;  //鐩磋繛涓插彛鎺ユ敹锟???
 
-wire[31:0] base_ram_data; //BaseRAM数据，低8位与CPLD串口控制器共享
-wire[19:0] base_ram_addr; //BaseRAM地址
-wire[3:0] base_ram_be_n;  //BaseRAM字节使能，低有效。如果不使用字节使能，请保持为0
-wire base_ram_ce_n;       //BaseRAM片选，低有效
-wire base_ram_oe_n;       //BaseRAM读使能，低有效
-wire base_ram_we_n;       //BaseRAM写使能，低有效
+wire[31:0] base_ram_data; //BaseRAM鏁版嵁锛屼綆8浣嶄笌CPLD涓插彛鎺у埗鍣ㄥ叡锟???
+wire[19:0] base_ram_addr; //BaseRAM鍦板潃
+wire[3:0] base_ram_be_n;  //BaseRAM瀛楄妭浣胯兘锛屼綆鏈夋晥銆傚鏋滀笉浣跨敤瀛楄妭浣胯兘锛岃淇濇寔锟???0
+wire base_ram_ce_n;       //BaseRAM鐗囷拷?锟斤紝浣庢湁锟???
+wire base_ram_oe_n;       //BaseRAM璇讳娇鑳斤紝浣庢湁锟???
+wire base_ram_we_n;       //BaseRAM鍐欎娇鑳斤紝浣庢湁锟???
 
-wire[31:0] ext_ram_data; //ExtRAM数据
-wire[19:0] ext_ram_addr; //ExtRAM地址
-wire[3:0] ext_ram_be_n;  //ExtRAM字节使能，低有效。如果不使用字节使能，请保持为0
-wire ext_ram_ce_n;       //ExtRAM片选，低有效
-wire ext_ram_oe_n;       //ExtRAM读使能，低有效
-wire ext_ram_we_n;       //ExtRAM写使能，低有效
+wire[31:0] ext_ram_data; //ExtRAM鏁版嵁
+wire[19:0] ext_ram_addr; //ExtRAM鍦板潃
+wire[3:0] ext_ram_be_n;  //ExtRAM瀛楄妭浣胯兘锛屼綆鏈夋晥銆傚鏋滀笉浣跨敤瀛楄妭浣胯兘锛岃淇濇寔锟???0
+wire ext_ram_ce_n;       //ExtRAM鐗囷拷?锟斤紝浣庢湁锟???
+wire ext_ram_oe_n;       //ExtRAM璇讳娇鑳斤紝浣庢湁锟???
+wire ext_ram_we_n;       //ExtRAM鍐欎娇鑳斤紝浣庢湁锟???
 
-wire [22:0]flash_a;      //Flash地址，a0仅在8bit模式有效，16bit模式无意义
-wire [15:0]flash_d;      //Flash数据
-wire flash_rp_n;         //Flash复位信号，低有效
-wire flash_vpen;         //Flash写保护信号，低电平时不能擦除、烧写
-wire flash_ce_n;         //Flash片选信号，低有效
-wire flash_oe_n;         //Flash读使能信号，低有效
-wire flash_we_n;         //Flash写使能信号，低有效
-wire flash_byte_n;       //Flash 8bit模式选择，低有效。在使用flash的16位模式时请设为1
+wire [22:0]flash_a;      //Flash鍦板潃锛宎0浠呭湪8bit妯″紡鏈夋晥锟???16bit妯″紡鏃犳剰锟???
+wire [15:0]flash_d;      //Flash鏁版嵁
+wire flash_rp_n;         //Flash澶嶄綅淇″彿锛屼綆鏈夋晥
+wire flash_vpen;         //Flash鍐欎繚鎶や俊鍙凤紝浣庣數骞虫椂涓嶈兘鎿﹂櫎銆佺儳锟???
+wire flash_ce_n;         //Flash鐗囷拷?锟戒俊鍙凤紝浣庢湁锟???
+wire flash_oe_n;         //Flash璇讳娇鑳戒俊鍙凤紝浣庢湁锟???
+wire flash_we_n;         //Flash鍐欎娇鑳戒俊鍙凤紝浣庢湁锟???
+wire flash_byte_n;       //Flash 8bit妯″紡閫夋嫨锛屼綆鏈夋晥銆傚湪浣跨敤flash锟???16浣嶆ā寮忔椂璇疯锟???1
 
-wire uart_rdn;           //读串口信号，低有效
-wire uart_wrn;           //写串口信号，低有效
-wire uart_dataready;     //串口数据准备好
-wire uart_tbre;          //发送数据标志
-wire uart_tsre;          //数据发送完毕标志
+wire uart_rdn;           //璇讳覆鍙ｄ俊鍙凤紝浣庢湁锟???
+wire uart_wrn;           //鍐欎覆鍙ｄ俊鍙凤紝浣庢湁锟???
+wire uart_dataready;     //涓插彛鏁版嵁鍑嗗锟???
+wire uart_tbre;          //鍙戯拷?锟芥暟鎹爣锟???
+wire uart_tsre;          //鏁版嵁鍙戯拷?锟藉畬姣曟爣锟???
 
-//Windows需要注意路径分隔符的转义，例如"D:\\foo\\bar.bin"
-parameter BASE_RAM_INIT_FILE = "/tmp/main.bin"; //BaseRAM初始化文件，请修改为实际的绝对路径
-parameter EXT_RAM_INIT_FILE = "/tmp/eram.bin";    //ExtRAM初始化文件，请修改为实际的绝对路径
-parameter FLASH_INIT_FILE = "/tmp/kernel.elf";    //Flash初始化文件，请修改为实际的绝对路径
+wire [3:0] eth_rgmii_rd; //RGMII RX 鏁版嵁
+wire eth_rgmii_rx_ctl;   //RGMII RX 鎺у埗
+wire eth_rgmii_rxc;      //RGMII RX 鏃堕挓
+wire [3:0] eth_rgmii_td; //RGMII TX 鏁版嵁
+wire eth_rgmii_tx_ctl;   //RGMII TX 鎺у埗
+wire eth_rgmii_txc;      //RGMII TX 鏃堕挓
+
+//Windows锟???瑕佹敞鎰忚矾寰勫垎闅旂鐨勮浆涔夛紝渚嬪"D:\\foo\\bar.bin"
+parameter BASE_RAM_INIT_FILE = "/tmp/main.bin"; //BaseRAM鍒濆鍖栨枃浠讹紝璇蜂慨鏀逛负瀹為檯鐨勭粷瀵硅矾锟???
+parameter EXT_RAM_INIT_FILE = "/tmp/eram.bin";    //ExtRAM鍒濆鍖栨枃浠讹紝璇蜂慨鏀逛负瀹為檯鐨勭粷瀵硅矾锟???
+parameter FLASH_INIT_FILE = "/tmp/kernel.elf";    //Flash鍒濆鍖栨枃浠讹紝璇蜂慨鏀逛负瀹為檯鐨勭粷瀵硅矾锟???
 
 assign rxd = 1'b1; //idle state
 
 initial begin 
-    //在这里可以自定义测试输入序列，例如：
+    //鍦ㄨ繖閲屽彲浠ヨ嚜瀹氫箟娴嬭瘯杈撳叆搴忓垪锛屼緥濡傦細
     dip_sw = 32'h2;
     touch_btn = 0;
     for (integer i = 0; i < 20; i = i+1) begin
-        #100; //等待100ns
-        clock_btn = 1; //按下手工时钟按钮
-        #100; //等待100ns
-        clock_btn = 0; //松开手工时钟按钮
+        #100; //绛夊緟100ns
+        clock_btn = 1; //鎸変笅鎵嬪伐鏃堕挓鎸夐挳
+        #100; //绛夊緟100ns
+        clock_btn = 0; //鏉惧紑鎵嬪伐鏃堕挓鎸夐挳
     end
-    // 模拟PC通过串口发送字符
+    // 妯℃嫙PC閫氳繃涓插彛鍙戯拷?锟藉瓧锟???
     cpld.pc_send_byte(8'h32);
     #10000;
     cpld.pc_send_byte(8'h33);
 end
 
-// 待测试用户设计
+/*initial begin
+    #1015
+    reset_btn = 1;
+end
+always @ (posedge clk_50M) begin
+    if (reset_btn == 1) reset_btn = 0;
+end*/
+
+// 寰呮祴璇曠敤鎴疯锟???
 thinpad_top dut(
     .clk_50M(clk_50M),
     .clk_11M0592(clk_11M0592),
@@ -105,14 +120,22 @@ thinpad_top dut(
     .flash_oe_n(flash_oe_n),
     .flash_ce_n(flash_ce_n),
     .flash_byte_n(flash_byte_n),
-    .flash_we_n(flash_we_n)
+    .flash_we_n(flash_we_n),
+    .eth_rgmii_rd(eth_rgmii_rd),
+    .eth_rgmii_rx_ctl(eth_rgmii_rx_ctl),
+    .eth_rgmii_rxc(eth_rgmii_rxc),
+    .eth_rgmii_td(eth_rgmii_td),
+    .eth_rgmii_tx_ctl(eth_rgmii_tx_ctl),
+    .eth_rgmii_txc(eth_rgmii_txc)
 );
-// 时钟源
+// 鏃堕挓锟???
 clock osc(
-    .clk_11M0592(clk_11M0592),
-    .clk_50M    (clk_50M)
+    .clk_11M0592   (clk_11M0592),
+    .clk_50M       (clk_50M),
+    .clk_125M      (clk_125M),
+    .clk_125M_90deg(clk_125M_90deg)
 );
-// CPLD 串口仿真模型
+// CPLD 涓插彛浠跨湡妯″瀷
 cpld_model cpld(
     .clk_uart(clk_11M0592),
     .uart_rdn(uart_rdn),
@@ -122,7 +145,7 @@ cpld_model cpld(
     .uart_tsre(uart_tsre),
     .data(base_ram_data[7:0])
 );
-// BaseRAM 仿真模型
+// BaseRAM 浠跨湡妯″瀷
 sram_model base1(/*autoinst*/
             .DataIO(base_ram_data[15:0]),
             .Address(base_ram_addr[19:0]),
@@ -139,7 +162,7 @@ sram_model base2(/*autoinst*/
             .WE_n(base_ram_we_n),
             .LB_n(base_ram_be_n[2]),
             .UB_n(base_ram_be_n[3]));
-// ExtRAM 仿真模型
+// ExtRAM 浠跨湡妯″瀷
 sram_model ext1(/*autoinst*/
             .DataIO(ext_ram_data[15:0]),
             .Address(ext_ram_addr[19:0]),
@@ -156,7 +179,7 @@ sram_model ext2(/*autoinst*/
             .WE_n(ext_ram_we_n),
             .LB_n(ext_ram_be_n[2]),
             .UB_n(ext_ram_be_n[3]));
-// Flash 仿真模型
+// Flash 浠跨湡妯″瀷
 x28fxxxp30 #(.FILENAME_MEM(FLASH_INIT_FILE)) flash(
     .A(flash_a[1+:22]), 
     .DQ(flash_d), 
@@ -179,7 +202,7 @@ initial begin
     $stop;
 end
 
-// 从文件加载 BaseRAM
+// 浠庢枃浠跺姞锟??? BaseRAM
 initial begin 
     reg [31:0] tmp_array[0:1048575];
     integer n_File_ID, n_Init_Size;
@@ -201,7 +224,7 @@ initial begin
     end
 end
 
-// 从文件加载 ExtRAM
+// 浠庢枃浠跺姞锟??? ExtRAM
 initial begin 
     reg [31:0] tmp_array[0:1048575];
     integer n_File_ID, n_Init_Size;
@@ -222,4 +245,56 @@ initial begin
         ext2.mem_array1[i] = tmp_array[i][0+:8];
     end
 end
+
+// RGMII 浠跨湡妯″瀷
+
+rgmii_model rgmii(
+    .clk_125M(clk_125M),
+    .clk_125M_90deg(clk_125M_90deg),
+
+    .rgmii_rd(eth_rgmii_rd),
+    .rgmii_rxc(eth_rgmii_rxc),
+    .rgmii_rx_ctl(eth_rgmii_rx_ctl),
+    .rgmii_td(eth_rgmii_td),
+    .rgmii_txc(eth_rgmii_txc),
+    .rgmii_tx_ctl(eth_rgmii_tx_ctl)
+);
+
+// Lookup Table Test
+reg lookup_in_ready;
+wire lookup_out_ready;
+reg [31:0] lookup_in_addr;
+wire [31:0] lookup_out_nexthop;
+wire [1:0] lookup_out_interface;
+lookup_table lut_inst(
+    .lku_clk(clk_125M),
+    .lku_rst(1'b0),
+    .lku_in_addr(lookup_in_addr),
+    .lku_in_ready(lookup_in_ready),
+    .lku_out_nexthop(lookup_out_nexthop),
+    .lku_out_interface(lookup_out_interface),
+    .lku_out_ready(lookup_out_ready),
+    .static_table_addr      ({32'h1f008800, 32'h1f000000, 32'h1f008e00, 32'h1f008f23}),
+    .static_table_mask      ({32'hfffff800, 32'hff000000, 32'hffffff00, 32'hffffffff}),
+    .static_table_nexthop   ({32'h1f016600, 32'h1f017700, 32'h1f018800, 32'h12343210}),
+    .static_table_interface ({2'd1, 2'd2, 2'd0, 2'd3})
+);
+
+initial begin
+    lookup_in_addr = 32'h1f008f23;
+    lookup_in_ready = 1'b1;
+    #100
+    lookup_in_ready = 1'b0;
+    #100
+    lookup_in_ready = 1'b1;
+    #100
+    lookup_in_ready = 1'b0;
+end
+
+wire lookup_succ;
+lookup_test ltt_inst(
+    .lku_clk(clk_125M),
+    .succ(lookup_succ)
+);
+
 endmodule

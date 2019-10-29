@@ -50,25 +50,28 @@ module thinpad_top(
     output wire flash_we_n,         //Flash写使能信号，低有效
     output wire flash_byte_n,       //Flash 8bit模式选择，低有效。在使用flash的16位模式时请设为1
 
-    //USB 控制器信号，参考 SL811 芯片手册
-    output wire sl811_a0,
-    //inout  wire[7:0] sl811_d,     //USB数据线与网络控制器的dm9k_sd[7:0]共享
-    output wire sl811_wr_n,
-    output wire sl811_rd_n,
-    output wire sl811_cs_n,
-    output wire sl811_rst_n,
-    output wire sl811_dack_n,
-    input  wire sl811_intrq,
-    input  wire sl811_drq_n,
+    //USB+SD 控制器信号，参考 CH376T 芯片手册
+    output wire ch376t_sdi,
+    output wire ch376t_sck,
+    output wire ch376t_cs_n,
+    output wire ch376t_rst,
+    input  wire ch376t_int_n,
+    input  wire ch376t_sdo,
 
-    //网络控制器信号，参考 DM9000A 芯片手册
-    output wire dm9k_cmd,
-    inout  wire[15:0] dm9k_sd,
-    output wire dm9k_iow_n,
-    output wire dm9k_ior_n,
-    output wire dm9k_cs_n,
-    output wire dm9k_pwrst_n,
-    input  wire dm9k_int,
+    //网络交换机信号，参考 KSZ8795 芯片手册与 RGMII 规范
+    input  wire [3:0] eth_rgmii_rd,
+    input  wire eth_rgmii_rx_ctl,
+    input  wire eth_rgmii_rxc,
+    output wire [3:0] eth_rgmii_td,
+    output wire eth_rgmii_tx_ctl,
+    output wire eth_rgmii_txc,
+    output wire eth_rst_n,
+    input  wire eth_int_n,
+
+    input  wire eth_spi_miso,
+    output wire eth_spi_mosi,
+    output wire eth_spi_sck,
+    output wire eth_spi_ss_n,
 
     //图像输出信号
     output wire[2:0] video_red,    //红色像素，3位
@@ -83,18 +86,34 @@ module thinpad_top(
 /* =========== Demo code begin =========== */
 
 // PLL分频示例
-wire locked, clk_10M, clk_20M;
+wire locked, clk_10M, clk_20M, clk_125M, clk_200M;
 pll_example clock_gen 
  (
   // Clock out ports
   .clk_out1(clk_10M), // 时钟输出1，频率在IP配置界面中设置
   .clk_out2(clk_20M), // 时钟输出2，频率在IP配置界面中设置
+  .clk_out3(clk_125M), // 时钟输出3，频率在IP配置界面中设置
+  .clk_out4(clk_200M), // 时钟输出4，频率在IP配置界面中设置
   // Status and control signals
   .reset(reset_btn), // PLL复位输入
   .locked(locked), // 锁定输出，"1"表示时钟稳定，可作为后级电路复位
  // Clock in ports
   .clk_in1(clk_50M) // 外部时钟输入
  );
+
+assign eth_rst_n = ~reset_btn;
+// 以太网交换机寄存器配置
+eth_conf conf(
+    .clk(clk_50M),
+    .rst_in_n(locked),
+
+    .eth_spi_miso(eth_spi_miso),
+    .eth_spi_mosi(eth_spi_mosi),
+    .eth_spi_sck(eth_spi_sck),
+    .eth_spi_ss_n(eth_spi_ss_n),
+
+    .done()
+);
 
 reg reset_of_clk10M;
 // 异步复位，同步释放
@@ -142,8 +161,9 @@ SEG7_LUT segH(.oSEG1(dpy1), .iDIG(number[7:4])); //dpy1是高位数码管
 
 reg[15:0] led_bits;
 assign leds = led_bits;
+wire [15:0] led_debug;
 
-always@(posedge clock_btn or posedge reset_btn) begin
+/*always@(posedge clock_btn or posedge reset_btn) begin
     if(reset_btn)begin //复位按下，设置LED和数码管为初始值
         number<=0;
         led_bits <= 16'h1;
@@ -152,6 +172,9 @@ always@(posedge clock_btn or posedge reset_btn) begin
         number <= number+1;
         led_bits <= {led_bits[14:0],led_bits[15]};
     end
+end*/
+always @ (posedge clk_125M) begin
+    led_bits <= led_debug;
 end
 
 //直连串口接收发送演示，从直连串口收到的数据再发送出去
@@ -209,6 +232,89 @@ vga #(12, 800, 856, 976, 1040, 600, 637, 643, 666, 1, 1) vga800x600at75 (
     .vsync(video_vsync),
     .data_enable(video_de)
 );
+
+// 以太网 MAC 配置演示
+wire [7:0] eth_rx_axis_mac_tdata;
+wire eth_rx_axis_mac_tvalid;
+wire eth_rx_axis_mac_tlast;
+wire eth_rx_axis_mac_tuser;
+wire [7:0] eth_tx_axis_mac_tdata;
+wire eth_tx_axis_mac_tvalid;
+wire eth_tx_axis_mac_tlast;
+wire eth_tx_axis_mac_tuser;
+wire eth_tx_axis_mac_tready;
+
+wire eth_rx_mac_aclk;
+wire eth_tx_mac_aclk;
+
+eth_mac eth_mac_inst (
+    .gtx_clk(clk_125M),
+    .refclk(clk_200M),
+
+    .glbl_rstn(eth_rst_n),
+    .rx_axi_rstn(eth_rst_n),
+    .tx_axi_rstn(eth_rst_n),
+
+    .rx_mac_aclk(eth_rx_mac_aclk),
+    .rx_axis_mac_tdata(eth_rx_axis_mac_tdata),
+    .rx_axis_mac_tvalid(eth_rx_axis_mac_tvalid),
+    .rx_axis_mac_tlast(eth_rx_axis_mac_tlast),
+    .rx_axis_mac_tuser(eth_rx_axis_mac_tuser),
+
+    .tx_ifg_delay(8'b0),
+    .tx_mac_aclk(eth_tx_mac_aclk),
+    .tx_axis_mac_tdata(eth_tx_axis_mac_tdata),
+    .tx_axis_mac_tvalid(eth_tx_axis_mac_tvalid),
+    .tx_axis_mac_tlast(eth_tx_axis_mac_tlast),
+    .tx_axis_mac_tuser(eth_tx_axis_mac_tuser),
+    .tx_axis_mac_tready(eth_tx_axis_mac_tready),
+
+    .pause_req(1'b0),
+    .pause_val(16'b0),
+
+    .rgmii_txd(eth_rgmii_td),
+    .rgmii_tx_ctl(eth_rgmii_tx_ctl),
+    .rgmii_txc(eth_rgmii_txc),
+    .rgmii_rxd(eth_rgmii_rd),
+    .rgmii_rx_ctl(eth_rgmii_rx_ctl),
+    .rgmii_rxc(eth_rgmii_rxc),
+
+    // receive 1Gb/s | promiscuous | flow control | fcs | vlan | enable
+    .rx_configuration_vector(80'b10100000101110),
+    // transmit 1Gb/s | vlan | enable
+    .tx_configuration_vector(80'b10000000000110)
+);
 /* =========== Demo code end =========== */
+
+wire eth_sync_rst;
+wire eth_sync_rst_n;
+
+eth_mac_reset_sync reset_sync_i(
+    .reset_in(1'b0),
+    .clk(eth_rx_mac_aclk),
+    .enable(1'b1),
+    .reset_out(eth_sync_rst)
+);
+assign eth_sync_rst_n = ~eth_sync_rst;
+
+eth_mac_wrapper eth_mac_wraper_i(
+    .rx_mac_aclk(eth_rx_mac_aclk),
+    .rx_mac_resetn(eth_sync_rst_n),
+    .rx_axis_mac_tdata(eth_rx_axis_mac_tdata),
+    .rx_axis_mac_tvalid(eth_rx_axis_mac_tvalid),
+    .rx_axis_mac_tlast(eth_rx_axis_mac_tlast),
+    .rx_axis_mac_tuser(eth_rx_axis_mac_tuser),
+
+    .tx_mac_aclk(eth_tx_mac_aclk),
+    .tx_mac_resetn(eth_sync_rst_n),
+    .tx_axis_mac_tdata(eth_tx_axis_mac_tdata),
+    .tx_axis_mac_tvalid(eth_tx_axis_mac_tvalid),
+    .tx_axis_mac_tlast(eth_tx_axis_mac_tlast),
+    .tx_axis_mac_tready(eth_tx_axis_mac_tready),
+    .tx_axis_mac_tuser(eth_tx_axis_mac_tuser), 
+    
+    .led_debug(led_debug)
+);
+
 
 endmodule

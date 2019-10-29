@@ -1,67 +1,63 @@
 #Clock
-set_property -dict {PACKAGE_PIN D18 IOSTANDARD LVCMOS33} [get_ports clk_50M] ;#50MHz main clock in
-set_property -dict {PACKAGE_PIN C18 IOSTANDARD LVCMOS33} [get_ports clk_11M0592] ;#11.0592MHz clock for UART
+set_property -dict {PACKAGE_PIN D18 IOSTANDARD LVCMOS33} [get_ports clk_50M]
+set_property -dict {PACKAGE_PIN C18 IOSTANDARD LVCMOS33} [get_ports clk_11M0592]
 set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets clk_11M0592_IBUF]
 
 create_clock -period 20.000 -name clk_50M -waveform {0.000 10.000} [get_ports clk_50M]
 create_clock -period 90.422 -name clk_11M0592 -waveform {0.000 45.211} [get_ports clk_11M0592]
 
 #Touch Button
-set_property -dict {PACKAGE_PIN J19 IOSTANDARD LVCMOS33} [get_ports touch_btn[0]] ;#BTN1
-set_property -dict {PACKAGE_PIN E25 IOSTANDARD LVCMOS33} [get_ports touch_btn[1]] ;#BTN2
-set_property -dict {PACKAGE_PIN F23 IOSTANDARD LVCMOS33} [get_ports touch_btn[2]] ;#BTN3
-set_property -dict {PACKAGE_PIN E23 IOSTANDARD LVCMOS33} [get_ports touch_btn[3]] ;#BTN4
-set_property -dict {PACKAGE_PIN H19 IOSTANDARD LVCMOS33} [get_ports clock_btn] ;#BTN5
-set_property -dict {PACKAGE_PIN F22 IOSTANDARD LVCMOS33} [get_ports reset_btn] ;#BTN6
+set_property -dict {PACKAGE_PIN J19 IOSTANDARD LVCMOS33} [get_ports {touch_btn[0]}]
+set_property -dict {PACKAGE_PIN E25 IOSTANDARD LVCMOS33} [get_ports {touch_btn[1]}]
+set_property -dict {PACKAGE_PIN F23 IOSTANDARD LVCMOS33} [get_ports {touch_btn[2]}]
+set_property -dict {PACKAGE_PIN E23 IOSTANDARD LVCMOS33} [get_ports {touch_btn[3]}]
+set_property -dict {PACKAGE_PIN H19 IOSTANDARD LVCMOS33} [get_ports clock_btn]
+set_property -dict {PACKAGE_PIN F22 IOSTANDARD LVCMOS33} [get_ports reset_btn]
 
 #required if touch button used as manual clock source
 set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets clock_btn_IBUF]
 set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets reset_btn_IBUF]
 
 #CPLD
-set_property -dict {PACKAGE_PIN L8 IOSTANDARD LVCMOS33} [get_ports {uart_wrn}]
-set_property -dict {PACKAGE_PIN M6 IOSTANDARD LVCMOS33} [get_ports {uart_rdn}]
-set_property -dict {PACKAGE_PIN L5 IOSTANDARD LVCMOS33} [get_ports {uart_tbre}]
-set_property -dict {PACKAGE_PIN L7 IOSTANDARD LVCMOS33} [get_ports {uart_tsre}]
-set_property -dict {PACKAGE_PIN L4 IOSTANDARD LVCMOS33} [get_ports {uart_dataready}]
+set_property -dict {PACKAGE_PIN L8 IOSTANDARD LVCMOS33} [get_ports uart_wrn]
+set_property -dict {PACKAGE_PIN M6 IOSTANDARD LVCMOS33} [get_ports uart_rdn]
+set_property -dict {PACKAGE_PIN L5 IOSTANDARD LVCMOS33} [get_ports uart_tbre]
+set_property -dict {PACKAGE_PIN L7 IOSTANDARD LVCMOS33} [get_ports uart_tsre]
+set_property -dict {PACKAGE_PIN L4 IOSTANDARD LVCMOS33} [get_ports uart_dataready]
 
 #Ext serial
-set_property -dict {IOSTANDARD LVCMOS33 PACKAGE_PIN L19} [get_ports txd] ;#GPIO5
-set_property -dict {IOSTANDARD LVCMOS33 PACKAGE_PIN K21} [get_ports rxd] ;#GPIO6
+set_property -dict {IOSTANDARD LVCMOS33 PACKAGE_PIN L19} [get_ports txd]
+set_property -dict {IOSTANDARD LVCMOS33 PACKAGE_PIN K21} [get_ports rxd]
 
-#USB
-set_property -dict {PACKAGE_PIN K3 IOSTANDARD LVCMOS33} [get_ports sl811_a0]
-set_property -dict {PACKAGE_PIN M1 IOSTANDARD LVCMOS33} [get_ports sl811_wr_n]
-set_property -dict {PACKAGE_PIN J3 IOSTANDARD LVCMOS33} [get_ports sl811_rd_n]
-set_property -dict {PACKAGE_PIN K1 IOSTANDARD LVCMOS33} [get_ports sl811_cs_n]
-set_property -dict {PACKAGE_PIN M2 IOSTANDARD LVCMOS33} [get_ports sl811_rst_n]
-set_property -dict {PACKAGE_PIN J4 IOSTANDARD LVCMOS33} [get_ports sl811_drq_n]
-set_property -dict {PACKAGE_PIN H3 IOSTANDARD LVCMOS33} [get_ports sl811_dack_n]
-set_property -dict {PACKAGE_PIN M4 IOSTANDARD LVCMOS33} [get_ports sl811_intrq]
+# USB + SD
+set_property -dict {PACKAGE_PIN K7 IOSTANDARD LVCMOS33} [get_ports ch376t_sdo]
+set_property -dict {PACKAGE_PIN M1 IOSTANDARD LVCMOS33} [get_ports ch376t_sdi]
+set_property -dict {PACKAGE_PIN G1 IOSTANDARD LVCMOS33} [get_ports ch376t_sck]
+set_property -dict {PACKAGE_PIN K1 IOSTANDARD LVCMOS33} [get_ports ch376t_cs_n]
+set_property -dict {PACKAGE_PIN M2 IOSTANDARD LVCMOS33} [get_ports ch376t_rst]
+set_property -dict {PACKAGE_PIN R7 IOSTANDARD LVCMOS33} [get_ports ch376t_int_n]
 
-#Ethernet
-set_property -dict {PACKAGE_PIN D4 IOSTANDARD LVCMOS33} [get_ports dm9k_iow_n]
-set_property -dict {PACKAGE_PIN D3 IOSTANDARD LVCMOS33} [get_ports dm9k_ior_n]
-set_property -dict {PACKAGE_PIN C3 IOSTANDARD LVCMOS33} [get_ports dm9k_cs_n]
-set_property -dict {PACKAGE_PIN C4 IOSTANDARD LVCMOS33} [get_ports dm9k_pwrst_n]
-set_property -dict {PACKAGE_PIN H8 IOSTANDARD LVCMOS33} [get_ports dm9k_int]
-set_property -dict {PACKAGE_PIN E3 IOSTANDARD LVCMOS33} [get_ports dm9k_cmd]
-set_property -dict {PACKAGE_PIN G1 IOSTANDARD LVCMOS33} [get_ports {dm9k_sd[0]}]
-set_property -dict {PACKAGE_PIN H2 IOSTANDARD LVCMOS33} [get_ports {dm9k_sd[1]}]
-set_property -dict {PACKAGE_PIN J1 IOSTANDARD LVCMOS33} [get_ports {dm9k_sd[2]}]
-set_property -dict {PACKAGE_PIN H7 IOSTANDARD LVCMOS33} [get_ports {dm9k_sd[3]}]
-set_property -dict {PACKAGE_PIN G4 IOSTANDARD LVCMOS33} [get_ports {dm9k_sd[4]}]
-set_property -dict {PACKAGE_PIN K2 IOSTANDARD LVCMOS33} [get_ports {dm9k_sd[5]}]
-set_property -dict {PACKAGE_PIN K7 IOSTANDARD LVCMOS33} [get_ports {dm9k_sd[6]}]
-set_property -dict {PACKAGE_PIN K6 IOSTANDARD LVCMOS33} [get_ports {dm9k_sd[7]}]
-set_property -dict {PACKAGE_PIN F3 IOSTANDARD LVCMOS33} [get_ports {dm9k_sd[8]}]
-set_property -dict {PACKAGE_PIN H6 IOSTANDARD LVCMOS33} [get_ports {dm9k_sd[9]}]
-set_property -dict {PACKAGE_PIN H4 IOSTANDARD LVCMOS33} [get_ports {dm9k_sd[10]}]
-set_property -dict {PACKAGE_PIN H1 IOSTANDARD LVCMOS33} [get_ports {dm9k_sd[11]}]
-set_property -dict {PACKAGE_PIN J5 IOSTANDARD LVCMOS33} [get_ports {dm9k_sd[12]}]
-set_property -dict {PACKAGE_PIN J6 IOSTANDARD LVCMOS33} [get_ports {dm9k_sd[13]}]
-set_property -dict {PACKAGE_PIN K5 IOSTANDARD LVCMOS33} [get_ports {dm9k_sd[14]}]
-set_property -dict {PACKAGE_PIN F5 IOSTANDARD LVCMOS33} [get_ports {dm9k_sd[15]}]
+# KSZ8795 Ethernet Switch
+set_property -dict {PACKAGE_PIN J6 IOSTANDARD LVCMOS33} [get_ports {eth_rgmii_rd[0]}]
+set_property -dict {PACKAGE_PIN J5 IOSTANDARD LVCMOS33} [get_ports {eth_rgmii_rd[1]}]
+set_property -dict {PACKAGE_PIN H4 IOSTANDARD LVCMOS33} [get_ports {eth_rgmii_rd[2]}]
+set_property -dict {PACKAGE_PIN H6 IOSTANDARD LVCMOS33} [get_ports {eth_rgmii_rd[3]}]
+set_property -dict {PACKAGE_PIN H8 IOSTANDARD LVCMOS33} [get_ports eth_rgmii_rx_ctl]
+set_property -dict {PACKAGE_PIN D4 IOSTANDARD LVCMOS33} [get_ports eth_rgmii_rxc]
+set_property -dict {PACKAGE_PIN H3 IOSTANDARD LVCMOS33} [get_ports {eth_rgmii_td[0]}]
+set_property -dict {PACKAGE_PIN F5 IOSTANDARD LVCMOS33} [get_ports {eth_rgmii_td[1]}]
+set_property -dict {PACKAGE_PIN E3 IOSTANDARD LVCMOS33} [get_ports {eth_rgmii_td[2]}]
+set_property -dict {PACKAGE_PIN F3 IOSTANDARD LVCMOS33} [get_ports {eth_rgmii_td[3]}]
+set_property -dict {PACKAGE_PIN G4 IOSTANDARD LVCMOS33} [get_ports eth_rgmii_tx_ctl]
+set_property -dict {PACKAGE_PIN D3 IOSTANDARD LVCMOS33} [get_ports eth_rgmii_txc]
+
+set_property -dict {PACKAGE_PIN C4 IOSTANDARD LVCMOS33} [get_ports eth_rst_n]
+set_property -dict {PACKAGE_PIN J3 IOSTANDARD LVCMOS33} [get_ports eth_int_n]
+
+set_property -dict {PACKAGE_PIN K6 IOSTANDARD LVCMOS33} [get_ports eth_spi_mosi]
+set_property -dict {PACKAGE_PIN K5 IOSTANDARD LVCMOS33} [get_ports eth_spi_miso]
+set_property -dict {PACKAGE_PIN K2 IOSTANDARD LVCMOS33} [get_ports eth_spi_sck]
+set_property -dict {PACKAGE_PIN C3 IOSTANDARD LVCMOS33} [get_ports eth_spi_ss_n]
 
 #Digital Video
 set_property -dict {PACKAGE_PIN J21 IOSTANDARD LVCMOS33} [get_ports video_clk]
@@ -103,7 +99,7 @@ set_property -dict {PACKAGE_PIN G15 IOSTANDARD LVCMOS33} [get_ports {dpy0[3]}]
 set_property -dict {PACKAGE_PIN H16 IOSTANDARD LVCMOS33} [get_ports {dpy0[4]}]
 set_property -dict {PACKAGE_PIN H14 IOSTANDARD LVCMOS33} [get_ports {dpy0[5]}]
 set_property -dict {PACKAGE_PIN G19 IOSTANDARD LVCMOS33} [get_ports {dpy0[6]}]
-set_property -dict {PACKAGE_PIN  J8 IOSTANDARD LVCMOS33} [get_ports {dpy0[7]}]
+set_property -dict {PACKAGE_PIN J8 IOSTANDARD LVCMOS33} [get_ports {dpy0[7]}]
 
 #DPY1
 set_property -dict {PACKAGE_PIN H9 IOSTANDARD LVCMOS33} [get_ports {dpy1[0]}]
@@ -149,7 +145,7 @@ set_property -dict {PACKAGE_PIN N7 IOSTANDARD LVCMOS33} [get_ports {dip_sw[29]}]
 set_property -dict {PACKAGE_PIN M7 IOSTANDARD LVCMOS33} [get_ports {dip_sw[30]}]
 set_property -dict {PACKAGE_PIN M5 IOSTANDARD LVCMOS33} [get_ports {dip_sw[31]}]
 
-set_property -dict {PACKAGE_PIN K8 IOSTANDARD LVCMOS33}  [get_ports {flash_a[0]}]
+set_property -dict {PACKAGE_PIN K8 IOSTANDARD LVCMOS33} [get_ports {flash_a[0]}]
 set_property -dict {PACKAGE_PIN C26 IOSTANDARD LVCMOS33} [get_ports {flash_a[1]}]
 set_property -dict {PACKAGE_PIN B26 IOSTANDARD LVCMOS33} [get_ports {flash_a[2]}]
 set_property -dict {PACKAGE_PIN B25 IOSTANDARD LVCMOS33} [get_ports {flash_a[3]}]
@@ -320,3 +316,158 @@ set_property -dict {PACKAGE_PIN U16 IOSTANDARD LVCMOS33} [get_ports ext_ram_we_n
 set_property CFGBVS VCCO [current_design]
 set_property CONFIG_VOLTAGE 3.3 [current_design]
 
+
+
+
+create_debug_core u_ila_0 ila
+set_property ALL_PROBE_SAME_MU true [get_debug_cores u_ila_0]
+set_property ALL_PROBE_SAME_MU_CNT 1 [get_debug_cores u_ila_0]
+set_property C_ADV_TRIGGER false [get_debug_cores u_ila_0]
+set_property C_DATA_DEPTH 1024 [get_debug_cores u_ila_0]
+set_property C_EN_STRG_QUAL false [get_debug_cores u_ila_0]
+set_property C_INPUT_PIPE_STAGES 0 [get_debug_cores u_ila_0]
+set_property C_TRIGIN_EN false [get_debug_cores u_ila_0]
+set_property C_TRIGOUT_EN false [get_debug_cores u_ila_0]
+set_property port_width 1 [get_debug_ports u_ila_0/clk]
+connect_debug_port u_ila_0/clk [get_nets [list eth_mac_inst/inst/tri_mode_ethernet_mac_i/rgmii_interface/CLK]]
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe0]
+set_property port_width 4 [get_debug_ports u_ila_0/probe0]
+connect_debug_port u_ila_0/probe0 [get_nets [list {eth_mac_wraper_i/pkg_classify_inst/arp_module_inst/arp_read_state[0]} {eth_mac_wraper_i/pkg_classify_inst/arp_module_inst/arp_read_state[1]} {eth_mac_wraper_i/pkg_classify_inst/arp_module_inst/arp_read_state[2]} {eth_mac_wraper_i/pkg_classify_inst/arp_module_inst/arp_read_state[3]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe1]
+set_property port_width 4 [get_debug_ports u_ila_0/probe1]
+connect_debug_port u_ila_0/probe1 [get_nets [list {eth_mac_wraper_i/pkg_classify_inst/arp_module_inst/arp_write_state[0]} {eth_mac_wraper_i/pkg_classify_inst/arp_module_inst/arp_write_state[1]} {eth_mac_wraper_i/pkg_classify_inst/arp_module_inst/arp_write_state[2]} {eth_mac_wraper_i/pkg_classify_inst/arp_module_inst/arp_write_state[3]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe2]
+set_property port_width 4 [get_debug_ports u_ila_0/probe2]
+connect_debug_port u_ila_0/probe2 [get_nets [list {eth_mac_wraper_i/pkg_classify_inst/arp_module_inst/next_write_state[0]} {eth_mac_wraper_i/pkg_classify_inst/arp_module_inst/next_write_state[1]} {eth_mac_wraper_i/pkg_classify_inst/arp_module_inst/next_write_state[2]} {eth_mac_wraper_i/pkg_classify_inst/arp_module_inst/next_write_state[3]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe3]
+set_property port_width 4 [get_debug_ports u_ila_0/probe3]
+connect_debug_port u_ila_0/probe3 [get_nets [list {eth_mac_wraper_i/pkg_classify_inst/arp_module_inst/next_read_state[0]} {eth_mac_wraper_i/pkg_classify_inst/arp_module_inst/next_read_state[1]} {eth_mac_wraper_i/pkg_classify_inst/arp_module_inst/next_read_state[2]} {eth_mac_wraper_i/pkg_classify_inst/arp_module_inst/next_read_state[3]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe4]
+set_property port_width 4 [get_debug_ports u_ila_0/probe4]
+connect_debug_port u_ila_0/probe4 [get_nets [list {eth_mac_wraper_i/pkg_classify_inst/ipv4_module_inst/ipv4_read_state[0]} {eth_mac_wraper_i/pkg_classify_inst/ipv4_module_inst/ipv4_read_state[1]} {eth_mac_wraper_i/pkg_classify_inst/ipv4_module_inst/ipv4_read_state[2]} {eth_mac_wraper_i/pkg_classify_inst/ipv4_module_inst/ipv4_read_state[3]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe5]
+set_property port_width 4 [get_debug_ports u_ila_0/probe5]
+connect_debug_port u_ila_0/probe5 [get_nets [list {eth_mac_wraper_i/pkg_classify_inst/ipv4_module_inst/next_read_state[0]} {eth_mac_wraper_i/pkg_classify_inst/ipv4_module_inst/next_read_state[1]} {eth_mac_wraper_i/pkg_classify_inst/ipv4_module_inst/next_read_state[2]} {eth_mac_wraper_i/pkg_classify_inst/ipv4_module_inst/next_read_state[3]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe6]
+set_property port_width 4 [get_debug_ports u_ila_0/probe6]
+connect_debug_port u_ila_0/probe6 [get_nets [list {eth_mac_wraper_i/pkg_classify_inst/ipv4_module_inst/ipv4_write_state[0]} {eth_mac_wraper_i/pkg_classify_inst/ipv4_module_inst/ipv4_write_state[1]} {eth_mac_wraper_i/pkg_classify_inst/ipv4_module_inst/ipv4_write_state[2]} {eth_mac_wraper_i/pkg_classify_inst/ipv4_module_inst/ipv4_write_state[3]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe7]
+set_property port_width 4 [get_debug_ports u_ila_0/probe7]
+connect_debug_port u_ila_0/probe7 [get_nets [list {eth_mac_wraper_i/pkg_classify_inst/ipv4_module_inst/next_write_state[0]} {eth_mac_wraper_i/pkg_classify_inst/ipv4_module_inst/next_write_state[1]} {eth_mac_wraper_i/pkg_classify_inst/ipv4_module_inst/next_write_state[2]} {eth_mac_wraper_i/pkg_classify_inst/ipv4_module_inst/next_write_state[3]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe8]
+set_property port_width 12 [get_debug_ports u_ila_0/probe8]
+connect_debug_port u_ila_0/probe8 [get_nets [list {eth_mac_wraper_i/pkg_classify_inst/mem_read_addr[0]} {eth_mac_wraper_i/pkg_classify_inst/mem_read_addr[1]} {eth_mac_wraper_i/pkg_classify_inst/mem_read_addr[2]} {eth_mac_wraper_i/pkg_classify_inst/mem_read_addr[3]} {eth_mac_wraper_i/pkg_classify_inst/mem_read_addr[4]} {eth_mac_wraper_i/pkg_classify_inst/mem_read_addr[5]} {eth_mac_wraper_i/pkg_classify_inst/mem_read_addr[6]} {eth_mac_wraper_i/pkg_classify_inst/mem_read_addr[7]} {eth_mac_wraper_i/pkg_classify_inst/mem_read_addr[8]} {eth_mac_wraper_i/pkg_classify_inst/mem_read_addr[9]} {eth_mac_wraper_i/pkg_classify_inst/mem_read_addr[10]} {eth_mac_wraper_i/pkg_classify_inst/mem_read_addr[11]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe9]
+set_property port_width 3 [get_debug_ports u_ila_0/probe9]
+connect_debug_port u_ila_0/probe9 [get_nets [list {eth_mac_wraper_i/pkg_classify_inst/next_read_state[0]} {eth_mac_wraper_i/pkg_classify_inst/next_read_state[1]} {eth_mac_wraper_i/pkg_classify_inst/next_read_state[2]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe10]
+set_property port_width 8 [get_debug_ports u_ila_0/probe10]
+connect_debug_port u_ila_0/probe10 [get_nets [list {eth_mac_wraper_i/pkg_classify_inst/mem_write_data[0]} {eth_mac_wraper_i/pkg_classify_inst/mem_write_data[1]} {eth_mac_wraper_i/pkg_classify_inst/mem_write_data[2]} {eth_mac_wraper_i/pkg_classify_inst/mem_write_data[3]} {eth_mac_wraper_i/pkg_classify_inst/mem_write_data[4]} {eth_mac_wraper_i/pkg_classify_inst/mem_write_data[5]} {eth_mac_wraper_i/pkg_classify_inst/mem_write_data[6]} {eth_mac_wraper_i/pkg_classify_inst/mem_write_data[7]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe11]
+set_property port_width 8 [get_debug_ports u_ila_0/probe11]
+connect_debug_port u_ila_0/probe11 [get_nets [list {eth_mac_wraper_i/tx_axis_fifo_tdata[0]} {eth_mac_wraper_i/tx_axis_fifo_tdata[1]} {eth_mac_wraper_i/tx_axis_fifo_tdata[2]} {eth_mac_wraper_i/tx_axis_fifo_tdata[3]} {eth_mac_wraper_i/tx_axis_fifo_tdata[4]} {eth_mac_wraper_i/tx_axis_fifo_tdata[5]} {eth_mac_wraper_i/tx_axis_fifo_tdata[6]} {eth_mac_wraper_i/tx_axis_fifo_tdata[7]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe12]
+set_property port_width 8 [get_debug_ports u_ila_0/probe12]
+connect_debug_port u_ila_0/probe12 [get_nets [list {eth_mac_wraper_i/pkg_classify_inst/mem_read_data[0]} {eth_mac_wraper_i/pkg_classify_inst/mem_read_data[1]} {eth_mac_wraper_i/pkg_classify_inst/mem_read_data[2]} {eth_mac_wraper_i/pkg_classify_inst/mem_read_data[3]} {eth_mac_wraper_i/pkg_classify_inst/mem_read_data[4]} {eth_mac_wraper_i/pkg_classify_inst/mem_read_data[5]} {eth_mac_wraper_i/pkg_classify_inst/mem_read_data[6]} {eth_mac_wraper_i/pkg_classify_inst/mem_read_data[7]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe13]
+set_property port_width 3 [get_debug_ports u_ila_0/probe13]
+connect_debug_port u_ila_0/probe13 [get_nets [list {eth_mac_wraper_i/pkg_classify_inst/read_state[0]} {eth_mac_wraper_i/pkg_classify_inst/read_state[1]} {eth_mac_wraper_i/pkg_classify_inst/read_state[2]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe14]
+set_property port_width 8 [get_debug_ports u_ila_0/probe14]
+connect_debug_port u_ila_0/probe14 [get_nets [list {eth_mac_wraper_i/rx_axis_fifo_tdata[0]} {eth_mac_wraper_i/rx_axis_fifo_tdata[1]} {eth_mac_wraper_i/rx_axis_fifo_tdata[2]} {eth_mac_wraper_i/rx_axis_fifo_tdata[3]} {eth_mac_wraper_i/rx_axis_fifo_tdata[4]} {eth_mac_wraper_i/rx_axis_fifo_tdata[5]} {eth_mac_wraper_i/rx_axis_fifo_tdata[6]} {eth_mac_wraper_i/rx_axis_fifo_tdata[7]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe15]
+set_property port_width 8 [get_debug_ports u_ila_0/probe15]
+connect_debug_port u_ila_0/probe15 [get_nets [list {eth_mac_wraper_i/rx_axis_mac_tdata[0]} {eth_mac_wraper_i/rx_axis_mac_tdata[1]} {eth_mac_wraper_i/rx_axis_mac_tdata[2]} {eth_mac_wraper_i/rx_axis_mac_tdata[3]} {eth_mac_wraper_i/rx_axis_mac_tdata[4]} {eth_mac_wraper_i/rx_axis_mac_tdata[5]} {eth_mac_wraper_i/rx_axis_mac_tdata[6]} {eth_mac_wraper_i/rx_axis_mac_tdata[7]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe16]
+set_property port_width 12 [get_debug_ports u_ila_0/probe16]
+connect_debug_port u_ila_0/probe16 [get_nets [list {eth_mac_wraper_i/pkg_classify_inst/mem_write_addr[0]} {eth_mac_wraper_i/pkg_classify_inst/mem_write_addr[1]} {eth_mac_wraper_i/pkg_classify_inst/mem_write_addr[2]} {eth_mac_wraper_i/pkg_classify_inst/mem_write_addr[3]} {eth_mac_wraper_i/pkg_classify_inst/mem_write_addr[4]} {eth_mac_wraper_i/pkg_classify_inst/mem_write_addr[5]} {eth_mac_wraper_i/pkg_classify_inst/mem_write_addr[6]} {eth_mac_wraper_i/pkg_classify_inst/mem_write_addr[7]} {eth_mac_wraper_i/pkg_classify_inst/mem_write_addr[8]} {eth_mac_wraper_i/pkg_classify_inst/mem_write_addr[9]} {eth_mac_wraper_i/pkg_classify_inst/mem_write_addr[10]} {eth_mac_wraper_i/pkg_classify_inst/mem_write_addr[11]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe17]
+set_property port_width 1 [get_debug_ports u_ila_0/probe17]
+connect_debug_port u_ila_0/probe17 [get_nets [list eth_mac_wraper_i/pkg_classify_inst/mem_read_ena]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe18]
+set_property port_width 1 [get_debug_ports u_ila_0/probe18]
+connect_debug_port u_ila_0/probe18 [get_nets [list eth_mac_wraper_i/pkg_classify_inst/mem_write_ena]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe19]
+set_property port_width 1 [get_debug_ports u_ila_0/probe19]
+connect_debug_port u_ila_0/probe19 [get_nets [list eth_mac_wraper_i/rx_axis_fifo_tlast]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe20]
+set_property port_width 1 [get_debug_ports u_ila_0/probe20]
+connect_debug_port u_ila_0/probe20 [get_nets [list eth_mac_wraper_i/rx_axis_fifo_tready]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe21]
+set_property port_width 1 [get_debug_ports u_ila_0/probe21]
+connect_debug_port u_ila_0/probe21 [get_nets [list eth_mac_wraper_i/rx_axis_fifo_tvalid]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe22]
+set_property port_width 1 [get_debug_ports u_ila_0/probe22]
+connect_debug_port u_ila_0/probe22 [get_nets [list eth_mac_wraper_i/rx_axis_mac_tlast]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe23]
+set_property port_width 1 [get_debug_ports u_ila_0/probe23]
+connect_debug_port u_ila_0/probe23 [get_nets [list eth_mac_wraper_i/rx_axis_mac_tvalid]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe24]
+set_property port_width 1 [get_debug_ports u_ila_0/probe24]
+connect_debug_port u_ila_0/probe24 [get_nets [list eth_mac_wraper_i/pkg_classify_inst/sub_procedure_ready]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe25]
+set_property port_width 1 [get_debug_ports u_ila_0/probe25]
+connect_debug_port u_ila_0/probe25 [get_nets [list eth_mac_wraper_i/tx_axis_fifo_tlast]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe26]
+set_property port_width 1 [get_debug_ports u_ila_0/probe26]
+connect_debug_port u_ila_0/probe26 [get_nets [list eth_mac_wraper_i/tx_axis_fifo_tready]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe27]
+set_property port_width 1 [get_debug_ports u_ila_0/probe27]
+connect_debug_port u_ila_0/probe27 [get_nets [list eth_mac_wraper_i/tx_axis_fifo_tvalid]]
+create_debug_core u_ila_1 ila
+set_property ALL_PROBE_SAME_MU true [get_debug_cores u_ila_1]
+set_property ALL_PROBE_SAME_MU_CNT 1 [get_debug_cores u_ila_1]
+set_property C_ADV_TRIGGER false [get_debug_cores u_ila_1]
+set_property C_DATA_DEPTH 1024 [get_debug_cores u_ila_1]
+set_property C_EN_STRG_QUAL false [get_debug_cores u_ila_1]
+set_property C_INPUT_PIPE_STAGES 0 [get_debug_cores u_ila_1]
+set_property C_TRIGIN_EN false [get_debug_cores u_ila_1]
+set_property C_TRIGOUT_EN false [get_debug_cores u_ila_1]
+set_property port_width 1 [get_debug_ports u_ila_1/clk]
+connect_debug_port u_ila_1/clk [get_nets [list eth_mac_inst/inst/tri_mode_ethernet_mac_support_clocking_i/gtx_clk_out]]
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe0]
+set_property port_width 8 [get_debug_ports u_ila_1/probe0]
+connect_debug_port u_ila_1/probe0 [get_nets [list {eth_mac_wraper_i/tx_axis_mac_tdata[0]} {eth_mac_wraper_i/tx_axis_mac_tdata[1]} {eth_mac_wraper_i/tx_axis_mac_tdata[2]} {eth_mac_wraper_i/tx_axis_mac_tdata[3]} {eth_mac_wraper_i/tx_axis_mac_tdata[4]} {eth_mac_wraper_i/tx_axis_mac_tdata[5]} {eth_mac_wraper_i/tx_axis_mac_tdata[6]} {eth_mac_wraper_i/tx_axis_mac_tdata[7]}]]
+create_debug_port u_ila_1 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe1]
+set_property port_width 1 [get_debug_ports u_ila_1/probe1]
+connect_debug_port u_ila_1/probe1 [get_nets [list eth_mac_wraper_i/tx_axis_mac_tlast]]
+create_debug_port u_ila_1 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe2]
+set_property port_width 1 [get_debug_ports u_ila_1/probe2]
+connect_debug_port u_ila_1/probe2 [get_nets [list eth_mac_wraper_i/tx_axis_mac_tready]]
+create_debug_port u_ila_1 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe3]
+set_property port_width 1 [get_debug_ports u_ila_1/probe3]
+connect_debug_port u_ila_1/probe3 [get_nets [list eth_mac_wraper_i/tx_axis_mac_tvalid]]
+set_property C_CLK_INPUT_FREQ_HZ 300000000 [get_debug_cores dbg_hub]
+set_property C_ENABLE_CLK_DIVIDER false [get_debug_cores dbg_hub]
+set_property C_USER_SCAN_CHAIN 1 [get_debug_cores dbg_hub]
+connect_debug_port dbg_hub/clk [get_nets eth_tx_mac_aclk]
