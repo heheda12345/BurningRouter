@@ -147,7 +147,7 @@ always @ (*) begin
             next_read_state <= rx_end ? OVER : DISCARD;
         end
         READ_WAITING: begin
-            next_read_state <= next_write_state == OVER || next_write_state == IDLE ? OVER : READ_WAITING;
+            next_read_state <= arp_write_state == OVER || arp_write_state == IDLE ? OVER : READ_WAITING;
         end
         OVER: begin
             next_read_state <= IDLE;
@@ -285,10 +285,10 @@ assign buf_end_addr = buf_start_addr + WRITE_TOTAL;
 
 // ARP Table manipulations
 assign arp_table_input_vlan_port = vlan_port;
-assign arp_table_input_mac_addr = target_mac;
-assign arp_table_input_ipv4_addr = target_ip;
+assign arp_table_input_mac_addr = sender_mac;
+assign arp_table_input_ipv4_addr = sender_ip;
 assign arp_table_edit_enable = target_ip_counter == 4; // READ_TARGET_IP -> READ_REST/READ_WAITING
-assign arp_table_insert = arp_table_edit_enable && target_mac == MY_MAC_ADDRESS && !arp_table_exist;
+assign arp_table_insert = arp_table_edit_enable && target_ip == MY_IPV4_ADDRESS && !arp_table_exist;
 assign arp_table_update = arp_table_edit_enable && arp_table_exist;
 
 endmodule

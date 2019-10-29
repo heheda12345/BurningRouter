@@ -73,10 +73,20 @@ wire [7:0] ipv4_mem_write_data, arp_mem_write_data;
 
 wire ipv4_rx_axis_fifo_tready, arp_rx_axis_fifo_tready, top_rx_axis_fifo_tready;
 
-wire arp_table_update, arp_table_insert, arp_table_exist;
-wire [7:0] arp_table_input_vlan_port;
-wire [47:0] arp_table_input_mac_addr;
-wire [31:0] arp_table_input_ipv4_addr;
+wire arp_table_update, arp_table_insert, arp_table_exist, arp_table_query_exist;
+wire [7:0] arp_table_input_vlan_port, arp_table_query_vlan_port;
+wire [47:0] arp_table_input_mac_addr, arp_table_query_output_mac_addr;
+wire [31:0] arp_table_input_ipv4_addr, arp_table_query_ipv4_addr;
+
+wire [31:0] lookup_query_in_addr, lookup_query_out_nexthop;
+reg  [31:0] lookup_modify_in_addr, lookup_modify_in_nexthop;
+wire lookup_query_in_ready, lookup_query_out_ready;
+reg  lookup_modify_in_ready; 
+wire lookup_modify_finish;
+wire lookup_full;
+wire [1:0] lookup_query_out_nextport;
+reg  [1:0] lookup_modify_in_nextport;
+reg  [6:0] lookup_modify_in_len;
 
 // VLAN port
 reg [7:0] vlan_port = 0;
@@ -87,6 +97,17 @@ assign MY_IPV4_ADDR = 32'h0A000001;
 
 assign debug[2:0] = read_state;
 assign debug[5:4] = sub_procedure_type;
+
+// manual forward table
+initial begin
+    lookup_modify_in_addr <= 32'h0a000103;
+    lookup_modify_in_nexthop <= 32'h0a000002;
+    lookup_modify_in_nextport <= 2'h0;
+    lookup_modify_in_len <= 32;
+    lookup_modify_in_ready <= 1;
+    #10
+    lookup_modify_in_ready <= 0;
+end
 
 always @ (posedge axi_tclk)
 begin
@@ -205,12 +226,30 @@ arp_table arp_table_inst (
     .exist(arp_table_exist),
     .input_vlan_port(arp_table_input_vlan_port),
     .input_mac_addr(arp_table_input_mac_addr),
-    .input_ipv4_addr(arp_table_input_ipv4_addr)//, 
-    //.query(0), 
-    // .output_vlan_port(),
-    // .output_mac_addr(),
-    // .output_ipv4_addr(),
-    //.query_index(0)
+    .input_ipv4_addr(arp_table_input_ipv4_addr), 
+    .query_vlan_port(arp_table_query_vlan_port), 
+    .query_ipv4_addr(arp_table_query_ipv4_addr), 
+    .output_mac_addr(arp_table_query_output_mac_addr),
+    .query_exist(arp_table_query_exist)
+);
+
+lookup_table_trie lookup_table_trie_inst (
+    .lku_clk(axi_tclk), 
+    .lku_rst(axi_treset), 
+
+    .query_in_addr(lookup_query_in_addr), 
+    .query_in_ready(lookup_query_in_ready), 
+    .query_out_nexthop(lookup_query_out_nexthop),
+    .query_out_nextport(lookup_query_out_nextport), 
+    .query_out_ready(lookup_query_out_ready), 
+
+    .modify_in_addr(lookup_modify_in_addr),
+    .modify_in_ready(lookup_modify_in_ready),
+    .modify_in_nexthop(lookup_modify_in_nexthop),
+    .modify_in_nextport(lookup_modify_in_nextport),
+    .modify_in_len(lookup_modify_in_len),
+    .modify_finish(lookup_modify_finish),
+    .full(lookup_full)
 );
 
 wire [11:0] buf_end_addr, buf_start_addr;
@@ -287,7 +326,19 @@ ipv4_module ipv4_module_inst(
     .buf_start(ipv4_buf_start), // o
     .buf_last(ipv4_buf_last), // o
     .buf_start_addr(buf_start_addr), // i
-    .buf_end_addr(ipv4_buf_end_addr) // o
+    .buf_end_addr(ipv4_buf_end_addr), // o
+    // forward table lookup
+    .lookup_query_in_addr(lookup_query_in_addr), 
+    .lookup_query_in_ready(lookup_query_in_ready), 
+    .lookup_query_out_nexthop(lookup_query_out_nexthop),
+    .lookup_query_out_nextport(lookup_query_out_nextport), 
+    .lookup_query_out_ready(lookup_query_out_ready),
+    .arp_table_query_vlan_port(arp_table_query_vlan_port), 
+    .arp_table_query_ipv4_addr(arp_table_query_ipv4_addr), 
+    .arp_table_output_mac_addr(arp_table_query_output_mac_addr), 
+    .arp_table_query_exist(arp_table_query_exist),
+
+    .MY_IPV4_ADDRESS(MY_IPV4_ADDR)
 );
 
 // store MAC address into RAM
