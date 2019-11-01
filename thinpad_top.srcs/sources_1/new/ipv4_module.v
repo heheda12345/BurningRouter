@@ -367,14 +367,14 @@ arp_request_sender arp_request_sender_inst (
     .target_vlan_port(dest_vlan_port_r),
     .data(arp_request_data)
 );
-
+/*
 async_setter # (.LEN(4), .ADDR_WIDTH(2)) src_ip_setter (
     .value(src_ip),
     .clk(clk), 
     .enable(next_read_state == SRC),
     .data_input(rx_axis_fifo_tdata),
     .index(header_counter[1:0])
-);
+);*/
 async_setter # (.LEN(4), .ADDR_WIDTH(2)) dst_ip_setter (
     .value(dst_ip),
     .clk(clk), 

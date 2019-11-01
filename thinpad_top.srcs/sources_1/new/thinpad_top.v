@@ -297,23 +297,21 @@ eth_mac_reset_sync reset_sync_i(
 );
 assign eth_sync_rst_n = ~eth_sync_rst;
 
-eth_mac_wrapper eth_mac_wraper_i(
-    .rx_mac_aclk(eth_rx_mac_aclk),
-    .rx_mac_resetn(eth_sync_rst_n),
-    .rx_axis_mac_tdata(eth_rx_axis_mac_tdata),
-    .rx_axis_mac_tvalid(eth_rx_axis_mac_tvalid),
-    .rx_axis_mac_tlast(eth_rx_axis_mac_tlast),
-    .rx_axis_mac_tuser(eth_rx_axis_mac_tuser),
+router_core router_core_i(
+    .eth_rx_mac_aclk(eth_rx_mac_aclk),
+    .eth_rx_mac_resetn(eth_sync_rst_n),
+    .eth_rx_axis_mac_tdata(eth_rx_axis_mac_tdata),
+    .eth_rx_axis_mac_tvalid(eth_rx_axis_mac_tvalid),
+    .eth_rx_axis_mac_tlast(eth_rx_axis_mac_tlast),
+    .eth_rx_axis_mac_tuser(eth_rx_axis_mac_tuser),
 
-    .tx_mac_aclk(eth_tx_mac_aclk),
-    .tx_mac_resetn(eth_sync_rst_n),
-    .tx_axis_mac_tdata(eth_tx_axis_mac_tdata),
-    .tx_axis_mac_tvalid(eth_tx_axis_mac_tvalid),
-    .tx_axis_mac_tlast(eth_tx_axis_mac_tlast),
-    .tx_axis_mac_tready(eth_tx_axis_mac_tready),
-    .tx_axis_mac_tuser(eth_tx_axis_mac_tuser), 
-    
-    .led_debug(led_debug)
+    .eth_tx_mac_aclk(eth_tx_mac_aclk),
+    .eth_tx_mac_resetn(eth_sync_rst_n),
+    .eth_tx_axis_mac_tdata(eth_tx_axis_mac_tdata),
+    .eth_tx_axis_mac_tvalid(eth_tx_axis_mac_tvalid),
+    .eth_tx_axis_mac_tlast(eth_tx_axis_mac_tlast),
+    .eth_tx_axis_mac_tready(eth_tx_axis_mac_tready),
+    .eth_tx_axis_mac_tuser(eth_tx_axis_mac_tuser)
 );
 
 
