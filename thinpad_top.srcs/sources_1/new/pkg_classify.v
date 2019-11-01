@@ -101,15 +101,47 @@ assign MY_IPV4_ADDR = 32'h0A000001;
 assign debug[2:0] = read_state;
 assign debug[5:4] = sub_procedure_type;
 
-// manual forward table
-initial begin
-    lookup_modify_in_addr <= 32'h0a000103;
-    lookup_modify_in_nexthop <= 32'h0a000002;
-    lookup_modify_in_nextport <= 2'h0;
-    lookup_modify_in_len <= 32;
-    lookup_modify_in_ready <= 1;
-    #10
-    lookup_modify_in_ready <= 0;
+reg[31:0] counter = 0;
+
+always @(posedge axi_tclk) begin
+    if (counter < 10000)
+        counter <= counter + 1;
+end
+
+always @(posedge axi_tclk) begin
+    if (counter == 100) begin
+        lookup_modify_in_addr <= 32'h0a00000b;
+        lookup_modify_in_nexthop <= 32'h0a00000b;
+        lookup_modify_in_nextport <= 2'h0;
+        lookup_modify_in_len <= 32;
+        lookup_modify_in_ready <= 1;
+    end else if (counter == 150) begin
+        lookup_modify_in_ready <= 0;
+    end else if (counter == 350) begin
+        lookup_modify_in_addr <= 32'h0a00000c;
+        lookup_modify_in_nexthop <= 32'h0a00000c;
+        lookup_modify_in_nextport <= 2'h1;
+        lookup_modify_in_len <= 32;
+        lookup_modify_in_ready <= 1;
+    end else if (counter == 400) begin
+        lookup_modify_in_ready <= 0;
+    end else if (counter == 600) begin
+        lookup_modify_in_addr <= 32'h0a00020d;
+        lookup_modify_in_nexthop <= 32'h0a00020d;
+        lookup_modify_in_nextport <= 2'h2;
+        lookup_modify_in_len <= 32;
+        lookup_modify_in_ready <= 1;
+    end else if (counter == 650) begin
+        lookup_modify_in_ready <= 0;
+    end else if (counter == 850) begin
+        lookup_modify_in_addr <= 32'h0a00030e;
+        lookup_modify_in_nexthop <= 32'h0a00030e;
+        lookup_modify_in_nextport <= 2'h3;
+        lookup_modify_in_len <= 32;
+        lookup_modify_in_ready <= 1;
+    end else if (counter == 900) begin
+        lookup_modify_in_ready <= 0;
+    end
 end
 
 always @ (posedge axi_tclk)

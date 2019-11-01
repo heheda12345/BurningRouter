@@ -16,3 +16,5 @@ ThinRouter v0.1
     - 网口接收的数据包转发至CPU
     - CPU欲发送的数据包经过查询转发表得以发送
     - CPU更新路由表
+   对于发送数据包，需要通过专门信号来控制`ipv4_module`的转发行为，比如计算checksum和保持TTL
+2. 程序结构优化，比如把pkg_classify精简一下

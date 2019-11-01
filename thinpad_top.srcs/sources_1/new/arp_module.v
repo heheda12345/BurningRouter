@@ -156,13 +156,15 @@ always @ (*) begin
     endcase
 end
 
+wire write_start;
+assign write_start = rx_axis_fifo_tvalid && target_ip_counter == 4 && opCode == 8'h02 && MY_IPV4_ADDRESS == target_ip;
+
 always @ (*) begin
     if (rst) 
         next_write_state <= IDLE;
     else case (arp_write_state)
         IDLE: 
-            next_write_state <= (next_read_state == READ_REST || next_read_state == READ_WAITING) && 
-                    arp_read_state == READ_TARGET_IP ? WRITE_FRAME_DEST_MAC : IDLE;
+            next_write_state <= write_start && arp_read_state == READ_TARGET_IP ? WRITE_FRAME_DEST_MAC : IDLE;
         WRITE_FRAME_DEST_MAC: 
             next_write_state <= general_write_counter == 5 ? WRITE_SENDER_MAC : WRITE_FRAME_DEST_MAC;
         WRITE_SENDER_MAC:
