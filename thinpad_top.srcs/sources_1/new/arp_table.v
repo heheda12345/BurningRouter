@@ -1,5 +1,5 @@
 module arp_table
-#(parameter VLAN_PORT_WIDTH = 8, TABLE_ENTRY_WIDTH = 2) ////////////////////////////
+#(parameter VLAN_PORT_WIDTH = 8, TABLE_ENTRY_WIDTH = 4) ////////////////////////////
 (
     input clk,
     input syn_rst, 
@@ -13,8 +13,8 @@ module arp_table
     
     input [VLAN_PORT_WIDTH-1:0] query_vlan_port,
     input [31:0] query_ipv4_addr,
-    output [47:0] output_mac_addr,
-    output wire query_exist
+    output reg [47:0] output_mac_addr,
+    output reg query_exist
 );
 
 localparam  TABLE_SIZE = 2 ** TABLE_ENTRY_WIDTH,
@@ -49,9 +49,11 @@ end
 always @ (posedge clk) begin
     if (syn_rst) pointer <= 0;
     else if (insert) pointer <= pointer + 1;
+    query_exist <= _qexist[0];
+    output_mac_addr <= _output[47:0];
 end
 assign exist = _exist[0];
-assign query_exist = _qexist[0];
-assign output_mac_addr = _output[47:0];
+// assign query_exist = _qexist[0];
+// assign output_mac_addr = _output[47:0];
 
 endmodule // arp_table
