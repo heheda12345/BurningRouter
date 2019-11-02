@@ -1,4 +1,5 @@
 //instruction
+// ALU
 `define EXE_SPECIAL 6'b000000
 `define EXE_SLL_FUNC 6'b000000
 `define EXE_SRL_FUNC 6'b000010
@@ -22,7 +23,7 @@
 
 `define EXE_SLL_OP  8'b01111100
 `define EXE_SRL_OP  8'b00000010
-
+`define EXE_BRANCH_OP 8'b00000010
 `define EXE_NOP_OP    8'b00000000
 
 //AluSel
@@ -30,3 +31,12 @@
 `define EXE_RES_SHIFT 3'b010
 `define EXE_RES_NOP 3'b000
 `define EXE_RES_ARITHMETIC 3'b011
+`define EXE_RES_BRANCH 3'b100
+
+// branch & jump
+`define EXE_J 6'b000010
+`define EXE_JAL 6'b000011
+`define EXE_JR_FUNC 6'b001000
+`define EXE_BEQ 6'b000100
+`define EXE_BNE 6'b000101
+`define EXE_BGTZ 6'b000111

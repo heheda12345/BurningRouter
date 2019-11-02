@@ -9,6 +9,8 @@ module ex(
     input wire [31:0] reg2_i,
     input wire [4:0] wd_i,
     input wire wreg_i,
+    input wire[31:0] link_addr_i,
+    input wire is_in_delayslot,
 
     output reg[4:0] wd_o,
     output reg wreg_o,
@@ -72,6 +74,7 @@ if (rst == 1'b1) begin
     end
 end
 
+
 always @(*) begin
     wd_o <= wd_i;
     wreg_o <= wreg_i;
@@ -84,6 +87,9 @@ always @(*) begin
         end
         `EXE_RES_ARITHMETIC: begin
             wdata_o <= arithout;
+        end
+        `EXE_RES_BRANCH: begin
+            wdata_o <= link_addr_i;
         end
         default: begin
             $display("[ex.v] aluop %h not support", aluop_i);

@@ -16,6 +16,8 @@ module id(
     input wire [4:0] mem_wd_i,
     input wire [31:0] mem_wdata_i,
 
+    input wire is_in_delayslot_i,
+
     output reg reg1_read_o,
     output reg reg2_read_o,
     output reg[4:0] reg1_addr_o,
@@ -26,7 +28,13 @@ module id(
     output reg[31:0] reg1_o, // output imm if not use reg
     output reg[31:0] reg2_o, // output imm if not use reg
     output reg[4:0] wd_o,
-    output reg wreg_o
+    output reg wreg_o,
+
+    output reg branch_flag_o,
+    output reg[31:0] branch_target_addr_o,
+    output reg is_in_delayslot_o,
+    output reg[31:0] link_addr_o,
+    output reg next_inst_in_delayslot_o
 );
 
 // refer to tsinghua web learning
@@ -37,12 +45,17 @@ wire [4:0] ins_rd = inst_i[15:11];
 wire [4:0] ins_sa = inst_i[10:6];
 wire [5:0] ins_func = inst_i[5:0];  
 wire [15:0] ins_imm = inst_i[15:0];
-wire [25:0] ins_addr = inst_i[26:0];
+wire [25:0] ins_addr = inst_i[25:0];
 
 reg[31:0] imm_reg;
 parameter INSTVALID=0;
 parameter INSTINVALID=1;
 reg instvalid; // 0-valid, 1-invalid. from cpu book, I don't know why
+
+wire[31:0] nxt_pc, nxt_nxt_pc, add_sign_pc;
+assign nxt_pc = pc_i + 32'h00000004;
+assign nxt_nxt_pc = pc_i + 32'h00000008;
+assign add_sign_pc = pc_i + {{14{ins_imm[15]}}, ins_imm, 2'b00};
 
 
 // translate
@@ -58,12 +71,36 @@ always @(*) begin
         reg1_addr_o <= 0;
         reg2_addr_o <= 0;
         imm_reg <= 0;
+        branch_flag_o <= 0;
+        branch_target_addr_o <= 0;
+        is_in_delayslot_o <= 0;
+        link_addr_o <= 0;
     end else begin
         reg1_addr_o <= ins_rs;
         reg2_addr_o <= ins_rt;
+
+        branch_flag_o <= 0;
+        branch_target_addr_o <= 0;
+        is_in_delayslot_o <= 0;
+        link_addr_o <= 0;
         case (ins_op)
             `EXE_SPECIAL: begin
                 case (ins_func)
+                    `EXE_JR_FUNC: begin
+                        wreg_o <= 0;
+                        aluop_o <= `EXE_BRANCH_OP;
+                        alusel_o <= `EXE_RES_BRANCH;
+                        reg1_read_o <= 0;
+                        reg2_read_o <= 0;
+                        imm_reg <= 0;
+                        wd_o <= 0;
+                        instvalid <= INSTVALID;
+
+                        link_addr_o <= 0;
+                        branch_flag_o <= 1;
+                        branch_target_addr_o <= reg1_o;
+                        next_inst_in_delayslot_o <= 1;
+                    end
                     `EXE_SLL_FUNC: begin
                         wreg_o <= 1;
                         aluop_o <= `EXE_SLL_OP;
@@ -129,6 +166,92 @@ always @(*) begin
                     end
                 endcase
             end
+            `EXE_J: begin
+                wreg_o <= 0;
+                aluop_o <= `EXE_BRANCH_OP;
+                alusel_o <= `EXE_RES_BRANCH;
+                reg1_read_o <= 0;
+                reg2_read_o <= 0;
+                imm_reg <= 0;
+                wd_o <= 0;
+                instvalid <= INSTINVALID;
+
+                link_addr_o <= 0;
+                branch_flag_o <= 1;
+                branch_target_addr_o <= {nxt_pc[31:28], ins_addr, 2'b00};;
+                next_inst_in_delayslot_o <= 1;
+            end
+
+            `EXE_JAL: begin
+                wreg_o <= 1;
+                aluop_o <= `EXE_BRANCH_OP;
+                alusel_o <= `EXE_RES_BRANCH;
+                reg1_read_o <= 0;
+                reg2_read_o <= 0;
+                imm_reg <= 0;
+                wd_o <= 5'b11111;
+                instvalid <= INSTINVALID;
+
+                link_addr_o <= nxt_nxt_pc;
+                branch_flag_o <= 1;
+                branch_target_addr_o <= {nxt_pc[31:28], ins_addr, 2'b00};;
+                next_inst_in_delayslot_o <= 1;
+            end
+
+            `EXE_BEQ: begin
+                wreg_o <= 0;
+                aluop_o <= `EXE_BRANCH_OP;
+                alusel_o <= `EXE_RES_BRANCH;
+                reg1_read_o <= 0;
+                reg2_read_o <= 0;
+                imm_reg <= 0;
+                wd_o <= 0;
+                instvalid <= INSTINVALID;
+
+                link_addr_o <= 0;
+                if (reg1_data_i == reg2_data_i) begin
+                    branch_flag_o <= 1;
+                    branch_target_addr_o <= add_sign_pc;
+                    next_inst_in_delayslot_o <= 1;
+                end
+            end
+
+            `EXE_BNE: begin
+                wreg_o <= 0;
+                aluop_o <= `EXE_BRANCH_OP;
+                alusel_o <= `EXE_RES_BRANCH;
+                reg1_read_o <= 0;
+                reg2_read_o <= 0;
+                imm_reg <= 0;
+                wd_o <= 0;
+                instvalid <= INSTINVALID;
+
+                link_addr_o <= 0;
+                if (reg1_data_i != reg2_data_i) begin
+                    branch_flag_o <= 1;
+                    branch_target_addr_o <= add_sign_pc;
+                    next_inst_in_delayslot_o <= 1;
+                end
+            end
+
+            `EXE_BGTZ: begin
+                wreg_o <= 0;
+                aluop_o <= `EXE_BRANCH_OP;
+                alusel_o <= `EXE_RES_BRANCH;
+                reg1_read_o <= 0;
+                reg2_read_o <= 0;
+                imm_reg <= 0;
+                wd_o <= 0;
+                instvalid <= INSTINVALID;
+
+                link_addr_o <= 0;
+                if (reg1_data_i[31] == 1'b0 && reg1_data_i != 32'h00000000) begin
+                    branch_flag_o <= 1;
+                    branch_target_addr_o <= add_sign_pc;
+                    next_inst_in_delayslot_o <= 1;
+                end
+            end
+
             `EXE_ADDIU: begin
                 wreg_o <= 1;
                 aluop_o <= `EXE_ADDU_OP;
@@ -220,4 +343,11 @@ always @(*) begin
     end
 end
 
+always @(*) begin
+    if (rst == 1'b1) begin
+        is_in_delayslot_o <= 0;
+    end else begin
+        is_in_delayslot_o <= next_inst_in_delayslot_o;
+    end
+end
 endmodule
