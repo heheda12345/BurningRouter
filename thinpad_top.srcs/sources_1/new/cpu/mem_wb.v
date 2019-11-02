@@ -12,7 +12,7 @@ module mem_wb(
 );
 
 always @(posedge clk) begin
-    if (rst == 0) begin
+    if (rst == 1'b1) begin
         wb_wd <= 0;
         wb_wreg <= 0;
         wb_wdata <= 0;

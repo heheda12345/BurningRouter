@@ -32,7 +32,7 @@ initial begin
     ins_mem[1] <= 32'h34220100; // ori $2, $1, 0x0100
     ins_mem[2] <= 32'h34430010; // ori $3, $2, 0x0010
     ins_mem[3] <= 32'h34640001; // ori $4, $3, 0x0001
-//    rst <= 1;
+    rst <= 1;
     #10
     rst <= 0;
 end

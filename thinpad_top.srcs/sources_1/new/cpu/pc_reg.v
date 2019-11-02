@@ -6,18 +6,18 @@ module pc_reg(
 );
 
 always @(posedge clk) begin
-    if (rst == 0) begin
-        ce <= 0;
+    if (rst == 1'b1) begin
+        ce <= 1'b0;
     end else begin
-        ce <= 1;
+        ce <= 1'b1;
     end 
 end
 
 always @(posedge clk) begin
-    if (ce == 0) begin
+    if (ce == 1'b1) begin
         pc <= 0;
     end else begin
-        pc <= pc + 4;
+        pc <= pc + 32'h00000004;
     end 
 end
 

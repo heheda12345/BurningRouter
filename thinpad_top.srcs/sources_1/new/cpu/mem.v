@@ -11,7 +11,7 @@ module mem(
 );
 
 always @(*) begin
-    if (rst == 0) begin
+    if (rst == 1'b1) begin
         wd_o <= 0;
         wreg_o <= 0;
         wdata_o <= 0;

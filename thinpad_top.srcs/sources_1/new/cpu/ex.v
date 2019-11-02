@@ -18,7 +18,7 @@ module ex(
 reg[31:0] logicout;
 
 always @(*) begin
-    if (rst == 0) begin
+    if (rst == 1'b1) begin
         logicout <= 0;
     end else begin
         case (aluop_i)

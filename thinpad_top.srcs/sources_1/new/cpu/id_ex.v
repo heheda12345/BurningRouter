@@ -18,7 +18,7 @@ module id_ex (
 );
 
 always @(posedge clk) begin
-    if (rst == 1) begin
+    if (rst == 1'b1) begin
         ex_aluop <= 0;
         ex_alusel <=0;
         ex_reg1 <= 0;

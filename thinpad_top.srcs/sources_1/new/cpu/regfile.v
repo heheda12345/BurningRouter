@@ -19,8 +19,8 @@ reg[31:0] regs[0:31];
 
 // write
 always @(posedge clk) begin
-    if (rst == 0) begin
-        if (we == 1 && waddr != 0) begin
+    if (rst == 1'b1) begin
+        if (we == 1'b1 && waddr != 5'b00000) begin
             regs[waddr] <= wdata;
             $display("write %h to reg %d", wdata, waddr);
         end
@@ -29,12 +29,12 @@ end
 
 // read1
 always @(*) begin
-    if (rst == 0) begin
+    if (rst == 1'b1) begin
         rdata1 <= 0;
-    end else if (re1 ==  1) begin
-        if (raddr1 == 0) begin // must check first, think waddr = 0, we = 1, wdata != 0
+    end else if (re1 ==  1'b1) begin
+        if (raddr1 == 5'b00000) begin // must check first, think waddr = 0, we = 1, wdata != 0
             rdata1 <= 0;
-        end else if (raddr1 == waddr && we == 1) begin
+        end else if (raddr1 == waddr && we == 1'b1) begin
             rdata1 <= wdata;
         end else begin
             rdata1 <= regs[raddr1];
@@ -46,12 +46,12 @@ end
 
 // read2, copy from read1, change 1 to 2
 always @(*) begin
-    if (rst == 0) begin
+    if (rst == 1'b1) begin
         rdata2 <= 0;
-    end else if (re2 == 1) begin
-        if (raddr2 == 0) begin // must check first, think waddr = 0, we = 1, wdata != 0
+    end else if (re2 == 1'b1) begin
+        if (raddr2 == 5'b00000) begin // must check first, think waddr = 0, we = 1, wdata != 0
             rdata2 <= 0;
-        end else if (raddr2 == waddr && we == 1) begin
+        end else if (raddr2 == waddr && we == 1'b1) begin
             rdata2 <= wdata;
         end else begin
             rdata2 <= regs[raddr2];

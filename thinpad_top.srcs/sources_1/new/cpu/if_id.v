@@ -10,7 +10,7 @@ module if_id(
 );
 
 always @(posedge clk) begin
-    if (rst == 0) begin
+    if (rst == 1'b1) begin
         id_pc <= 0;
         id_inst <= 0;
     end else begin

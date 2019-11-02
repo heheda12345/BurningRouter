@@ -39,7 +39,7 @@ reg instvalid; // 0-valid, 1-invalid. from cpu book, I don't know why
 
 // translate
 always @(*) begin
-    if (rst == 1) begin
+    if (rst == 1'b1) begin
         aluop_o <= 0;
         alusel_o <= 0;
         wd_o <= 0;
@@ -81,9 +81,9 @@ end
 
 // reg1_o
 always @(*) begin
-    if (rst == 1) begin
+    if (rst == 1'b1) begin
         reg1_o <= 0;
-    end else if (reg1_read_o == 1) begin
+    end else if (reg1_read_o == 1'b1) begin
         reg1_o <= reg1_data_i;
     end else begin
         reg1_o <= imm_reg;
@@ -91,9 +91,9 @@ always @(*) begin
 end
 
 always @(*) begin
-    if (rst == 1) begin
+    if (rst == 1'b1) begin
         reg2_o <= 0;
-    end else if (reg2_read_o == 1) begin
+    end else if (reg2_read_o == 1'b1) begin
         reg2_o <= reg2_data_i;
     end else begin
         reg2_o <= imm_reg;

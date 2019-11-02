@@ -12,7 +12,7 @@ module ex_mem(
 );
 
 always @(posedge clk) begin
-    if (rst == 0) begin
+    if (rst == 1'b1) begin
         mem_wd <= 0;
         mem_wreg <= 0;
         mem_wdata <= 0;
