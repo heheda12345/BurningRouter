@@ -84,6 +84,16 @@ always @(*) begin
                         wd_o <= ins_rd;
                         instvalid <= INSTVALID;
                     end
+                    `EXE_ADDU_FUNC: begin
+                        wreg_o <= 1;
+                        aluop_o <= `EXE_ADDU_OP;
+                        alusel_o <= `EXE_RES_ARITHMETIC;
+                        reg1_read_o <= 1;
+                        reg2_read_o <= 1;
+                        imm_reg <= 0;
+                        wd_o <= ins_rd;
+                        instvalid <= INSTVALID;
+                    end
                     `EXE_AND_FUNC: begin
                         wreg_o <= 1;
                         aluop_o <= `EXE_AND_OP;
@@ -118,6 +128,16 @@ always @(*) begin
                         $display("[id.v] func %h not support", ins_func);
                     end
                 endcase
+            end
+            `EXE_ADDIU: begin
+                wreg_o <= 1;
+                aluop_o <= `EXE_ADDU_OP;
+                alusel_o <= `EXE_RES_ARITHMETIC;
+                reg1_read_o <= 1;
+                reg2_read_o <= 0;
+                imm_reg <= {{16{ins_imm[15]}}, ins_imm};
+                wd_o <= ins_rt;
+                instvalid <= INSTVALID;
             end
             `EXE_ANDI: begin
                 wreg_o <= 1;

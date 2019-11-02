@@ -15,7 +15,7 @@ module ex(
     output reg[31:0] wdata_o
 );
 
-reg[31:0] logicout, shiftout;
+reg[31:0] logicout, shiftout, arithout;
 
 always @(*) begin
     if (rst == 1'b1) begin
@@ -58,6 +58,21 @@ always @(*) begin
 end
 
 always @(*) begin
+if (rst == 1'b1) begin
+        arithout <= 0;
+    end else begin
+        case (aluop_i)
+            `EXE_ADDU_OP: begin
+                arithout <= reg1_i + reg2_i;
+            end
+            default: begin
+                shiftout <= 0;
+            end
+        endcase
+    end
+end
+
+always @(*) begin
     wd_o <= wd_i;
     wreg_o <= wreg_i;
     case (alusel_i)
@@ -66,6 +81,9 @@ always @(*) begin
         end
         `EXE_RES_SHIFT: begin
             wdata_o <= shiftout;
+        end
+        `EXE_RES_ARITHMETIC: begin
+            wdata_o <= arithout;
         end
         default: begin
             $display("[ex.v] aluop %h not support", aluop_i);
