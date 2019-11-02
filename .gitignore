@@ -5,3 +5,4 @@ thinpad_top.runs/
 thinpad_top.sim/
 tb_behav.wcfg
 vivado*
+*.out

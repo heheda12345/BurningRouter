@@ -62,6 +62,73 @@ always @(*) begin
         reg1_addr_o <= ins_rs;
         reg2_addr_o <= ins_rt;
         case (ins_op)
+            `EXE_SPECIAL: begin
+                case (ins_func)
+                    `EXE_SLL_FUNC: begin
+                        wreg_o <= 1;
+                        aluop_o <= `EXE_SLL_OP;
+                        alusel_o <= `EXE_RES_SHIFT;
+                        reg1_read_o <= 0;
+                        reg2_read_o <= 1;
+                        imm_reg <= {27'b0, ins_sa};
+                        wd_o <= ins_rd;
+                        instvalid <= INSTVALID;
+                    end
+                    `EXE_SRL_FUNC: begin
+                        wreg_o <= 1;
+                        aluop_o <= `EXE_SRL_OP;
+                        alusel_o <= `EXE_RES_SHIFT;
+                        reg1_read_o <= 0;
+                        reg2_read_o <= 1;
+                        imm_reg <= {27'b0, ins_sa};
+                        wd_o <= ins_rd;
+                        instvalid <= INSTVALID;
+                    end
+                    `EXE_AND_FUNC: begin
+                        wreg_o <= 1;
+                        aluop_o <= `EXE_AND_OP;
+                        alusel_o <= `EXE_RES_LOGIC;
+                        reg1_read_o <= 1;
+                        reg2_read_o <= 1;
+                        imm_reg <= 0;
+                        wd_o <= ins_rd;
+                        instvalid <= INSTVALID;
+                    end
+                    `EXE_OR_FUNC: begin
+                        wreg_o <= 1;
+                        aluop_o <= `EXE_OR_OP;
+                        alusel_o <= `EXE_RES_LOGIC;
+                        reg1_read_o <= 1;
+                        reg2_read_o <= 1;
+                        imm_reg <= 0;
+                        wd_o <= ins_rd;
+                        instvalid <= INSTVALID;
+                    end
+                    `EXE_XOR_FUNC: begin
+                        wreg_o <= 1;
+                        aluop_o <= `EXE_XOR_OP;
+                        alusel_o <= `EXE_RES_LOGIC;
+                        reg1_read_o <= 1;
+                        reg2_read_o <= 1;
+                        imm_reg <= 0;
+                        wd_o <= ins_rd;
+                        instvalid <= INSTVALID;
+                    end
+                    default: begin
+                        $display("[id.v] func %h not support", ins_func);
+                    end
+                endcase
+            end
+            `EXE_ANDI: begin
+                wreg_o <= 1;
+                aluop_o <= `EXE_AND_OP;
+                alusel_o <= `EXE_RES_LOGIC;
+                reg1_read_o <= 1;
+                reg2_read_o <= 0;
+                imm_reg <= {16'h0, ins_imm};
+                wd_o <= ins_rt;
+                instvalid <= INSTVALID;
+            end
             `EXE_ORI: begin
                 wreg_o <= 1;
                 aluop_o <= `EXE_OR_OP;
@@ -69,6 +136,26 @@ always @(*) begin
                 reg1_read_o <= 1;
                 reg2_read_o <= 0;
                 imm_reg <= {16'h0, ins_imm};
+                wd_o <= ins_rt;
+                instvalid <= INSTVALID;
+            end
+            `EXE_XORI: begin
+                wreg_o <= 1;
+                aluop_o <= `EXE_XOR_OP;
+                alusel_o <= `EXE_RES_LOGIC;
+                reg1_read_o <= 1;
+                reg2_read_o <= 0;
+                imm_reg <= {16'h0, ins_imm};
+                wd_o <= ins_rt;
+                instvalid <= INSTVALID;
+            end
+            `EXE_LUI: begin
+                wreg_o <= 1;
+                aluop_o <= `EXE_OR_OP;
+                alusel_o <= `EXE_RES_LOGIC;
+                reg1_read_o <= 0;
+                reg2_read_o <= 0;
+                imm_reg <= {ins_imm, 16'h0};
                 wd_o <= ins_rt;
                 instvalid <= INSTVALID;
             end

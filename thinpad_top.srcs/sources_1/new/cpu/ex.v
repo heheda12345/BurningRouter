@@ -15,18 +15,23 @@ module ex(
     output reg[31:0] wdata_o
 );
 
-reg[31:0] logicout;
+reg[31:0] logicout, shiftout;
 
 always @(*) begin
     if (rst == 1'b1) begin
         logicout <= 0;
     end else begin
         case (aluop_i)
-            `EXE_OR_OP : begin
+            `EXE_AND_OP: begin
+                logicout <= reg1_i & reg2_i;
+            end
+            `EXE_OR_OP: begin
                 logicout <= reg1_i | reg2_i;
             end
+            `EXE_XOR_OP: begin
+                logicout <= reg1_i ^ reg2_i;
+            end
             default: begin
-                $display("[ex.v] aluop %h not support", aluop_i);
                 logicout <= 0;
             end
         endcase
@@ -35,11 +40,32 @@ end
 
 
 always @(*) begin
+    if (rst == 1'b1) begin
+        shiftout <= 0;
+    end else begin
+        case (aluop_i)
+            `EXE_SLL_OP: begin
+                shiftout <= reg2_i << reg1_i[4:0];
+            end
+            `EXE_SRL_OP: begin
+                shiftout <= reg2_i >> reg1_i[4:0];
+            end
+            default: begin
+                shiftout <= 0;
+            end
+        endcase
+    end
+end
+
+always @(*) begin
     wd_o <= wd_i;
     wreg_o <= wreg_i;
     case (alusel_i)
         `EXE_RES_LOGIC: begin
             wdata_o <= logicout;
+        end
+        `EXE_RES_SHIFT: begin
+            wdata_o <= shiftout;
         end
         default: begin
             $display("[ex.v] aluop %h not support", aluop_i);
