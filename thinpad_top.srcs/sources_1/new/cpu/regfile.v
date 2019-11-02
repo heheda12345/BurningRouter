@@ -15,11 +15,11 @@ module regfile(
     output reg [31:0] rdata2
 );
 
-reg[31:0] regs[0:31];
+reg[31:0] regs[4:0];
 
 // write
 always @(posedge clk) begin
-    if (rst == 1'b1) begin
+    if (rst == 1'b0) begin
         if (we == 1'b1 && waddr != 5'b00000) begin
             regs[waddr] <= wdata;
             $display("write %h to reg %d", wdata, waddr);

@@ -51,16 +51,8 @@ always @(*) begin
         reg2_addr_o <= 0;
         imm_reg <= 0;
     end else begin
-        aluop_o <= 0;
-        alusel_o <= 0;
-        wd_o <= ins_rd;
-        wreg_o <= 0;
-        instvalid <= INSTINVALID;
-        reg1_read_o <= 0;
-        reg2_read_o <= 0;
         reg1_addr_o <= ins_rs;
         reg2_addr_o <= ins_rt;
-        imm_reg <= 0;
         case (ins_op)
             `EXE_ORI: begin
                 wreg_o <= 1;

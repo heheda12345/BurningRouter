@@ -14,7 +14,7 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
-    if (ce == 1'b1) begin
+    if (ce == 1'b0) begin
         pc <= 0;
     end else begin
         pc <= pc + 32'h00000004;

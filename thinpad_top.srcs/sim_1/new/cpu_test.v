@@ -22,7 +22,7 @@ always @(*) begin
     if (ce == 0) begin
         rom_data <= 0;
     end else begin
-        rom_data <= rom_addr; // only 2 bits of pc
+        rom_data <= ins_mem[rom_addr[3:2]]; // only 2 bits of pc
     end
 end
 
@@ -33,7 +33,7 @@ initial begin
     ins_mem[2] <= 32'h34430010; // ori $3, $2, 0x0010
     ins_mem[3] <= 32'h34640001; // ori $4, $3, 0x0001
     rst <= 1;
-    #10
+    #10000
     rst <= 0;
 end
 

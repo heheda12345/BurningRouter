@@ -36,7 +36,7 @@ end
 
 always @(*) begin
     wd_o <= wd_i;
-    wreg_o <= wreg_o;
+    wreg_o <= wreg_i;
     case (alusel_i)
         `EXE_RES_LOGIC: begin
             wdata_o <= logicout;
