@@ -1,6 +1,7 @@
 /*
 rx_client->swap->wr_client
 */
+`default_nettype wire
 
 module eth_mac_wrapper (
     // MAC-side (write-side) AxiStream interface

@@ -58,6 +58,7 @@
 // -----------------------------------------------------------------------------
 
 `timescale 1ps / 1ps
+`default_nettype wire
 
 (* dont_touch = "yes" *)
 module eth_mac_sync_block #(
