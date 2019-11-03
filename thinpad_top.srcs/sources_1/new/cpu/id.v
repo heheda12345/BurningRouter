@@ -34,7 +34,9 @@ module id(
     output reg[31:0] branch_target_addr_o,
     output reg is_in_delayslot_o,
     output reg[31:0] link_addr_o,
-    output reg next_inst_in_delayslot_o
+    output reg next_inst_in_delayslot_o,
+
+    output reg[31:0] ram_offset_o
 );
 
 // refer to tsinghua web learning
@@ -52,11 +54,11 @@ parameter INSTVALID=0;
 parameter INSTINVALID=1;
 reg instvalid; // 0-valid, 1-invalid. from cpu book, I don't know why
 
-wire[31:0] nxt_pc, nxt_nxt_pc, add_sign_pc;
+wire[31:0] nxt_pc, nxt_nxt_pc, add_sign_pc, sign_imm;
 assign nxt_pc = pc_i + 32'h00000004;
 assign nxt_nxt_pc = pc_i + 32'h00000008;
 assign add_sign_pc = nxt_pc + {{14{ins_imm[15]}}, ins_imm, 2'b00};
-
+assign sign_imm = {{16{sign_imm[15]}}, ins_imm};
 
 // translate
 always @(*) begin
@@ -84,6 +86,8 @@ always @(*) begin
         is_in_delayslot_o <= 0;
         link_addr_o <= 0;
         next_inst_in_delayslot_o <= 0;
+        
+        ram_offset_o <= 0;
         case (ins_op)
             `EXE_SPECIAL: begin
                 case (ins_func)
@@ -302,6 +306,54 @@ always @(*) begin
                 imm_reg <= {ins_imm, 16'h0};
                 wd_o <= ins_rt;
                 instvalid <= INSTVALID;
+            end
+            `EXE_LB: begin
+                wreg_o <= 1;
+                aluop_o <= `EXE_LB_OP;
+                alusel_o <= `EXE_RES_RAM;
+                reg1_read_o <= 1;
+                reg2_read_o <= 0;
+                imm_reg <= sign_imm;
+                wd_o <= ins_rt;
+                instvalid <= INSTVALID;
+                
+                ram_offset_o <= sign_imm;
+            end
+            `EXE_LW: begin
+                wreg_o <= 1;
+                aluop_o <= `EXE_LW_OP;
+                alusel_o <= `EXE_RES_RAM;
+                reg1_read_o <= 1;
+                reg2_read_o <= 0;
+                imm_reg <= sign_imm;
+                wd_o <= ins_rt;
+                instvalid <= INSTVALID;
+                
+                ram_offset_o <= sign_imm;
+            end
+            `EXE_SB: begin
+                wreg_o <= 0;
+                aluop_o <= `EXE_SB_OP;
+                alusel_o <= `EXE_RES_RAM;
+                reg1_read_o <= 1;
+                reg2_read_o <= 1;
+                imm_reg <= sign_imm;
+                wd_o <= 0;
+                instvalid <= INSTVALID;
+
+                ram_offset_o <= sign_imm;
+            end
+            `EXE_SW: begin
+                wreg_o <= 0;
+                aluop_o <= `EXE_SW_OP;
+                alusel_o <= `EXE_RES_RAM;
+                reg1_read_o <= 1;
+                reg2_read_o <= 1;
+                imm_reg <= sign_imm;
+                wd_o <= 0;
+                instvalid <= INSTVALID;
+
+                ram_offset_o <= sign_imm;
             end
             default: begin
                 $display("[id.v] op %h not support", ins_op);

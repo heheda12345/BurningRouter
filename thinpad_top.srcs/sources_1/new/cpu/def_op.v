@@ -37,7 +37,7 @@
 `define EXE_RES_NOP 3'b000
 `define EXE_RES_ARITHMETIC 3'b011
 `define EXE_RES_BRANCH 3'b100
-`define EXE_RES_IO 3'b101
+`define EXE_RES_RAM 3'b101
 
 // branch & jump
 `define EXE_J 6'b000010
