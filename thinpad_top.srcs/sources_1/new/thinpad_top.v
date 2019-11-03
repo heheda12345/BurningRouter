@@ -225,87 +225,87 @@ vga #(12, 800, 856, 976, 1040, 600, 637, 643, 666, 1, 1) vga800x600at75 (
 );
 
 // 以太网 MAC 配置演示
-// wire [7:0] eth_rx_axis_mac_tdata;
-// wire eth_rx_axis_mac_tvalid;
-// wire eth_rx_axis_mac_tlast;
-// wire eth_rx_axis_mac_tuser;
-// wire [7:0] eth_tx_axis_mac_tdata;
-// wire eth_tx_axis_mac_tvalid;
-// wire eth_tx_axis_mac_tlast;
-// wire eth_tx_axis_mac_tuser;
-// wire eth_tx_axis_mac_tready;
+wire [7:0] eth_rx_axis_mac_tdata;
+wire eth_rx_axis_mac_tvalid;
+wire eth_rx_axis_mac_tlast;
+wire eth_rx_axis_mac_tuser;
+wire [7:0] eth_tx_axis_mac_tdata;
+wire eth_tx_axis_mac_tvalid;
+wire eth_tx_axis_mac_tlast;
+wire eth_tx_axis_mac_tuser;
+wire eth_tx_axis_mac_tready;
 
-// wire eth_rx_mac_aclk;
-// wire eth_tx_mac_aclk;
+wire eth_rx_mac_aclk;
+wire eth_tx_mac_aclk;
 
-// eth_mac eth_mac_inst (
-//     .gtx_clk(clk_125M),
-//     .refclk(clk_200M),
+eth_mac eth_mac_inst (
+    .gtx_clk(clk_125M),
+    .refclk(clk_200M),
 
-//     .glbl_rstn(eth_rst_n),
-//     .rx_axi_rstn(eth_rst_n),
-//     .tx_axi_rstn(eth_rst_n),
+    .glbl_rstn(eth_rst_n),
+    .rx_axi_rstn(eth_rst_n),
+    .tx_axi_rstn(eth_rst_n),
 
-//     .rx_mac_aclk(eth_rx_mac_aclk),
-//     .rx_axis_mac_tdata(eth_rx_axis_mac_tdata),
-//     .rx_axis_mac_tvalid(eth_rx_axis_mac_tvalid),
-//     .rx_axis_mac_tlast(eth_rx_axis_mac_tlast),
-//     .rx_axis_mac_tuser(eth_rx_axis_mac_tuser),
+    .rx_mac_aclk(eth_rx_mac_aclk),
+    .rx_axis_mac_tdata(eth_rx_axis_mac_tdata),
+    .rx_axis_mac_tvalid(eth_rx_axis_mac_tvalid),
+    .rx_axis_mac_tlast(eth_rx_axis_mac_tlast),
+    .rx_axis_mac_tuser(eth_rx_axis_mac_tuser),
 
-//     .tx_ifg_delay(8'b0),
-//     .tx_mac_aclk(eth_tx_mac_aclk),
-//     .tx_axis_mac_tdata(eth_tx_axis_mac_tdata),
-//     .tx_axis_mac_tvalid(eth_tx_axis_mac_tvalid),
-//     .tx_axis_mac_tlast(eth_tx_axis_mac_tlast),
-//     .tx_axis_mac_tuser(eth_tx_axis_mac_tuser),
-//     .tx_axis_mac_tready(eth_tx_axis_mac_tready),
+    .tx_ifg_delay(8'b0),
+    .tx_mac_aclk(eth_tx_mac_aclk),
+    .tx_axis_mac_tdata(eth_tx_axis_mac_tdata),
+    .tx_axis_mac_tvalid(eth_tx_axis_mac_tvalid),
+    .tx_axis_mac_tlast(eth_tx_axis_mac_tlast),
+    .tx_axis_mac_tuser(eth_tx_axis_mac_tuser),
+    .tx_axis_mac_tready(eth_tx_axis_mac_tready),
 
-//     .pause_req(1'b0),
-//     .pause_val(16'b0),
+    .pause_req(1'b0),
+    .pause_val(16'b0),
 
-//     .rgmii_txd(eth_rgmii_td),
-//     .rgmii_tx_ctl(eth_rgmii_tx_ctl),
-//     .rgmii_txc(eth_rgmii_txc),
-//     .rgmii_rxd(eth_rgmii_rd),
-//     .rgmii_rx_ctl(eth_rgmii_rx_ctl),
-//     .rgmii_rxc(eth_rgmii_rxc),
+    .rgmii_txd(eth_rgmii_td),
+    .rgmii_tx_ctl(eth_rgmii_tx_ctl),
+    .rgmii_txc(eth_rgmii_txc),
+    .rgmii_rxd(eth_rgmii_rd),
+    .rgmii_rx_ctl(eth_rgmii_rx_ctl),
+    .rgmii_rxc(eth_rgmii_rxc),
 
-//     // receive 1Gb/s | promiscuous | flow control | fcs | vlan | enable
-//     .rx_configuration_vector(80'b10100000101110),
-//     // transmit 1Gb/s | vlan | enable
-//     .tx_configuration_vector(80'b10000000000110)
-// );
+    // receive 1Gb/s | promiscuous | flow control | fcs | vlan | enable
+    .rx_configuration_vector(80'b10100000101110),
+    // transmit 1Gb/s | vlan | enable
+    .tx_configuration_vector(80'b10000000000110)
+);
 // /* =========== Demo code end =========== */
 
-// wire eth_sync_rst;
-// wire eth_sync_rst_n;
+wire eth_sync_rst;
+wire eth_sync_rst_n;
 
-// eth_mac_reset_sync reset_sync_i(
-//     .reset_in(1'b0),
-//     .clk(eth_rx_mac_aclk),
-//     .enable(1'b1),
-//     .reset_out(eth_sync_rst)
-// );
-// assign eth_sync_rst_n = ~eth_sync_rst;
+eth_mac_reset_sync reset_sync_i(
+    .reset_in(1'b0),
+    .clk(eth_rx_mac_aclk),
+    .enable(1'b1),
+    .reset_out(eth_sync_rst)
+);
+assign eth_sync_rst_n = ~eth_sync_rst;
 
-// eth_mac_wrapper eth_mac_wraper_i(
-//     .rx_mac_aclk(eth_rx_mac_aclk),
-//     .rx_mac_resetn(eth_sync_rst_n),
-//     .rx_axis_mac_tdata(eth_rx_axis_mac_tdata),
-//     .rx_axis_mac_tvalid(eth_rx_axis_mac_tvalid),
-//     .rx_axis_mac_tlast(eth_rx_axis_mac_tlast),
-//     .rx_axis_mac_tuser(eth_rx_axis_mac_tuser),
+eth_mac_wrapper eth_mac_wraper_i(
+    .rx_mac_aclk(eth_rx_mac_aclk),
+    .rx_mac_resetn(eth_sync_rst_n),
+    .rx_axis_mac_tdata(eth_rx_axis_mac_tdata),
+    .rx_axis_mac_tvalid(eth_rx_axis_mac_tvalid),
+    .rx_axis_mac_tlast(eth_rx_axis_mac_tlast),
+    .rx_axis_mac_tuser(eth_rx_axis_mac_tuser),
 
-//     .tx_mac_aclk(eth_tx_mac_aclk),
-//     .tx_mac_resetn(eth_sync_rst_n),
-//     .tx_axis_mac_tdata(eth_tx_axis_mac_tdata),
-//     .tx_axis_mac_tvalid(eth_tx_axis_mac_tvalid),
-//     .tx_axis_mac_tlast(eth_tx_axis_mac_tlast),
-//     .tx_axis_mac_tready(eth_tx_axis_mac_tready),
-//     .tx_axis_mac_tuser(eth_tx_axis_mac_tuser), 
+    .tx_mac_aclk(eth_tx_mac_aclk),
+    .tx_mac_resetn(eth_sync_rst_n),
+    .tx_axis_mac_tdata(eth_tx_axis_mac_tdata),
+    .tx_axis_mac_tvalid(eth_tx_axis_mac_tvalid),
+    .tx_axis_mac_tlast(eth_tx_axis_mac_tlast),
+    .tx_axis_mac_tready(eth_tx_axis_mac_tready),
+    .tx_axis_mac_tuser(eth_tx_axis_mac_tuser), 
     
-//     .led_debug(led_debug)
-// );
+    .led_debug(led_debug)
+);
 
 
 // base ram saves instructions

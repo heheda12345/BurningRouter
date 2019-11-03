@@ -250,48 +250,48 @@ end
 
 // RGMII 仿真模型
 
-// rgmii_model rgmii(
-//     .clk_125M(clk_125M),
-//     .clk_125M_90deg(clk_125M_90deg),
+rgmii_model rgmii(
+    .clk_125M(clk_125M),
+    .clk_125M_90deg(clk_125M_90deg),
 
-//     .rgmii_rd(eth_rgmii_rd),
-//     .rgmii_rxc(eth_rgmii_rxc),
-//     .rgmii_rx_ctl(eth_rgmii_rx_ctl),
-//     .rgmii_td(eth_rgmii_td),
-//     .rgmii_txc(eth_rgmii_txc),
-//     .rgmii_tx_ctl(eth_rgmii_tx_ctl)
-// );
+    .rgmii_rd(eth_rgmii_rd),
+    .rgmii_rxc(eth_rgmii_rxc),
+    .rgmii_rx_ctl(eth_rgmii_rx_ctl),
+    .rgmii_td(eth_rgmii_td),
+    .rgmii_txc(eth_rgmii_txc),
+    .rgmii_tx_ctl(eth_rgmii_tx_ctl)
+);
 
 // Lookup Table Test
-// reg lookup_in_ready;
-// wire lookup_out_ready;
-// reg [31:0] lookup_in_addr;
-// wire [31:0] lookup_out_nexthop;
-// wire [1:0] lookup_out_interface;
-// lookup_table lut_inst(
-//     .lku_clk(clk_125M),
-//     .lku_rst(1'b0),
-//     .lku_in_addr(lookup_in_addr),
-//     .lku_in_ready(lookup_in_ready),
-//     .lku_out_nexthop(lookup_out_nexthop),
-//     .lku_out_interface(lookup_out_interface),
-//     .lku_out_ready(lookup_out_ready),
-//     .static_table_addr      ({32'h1f008800, 32'h1f000000, 32'h1f008e00, 32'h1f008f23}),
-//     .static_table_mask      ({32'hfffff800, 32'hff000000, 32'hffffff00, 32'hffffffff}),
-//     .static_table_nexthop   ({32'h1f016600, 32'h1f017700, 32'h1f018800, 32'h12343210}),
-//     .static_table_interface ({2'd1, 2'd2, 2'd0, 2'd3})
-// );
+reg lookup_in_ready;
+wire lookup_out_ready;
+reg [31:0] lookup_in_addr;
+wire [31:0] lookup_out_nexthop;
+wire [1:0] lookup_out_interface;
+lookup_table lut_inst(
+    .lku_clk(clk_125M),
+    .lku_rst(1'b0),
+    .lku_in_addr(lookup_in_addr),
+    .lku_in_ready(lookup_in_ready),
+    .lku_out_nexthop(lookup_out_nexthop),
+    .lku_out_interface(lookup_out_interface),
+    .lku_out_ready(lookup_out_ready),
+    .static_table_addr      ({32'h1f008800, 32'h1f000000, 32'h1f008e00, 32'h1f008f23}),
+    .static_table_mask      ({32'hfffff800, 32'hff000000, 32'hffffff00, 32'hffffffff}),
+    .static_table_nexthop   ({32'h1f016600, 32'h1f017700, 32'h1f018800, 32'h12343210}),
+    .static_table_interface ({2'd1, 2'd2, 2'd0, 2'd3})
+);
 
-// initial begin
-//     lookup_in_addr = 32'h1f008f23;
-//     lookup_in_ready = 1'b1;
-//     #100
-//     lookup_in_ready = 1'b0;
-//     #100
-//     lookup_in_ready = 1'b1;
-//     #100
-//     lookup_in_ready = 1'b0;
-// end
+initial begin
+    lookup_in_addr = 32'h1f008f23;
+    lookup_in_ready = 1'b1;
+    #100
+    lookup_in_ready = 1'b0;
+    #100
+    lookup_in_ready = 1'b1;
+    #100
+    lookup_in_ready = 1'b0;
+end
 
 // wire lookup_succ;
 // lookup_test ltt_inst(
