@@ -115,7 +115,7 @@ always @(posedge lku_clk) begin
         STATE_PAUSE: begin
                 //$display("state: pause modify %d query %d full %d", modify_in_ready, query_in_ready, full);
                 if (modify_in_ready && !full) begin
-                    $display("[lookup] modify begin %h->%h", modify_in_addr, modify_in_nexthop);
+                    // $display("[lookup] modify begin %h->%h", modify_in_addr, modify_in_nexthop);
                     dep <= 28;
                     lookup_addr <= modify_in_addr;
                     lookup_port <= modify_in_nextport;
@@ -130,7 +130,7 @@ always @(posedge lku_clk) begin
                     end
                     write_enable <= 0;
                 end else if (query_in_ready) begin
-                    $display("[lookup] query begin %h", query_in_addr);
+                    // $display("[lookup] query begin %h", query_in_addr);
                     dep <= 28;
                     next_state <= STATE_QUE_READ;
                     lookup_addr <= query_in_addr;

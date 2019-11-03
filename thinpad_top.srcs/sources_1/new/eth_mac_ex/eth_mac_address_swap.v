@@ -55,6 +55,7 @@
 //------------------------------------------------------------------------------
 
 `timescale 1 ps/1 ps
+`default_nettype wire
 
 module eth_mac_address_swap
   (

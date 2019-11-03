@@ -1,0 +1,1 @@
+g++ to-binary.cpp -o to-binary.out && ./to-binary.out < ram && cp bin.out ../baseram.mem && echo "end"
