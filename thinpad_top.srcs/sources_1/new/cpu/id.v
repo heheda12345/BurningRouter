@@ -55,7 +55,7 @@ reg instvalid; // 0-valid, 1-invalid. from cpu book, I don't know why
 wire[31:0] nxt_pc, nxt_nxt_pc, add_sign_pc;
 assign nxt_pc = pc_i + 32'h00000004;
 assign nxt_nxt_pc = pc_i + 32'h00000008;
-assign add_sign_pc = pc_i + {{14{ins_imm[15]}}, ins_imm, 2'b00};
+assign add_sign_pc = nxt_pc + {{14{ins_imm[15]}}, ins_imm, 2'b00};
 
 
 // translate
@@ -83,6 +83,7 @@ always @(*) begin
         branch_target_addr_o <= 0;
         is_in_delayslot_o <= 0;
         link_addr_o <= 0;
+        next_inst_in_delayslot_o <= 0;
         case (ins_op)
             `EXE_SPECIAL: begin
                 case (ins_func)
@@ -90,7 +91,7 @@ always @(*) begin
                         wreg_o <= 0;
                         aluop_o <= `EXE_BRANCH_OP;
                         alusel_o <= `EXE_RES_BRANCH;
-                        reg1_read_o <= 0;
+                        reg1_read_o <= 1;
                         reg2_read_o <= 0;
                         imm_reg <= 0;
                         wd_o <= 0;
@@ -202,8 +203,8 @@ always @(*) begin
                 wreg_o <= 0;
                 aluop_o <= `EXE_BRANCH_OP;
                 alusel_o <= `EXE_RES_BRANCH;
-                reg1_read_o <= 0;
-                reg2_read_o <= 0;
+                reg1_read_o <= 1;
+                reg2_read_o <= 1;
                 imm_reg <= 0;
                 wd_o <= 0;
                 instvalid <= INSTINVALID;
@@ -220,8 +221,8 @@ always @(*) begin
                 wreg_o <= 0;
                 aluop_o <= `EXE_BRANCH_OP;
                 alusel_o <= `EXE_RES_BRANCH;
-                reg1_read_o <= 0;
-                reg2_read_o <= 0;
+                reg1_read_o <= 1;
+                reg2_read_o <= 1;
                 imm_reg <= 0;
                 wd_o <= 0;
                 instvalid <= INSTINVALID;
@@ -238,7 +239,7 @@ always @(*) begin
                 wreg_o <= 0;
                 aluop_o <= `EXE_BRANCH_OP;
                 alusel_o <= `EXE_RES_BRANCH;
-                reg1_read_o <= 0;
+                reg1_read_o <= 1;
                 reg2_read_o <= 0;
                 imm_reg <= 0;
                 wd_o <= 0;

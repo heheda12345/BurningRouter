@@ -21,7 +21,7 @@ wire [31:0] id_reg2_o;
 wire id_wreg_o;
 wire [4:0] id_wd_o;
 wire id_is_in_delayslot;
-wire[31:0] id_link_addr_o;
+wire[31:0] id_link_addr;
 wire id_next_inst_in_delayslot;
 
 // id-ex -> ex
@@ -64,7 +64,7 @@ wire [4:0] reg2_addr;
 
 // id -> pc
 wire [31:0] branch_target_addr;
-wire [31:0] branch_flag;
+wire branch_flag;
 
 // id-ex -> id
 wire id_back_is_in_delayslot;
@@ -125,7 +125,7 @@ id ID(
     .branch_target_addr_o(branch_target_addr),
     .branch_flag_o(branch_flag),
     .is_in_delayslot_o(id_is_in_delayslot),
-    .link_addr_o(id_link_addr_o),
+    .link_addr_o(id_link_addr),
     .next_inst_in_delayslot_o(id_next_inst_in_delayslot)
 );
 
@@ -153,6 +153,9 @@ id_ex ID_EX(
     .id_reg2(id_reg2_o),
     .id_wd(id_wd_o),
     .id_wreg(id_wreg_o),
+    .id_is_in_delayslot(id_is_in_delayslot),
+    .id_link_addr(id_link_addr),
+    .next_inst_in_delayslot_i(id_next_inst_in_delayslot),
 
     .ex_aluop(ex_aluop_i),
     .ex_alusel(ex_alusel_i),

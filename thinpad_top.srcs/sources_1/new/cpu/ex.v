@@ -68,7 +68,7 @@ if (rst == 1'b1) begin
                 arithout <= reg1_i + reg2_i;
             end
             default: begin
-                shiftout <= 0;
+                arithout <= 0;
             end
         endcase
     end
