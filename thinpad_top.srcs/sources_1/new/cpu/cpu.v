@@ -2,9 +2,8 @@ module cpu(
     input wire clk,
     input wire rst,
 
-    input wire[31:0] rom_data_i,
-    output wire[31:0] rom_addr_o,
-    output wire rom_ce_o
+    input wire[31:0] pc_data_i,
+    output wire[19:0] pc_addr_o
 );
 
 
@@ -69,7 +68,7 @@ wire branch_flag;
 // id-ex -> id
 wire id_back_is_in_delayslot;
 
-assign rom_addr_o = pc;
+assign pc_addr_o = pc[21:2];
 
 pc_reg PC_REG(
     .clk(clk),
@@ -79,14 +78,15 @@ pc_reg PC_REG(
     .branch_target_addr_i(branch_target_addr),
 
     .pc(pc),
-    .ce(rom_ce_o)
+    .ce(pc_ce_o)
 );
 
 if_id IF_ID(
     .clk(clk),
     .rst(rst),
+    .if_ce(pc_ce_o),
     .if_pc(pc),
-    .if_inst(rom_data_i),
+    .if_inst(pc_data_i),
     .id_pc(id_pc_i),
     .id_inst(id_inst_i)      	
 );

@@ -2,27 +2,27 @@ module cpu_test(
     input wire clk
 );
 
-reg [31:0] rom_data;
-wire [31:0] rom_addr;
+reg [31:0] pc_data;
+wire [31:0] pc_addr;
 wire ce;
 reg rst;
 
 cpu CPU(
     .clk(clk),
     .rst(rst),
-    .rom_data_i(rom_data),
-    .rom_addr_o(rom_addr),
-    .rom_ce_o(ce)
+    .pc_data_i(pc_data),
+    .pc_addr_o(pc_addr),
+    .pc_ce_o(ce)
 );
 
 reg[31:0] ins_mem[0:32];
 
-// simulate ROM
+// simulate PC-RAM
 always @(*) begin
     if (ce == 0) begin
-        rom_data <= 0;
+        pc_data <= 0;
     end else begin
-        rom_data <= ins_mem[rom_addr[7:2]];
+        pc_data <= ins_mem[pc_addr[7:2]];
     end
 end
 

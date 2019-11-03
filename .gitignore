@@ -6,3 +6,5 @@ thinpad_top.sim/
 tb_behav.wcfg
 vivado*
 *.out
+baseram.mem
+extram.mem
