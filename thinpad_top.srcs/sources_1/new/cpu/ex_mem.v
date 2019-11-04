@@ -8,6 +8,8 @@ module ex_mem(
     input wire[7:0] ex_alu_op,
     input wire[31:0] ex_ram_addr,
 
+    input wire mem_stall, // unimplement
+
     output reg[4:0] mem_wd,
     output reg mem_wreg,
     output reg[31:0] mem_wdata,

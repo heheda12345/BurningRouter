@@ -28,8 +28,8 @@ wire id_wreg_o;
 wire [4:0] id_wd_o;
 wire id_is_in_delayslot;
 wire[31:0] id_link_addr;
-wire id_next_inst_in_delayslot;
 wire [31:0] id_ram_offset;
+wire id_next_inst_in_delayslot;
 
 // id-ex -> ex
 wire [7:0] ex_aluop_i;
@@ -80,8 +80,25 @@ wire branch_flag;
 
 // id-ex -> id
 wire id_back_is_in_delayslot;
+wire [7:0] id_pre_aluop_oi;
+wire id_reg1_read_oi;
+wire [4:0] id_reg1_addr_oi;
+wire id_reg2_read_oi;
+wire [4:0] id_reg2_addr_oi;
+wire id_wreg_oi;
+wire [4:0] id_wd_oi;
+
 
 assign pc_addr_o = pc[21:2];
+
+// ctrl with other
+wire id_stall_req_o;
+wire pc_stall_i;
+wire if_stall_i;
+wire id_stall_i;
+wire ex_stall_i;
+wire mem_stall_i;
+wire wb_stall_i;
 
 // mem <-> ram
 wire [31:0] mem_ram_addr_o;
@@ -92,12 +109,14 @@ assign ram_we_o = clk & mem_ram_we_o;
 pc_reg PC_REG(
     .clk(clk),
     .rst(rst),
+    .ce(if_pc_ce_o),
 
     .branch_flag_i(branch_flag),
     .branch_target_addr_i(branch_target_addr),
 
     .pc(pc),
-    .ce(if_pc_ce_o)
+
+    .pc_stall(pc_stall_i)
 );
 
 if_id IF_ID(
@@ -106,6 +125,9 @@ if_id IF_ID(
     .if_ce(if_pc_ce_o),
     .if_pc(pc),
     .if_inst(pc_data_i),
+
+    .id_stall(id_stall_i),
+
     .id_pc(id_pc_i),
     .id_inst(id_inst_i)      	
 );
@@ -128,6 +150,14 @@ id ID(
 
     .is_in_delayslot_i(id_back_is_in_delayslot),
 
+    .pre_aluop(id_pre_aluop_oi),
+    .pre_reg1_read(id_reg1_read_oi),
+    .pre_reg1_addr(id_reg1_addr_oi),
+    .pre_reg2_read(id_reg2_read_oi),
+    .pre_reg2_addr(id_reg2_addr_oi),
+    .pre_wreg(id_wreg_oi),
+    .pre_wd(id_wd_oi),
+
     .reg1_read_o(reg1_read),
     .reg2_read_o(reg2_read),
     .reg1_addr_o(reg1_addr),
@@ -145,7 +175,9 @@ id ID(
     .is_in_delayslot_o(id_is_in_delayslot),
     .link_addr_o(id_link_addr),
     .next_inst_in_delayslot_o(id_next_inst_in_delayslot),
-    .ram_offset_o(id_ram_offset)
+    .ram_offset_o(id_ram_offset),
+
+    .stall_req_o(id_stall_req_o)
 );
 
 regfile REGFILE(
@@ -177,6 +209,8 @@ id_ex ID_EX(
     .next_inst_in_delayslot_i(id_next_inst_in_delayslot),
     .id_ram_offset(id_ram_offset),
 
+    .id_stall(id_stall_i),
+
     .ex_aluop(ex_aluop_i),
     .ex_alusel(ex_alusel_i),
     .ex_reg1(ex_reg1_i),
@@ -186,7 +220,23 @@ id_ex ID_EX(
     .ex_is_in_delayslot(ex_is_in_delayslot),
     .ex_link_addr(ex_link_addr),
     .is_in_delayslot_o(id_back_is_in_delayslot),
-    .ex_ram_offset(ex_ram_offset)
+    .ex_ram_offset(ex_ram_offset),
+
+    .cur_aluop(id_aluop_o),
+    .cur_reg1_read(reg1_read),
+    .cur_reg1_addr(reg1_addr),
+    .cur_reg2_read(reg2_read),
+    .cur_reg2_addr(reg2_addr),
+    .cur_wd(id_wd_o),
+    .cur_wreg(id_wreg_o),
+
+    .pre_aluop(id_pre_aluop_oi),
+    .pre_reg1_read(id_reg1_read_oi),
+    .pre_reg1_addr(id_reg1_addr_oi),
+    .pre_reg2_read(id_reg2_read_oi),
+    .pre_reg2_addr(id_reg2_addr_oi),
+    .pre_wd(id_wd_oi),
+    .pre_wreg(id_wreg_oi)
 );		
 
 ex EX(
@@ -218,6 +268,8 @@ ex_mem EX_MEM(
     .ex_wdata(ex_wdata_o),
     .ex_alu_op(ex_aluop_o),
     .ex_ram_addr(ex_ram_addr_o),
+
+    .mem_stall(mem_stall_i),
 
     .mem_wd(mem_wd_i),
     .mem_wreg(mem_wreg_i),
@@ -254,9 +306,25 @@ mem_wb MEM_WB(
     .mem_wreg(mem_wreg_o),
     .mem_wdata(mem_wdata_o),
 
+    .wb_stall(wb_stall_i),
+
     .wb_wd(wb_wd_i),
     .wb_wreg(wb_wreg_i),
     .wb_wdata(wb_wdata_i)
+);
+
+ctrl CTRL(
+    .rst(rst),
+    
+    .id_req(id_stall_req_o),
+
+
+    .pc_stall(pc_stall_i),
+    .if_stall(if_stall_i),
+    .id_stall(id_stall_i),
+    .ex_stall(ex_stall_i),
+    .mem_stall(mem_stall_i),
+    .wb_stall(wb_stall_i)
 );
 
 endmodule

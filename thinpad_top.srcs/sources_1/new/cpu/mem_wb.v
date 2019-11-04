@@ -6,6 +6,8 @@ module mem_wb(
     input wire mem_wreg,
     input wire[31:0] mem_wdata,
 
+    input wire wb_stall, // not implement
+
     output reg[4:0] wb_wd,
     output reg wb_wreg,
     output reg[31:0] wb_wdata
