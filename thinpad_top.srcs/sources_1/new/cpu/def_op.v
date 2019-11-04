@@ -40,7 +40,7 @@
 `define EXE_RES_RAM 3'b101
 
 // branch & jump
-`define EXE_J 6'b000010
+`define EXE_JUMP 6'b000010
 `define EXE_JAL 6'b000011
 `define EXE_JR_FUNC 6'b001000
 `define EXE_BEQ 6'b000100

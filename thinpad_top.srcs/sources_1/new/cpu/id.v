@@ -18,6 +18,14 @@ module id(
 
     input wire is_in_delayslot_i,
 
+    input wire [7:0] pre_aluop,
+    input wire pre_reg1_read,
+    input wire [4:0] pre_reg1_addr,
+    input wire pre_reg2_read,
+    input wire [4:0] pre_reg2_addr,
+    input wire pre_wreg,
+    input wire [4:0] pre_wd,
+
     output reg reg1_read_o,
     output reg reg2_read_o,
     output reg[4:0] reg1_addr_o,
@@ -34,9 +42,12 @@ module id(
     output reg[31:0] branch_target_addr_o,
     output reg is_in_delayslot_o,
     output reg[31:0] link_addr_o,
+
+    output reg[31:0] ram_offset_o,
+
     output reg next_inst_in_delayslot_o,
 
-    output reg[31:0] ram_offset_o
+    output reg stall_req_o
 );
 
 // refer to tsinghua web learning
@@ -171,7 +182,7 @@ always @(*) begin
                     end
                 endcase
             end
-            `EXE_J: begin
+            `EXE_JUMP: begin
                 wreg_o <= 0;
                 aluop_o <= `EXE_BRANCH_OP;
                 alusel_o <= `EXE_RES_BRANCH;
@@ -393,6 +404,18 @@ always @(*) begin
         end
     end else begin
         reg2_o <= imm_reg;
+    end
+end
+
+wire stall_req_reg1, stall_req_reg2, pre_is_load;
+assign pre_is_load = (pre_aluop == `EXE_LB_OP || pre_aluop == `EXE_LW_OP);
+assign stall_req_reg1 = reg1_read_o == 1'b1 && pre_wd == reg1_addr_o;
+assign stall_req_reg2 = reg2_read_o == 1'b1 && pre_wd == reg2_addr_o;
+always @(*) begin
+    if (rst == 1'b1) begin
+        stall_req_o <= 0;
+    end else begin
+        stall_req_o <= pre_is_load == 1'b1 && pre_wreg == 1'b1 && pre_wd != 5'b00000 && (stall_req_reg1 || stall_req_reg2);
     end
 end
 
