@@ -151,7 +151,7 @@ always @ (*) begin
             next_read_state <= rx_end ? OVER : DISCARD;
         end
         READ_NO_MODIFY: begin
-            next_read_state <= rx_end ? OVER : READ_NO_MODIFY;
+            next_read_state <= general_read_counter == WRITE_TOTAL ? (rx_end ? READ_WAITING : READ_REST) : READ_NO_MODIFY;
         end
         READ_WAITING: begin
             next_read_state <= arp_write_state == OVER || arp_write_state == IDLE ? OVER : READ_WAITING;
@@ -171,7 +171,7 @@ always @ (*) begin
         next_write_state <= IDLE;
     else case (arp_write_state)
         IDLE: begin
-            if (write_start && arp_read_state == READ_NO_MODIFY) begin
+            if (general_read_counter == WRITE_TOTAL && arp_read_state == READ_NO_MODIFY) begin
                 next_write_state <= WRITE_PUSHING;
             end
             else if (write_start && arp_read_state == READ_TARGET_IP) begin
@@ -195,7 +195,7 @@ always @ (*) begin
     endcase
 end
 
-assign rx_axis_fifo_tready = rx_axis_fifo_tvalid && (next_read_state >= START && next_read_state <= READ_REST);
+assign rx_axis_fifo_tready = rx_axis_fifo_tvalid && (next_read_state >= START && next_read_state < READ_WAITING);
 
 always @ (posedge clk) begin
     arp_counter1 <= rx_axis_fifo_tvalid && (next_read_state == ARP1) ? arp_counter1 + 1 : 0;
@@ -206,7 +206,7 @@ always @ (posedge clk) begin
     opcode_counter <= rx_axis_fifo_tvalid && (next_read_state == OPCODE) ? opcode_counter + 1 : 0;
     //write_sender_mac_counter <= next_write_state == WRITE_SENDER_MAC ? write_sender_mac_counter + 1 : 0;
     //write_counter <= next_write_state == WRITE_PUSHING && tx_axis_fifo_tready ? write_counter + 1 : 0;
-    general_read_counter <= rx_axis_fifo_tvalid ? ( next_read_state == IDLE ? 0 : general_write_counter + 1) : general_read_counter;
+    general_read_counter <= rx_axis_fifo_tvalid ? ( next_read_state == START ? 0 : general_read_counter + 1) : general_read_counter;
     general_write_counter <= next_write_state != arp_write_state ? 0 : general_write_counter + 1;
 end
 
@@ -276,7 +276,7 @@ always @ (posedge clk) begin
     end
     else if (next_read_state == READ_NO_MODIFY) begin
         mem_write_ena <= 1;
-        mem_write_addr <= buf_start_addr + general_read_counter;
+        mem_write_addr <= buf_start_addr + 18 + general_read_counter;
         mem_write_data <= rx_axis_fifo_tdata;
     end
     else begin
