@@ -43,6 +43,9 @@ module ipv4_module(
     output [31:0] arp_table_query_ipv4_addr,
     input [47:0] arp_table_output_mac_addr, 
     input arp_table_query_exist,
+
+    input from_cpu, 
+    output reg to_cpu,
     
     input [31:0] MY_IPV4_ADDRESS, 
     input [47:0] MY_MAC_ADDRESS
@@ -67,13 +70,15 @@ localparam IDLE             = 5'h0,
            OVER             = 5'h1f;
 
 localparam WRITE_WAIT          = 5'h1,
-           WRITE_DEST_MAC_ADDR = 5'h2,
-           WRITE_VLAN_PORT     = 5'h3,
-           WRITE_CHECKSUM      = 5'h4, 
-           WRITE_BLOCKED       = 5'h5,
-           WRITE_ARPREQUEST    = 5'h6,
-           WRITE_PUSH          = 5'h7,
-           WRITE_TOCPU         = 5'h8;
+           WRITE_CHECKSUM      = 5'h2, 
+           WRITE_TTL           = 5'h3,
+           WRITE_DEST_MAC_ADDR = 5'h4,
+           WRITE_VLAN_PORT     = 5'h5,
+           WRITE_BLOCKED       = 5'h6,
+           WRITE_BLOCKED_TOCPU = 5'h7,
+           WRITE_ARPREQUEST    = 5'h8,
+           WRITE_PUSH          = 5'h9,
+           WRITE_TOCPU         = 5'ha;
 
 localparam WRITE_TOTAL = 46;
 
@@ -93,6 +98,7 @@ reg [3:0] write_counter = 0;
 reg [15:0] total_length = 0, total_counter = 0;
 (*MARK_DEBUG="TRUE"*)reg [23:0] checksum = 0; // little-endian
 reg [15:0] checksum_text = 0;
+reg [7:0] ttl;
 wire [31:0] dst_ip;
 wire [7:0] dest_vlan_port, dest_mac_addr;
 reg [7:0] dest_vlan_port_r;
@@ -134,7 +140,7 @@ always @ (*) begin
         end
         TTL: begin
             next_read_state <= rx_axis_fifo_tvalid/*&& header_counter == 9*/? (
-                rx_axis_fifo_tdata > 0 ? CHECKSUM : DISCARD // TTL > 0?
+                rx_axis_fifo_tdata > 0 || from_cpu ? CHECKSUM : DISCARD // TTL > 0?
             ) : TTL;
         end
         PROTOCOL: begin
@@ -163,13 +169,13 @@ always @ (*) begin
         end
         VARIANT: begin
             if (rx_axis_fifo_tvalid && header_counter[5:2] == header_length) begin
-                if (checksum[15:0] + checksum[23:16] == 16'hffff) begin
+                if (checksum[15:0] + checksum[23:16] == 16'hffff || from_cpu) begin
                     next_read_state <= BODY;
                 end else next_read_state <= DISCARD;
             end else next_read_state <= VARIANT;
         end
         BODY: begin
-            if (arp_table_query_out_ready && !arp_table_query_exist) next_read_state <= DISCARD;
+            if (!to_cpu && arp_table_query_out_ready && !arp_table_query_exist) next_read_state <= DISCARD;
             else begin
                 if (rx_last) next_read_state <= is_writing ? WAIT : OVER;
                 else next_read_state <= rx_axis_fifo_tvalid && total_counter == total_length ? TAIL : BODY;
@@ -206,9 +212,15 @@ end
 always @ (*) begin
     case (ipv4_write_state)
         IDLE: begin
-            next_write_state <= body_start ? (
-                dst_ip == MY_IPV4_ADDRESS ? WRITE_TOCPU : WRITE_WAIT
-            ) : IDLE;
+            next_write_state <= body_start ? WRITE_TTL : IDLE;
+        end
+        WRITE_TTL: begin
+            next_write_state <= WRITE_CHECKSUM;
+        end
+        WRITE_CHECKSUM : begin
+            next_write_state <= write_counter == 2 ? (
+                dst_ip == MY_IPV4_ADDRESS ? (buf_ready ? WRITE_PUSH : WRITE_BLOCKED_TOCPU) : WRITE_WAIT
+            ) : WRITE_CHECKSUM;
         end
         WRITE_WAIT: begin
             next_write_state <= arp_table_query_out_ready ? (arp_table_query_exist ? WRITE_DEST_MAC_ADDR : WRITE_ARPREQUEST) : WRITE_WAIT;
@@ -217,22 +229,22 @@ always @ (*) begin
             next_write_state <= write_counter == 6 ? WRITE_VLAN_PORT : WRITE_DEST_MAC_ADDR;
         end
         WRITE_VLAN_PORT : begin
-            next_write_state <= write_counter == 8 ? WRITE_CHECKSUM : WRITE_VLAN_PORT;
-        end
-        WRITE_CHECKSUM : begin
-            next_write_state <= write_counter == 10 ? (buf_ready ? WRITE_PUSH : WRITE_BLOCKED) : WRITE_CHECKSUM;
+            next_write_state <= buf_ready ? WRITE_PUSH : WRITE_BLOCKED;
         end
         WRITE_BLOCKED: begin
             next_write_state <= buf_ready ? WRITE_PUSH : WRITE_BLOCKED;
         end
+        WRITE_BLOCKED_TOCPU: begin
+            next_write_state <= buf_ready ? WRITE_TOCPU : WRITE_BLOCKED_TOCPU;
+        end
         WRITE_ARPREQUEST: begin
-            next_write_state <= arp_request_last ? WRITE_PUSH : WRITE_ARPREQUEST; // to be implemented...
+            next_write_state <= arp_request_last ? WRITE_PUSH : WRITE_ARPREQUEST; 
         end
         WRITE_PUSH: begin
             next_write_state <= OVER;
         end
         WRITE_TOCPU: begin
-            next_write_state <= OVER; // to be implemented...
+            next_write_state <= OVER;
         end
         OVER: begin
             next_write_state <= IDLE;
@@ -241,12 +253,14 @@ always @ (*) begin
     endcase
 end
 
-assign rx_axis_fifo_tready = rx_axis_fifo_tvalid && (ipv4_read_state >= START && ipv4_read_state <= DISCARD) && !(next_write_state >= WRITE_DEST_MAC_ADDR && next_write_state <= WRITE_CHECKSUM);
+assign rx_axis_fifo_tready = rx_axis_fifo_tvalid && (ipv4_read_state >= START && ipv4_read_state <= DISCARD) 
+        && !(next_write_state == WRITE_CHECKSUM || next_write_state == WRITE_VLAN_PORT 
+            || next_write_state == WRITE_TTL || next_write_state == WRITE_DEST_MAC_ADDR);
 
 always @ (posedge clk) begin
     header_counter <= next_read_state >= HEADER_LEN && next_read_state < BODY ? (rx_axis_fifo_tready ?header_counter + 1 : header_counter) : 0;
     total_counter <= next_read_state >= HEADER_LEN && next_read_state <= BODY ? (rx_axis_fifo_tready ?total_counter + 1 : total_counter) : 0;
-    write_counter <= next_write_state >= WRITE_DEST_MAC_ADDR && next_write_state <= WRITE_CHECKSUM ? write_counter + 1 : 0;
+    write_counter <= next_write_state == WRITE_DEST_MAC_ADDR || next_write_state == WRITE_CHECKSUM || next_write_state == WRITE_VLAN_PORT ? write_counter + 1 : 0;
 end
 
 always @ (posedge clk) begin
@@ -258,7 +272,19 @@ always @ (posedge clk) begin
         else if (header_counter == 3)
             total_length[7:0] <= rx_axis_fifo_tdata;
     end
+    if (next_read_state == TTL) begin
+        if (from_cpu)
+            ttl <= rx_axis_fifo_tdata;
+        else ttl <= rx_axis_fifo_tdata - 1;
+    end
 end
+
+function [15:0] mod_ffff_1;
+input [23:0] x;
+begin
+    mod_ffff_1 = x[15:0] + x[23:16] > 16'hffff ? x[15:0] + x[23:16] - 16'hffff : x[15:0] + x[23:16];
+end
+endfunction
 
 always @(posedge clk or posedge rst) begin
     if (rst) begin
@@ -271,7 +297,7 @@ always @(posedge clk or posedge rst) begin
                 checksum[23:8] <= checksum[23:8] + rx_axis_fifo_tdata;
             else checksum <= checksum + rx_axis_fifo_tdata;
         end
-        else checksum <= 0;
+        else if (ipv4_read_state == OVER) checksum <= 0;
         if (next_read_state == CHECKSUM) begin
             if (header_counter[0] == 0) 
                 checksum_text[15:8] <= rx_axis_fifo_tdata;
@@ -280,14 +306,22 @@ always @(posedge clk or posedge rst) begin
         else if (next_read_state == BODY && ipv4_read_state != BODY) 
             // the only change to header is TTL (-1), so checksum += 1
             // NOTE: TTL is on higher digit, so minus 1 on that digit
-            {checksum_text[7:0], checksum_text[15:8]} = 
-                {checksum_text[7:0], checksum_text[15:8]} == 16'hfffe ? 0 : {checksum_text[7:0], checksum_text[15:8]}+1;
+            if (!from_cpu) 
+                checksum_text <= ~mod_ffff_1(checksum + 16'hfeff + 16'hffff - checksum_text);
+            else checksum_text <= ~mod_ffff_1(checksum + 16'hffff - checksum_text);
+            // {checksum_text[7:0], checksum_text[15:8]} = 
+            //     {checksum_text[7:0], checksum_text[15:8]} == 16'hfffe ? 0 : {checksum_text[7:0], checksum_text[15:8]}+1;
     end
 end
 
 // BRAM writing is 1 clock period behind FIFO reading
 always @ (posedge clk) begin
-    if (next_write_state == WRITE_ARPREQUEST) begin
+    if (next_write_state == WRITE_TTL) begin
+        mem_write_data <= ttl;
+        mem_write_ena <= 1;
+        mem_write_addr <= buf_start_addr + 26;
+    end
+    else if (next_write_state == WRITE_ARPREQUEST) begin
         mem_write_data <= arp_request_data;
         mem_write_ena <= 1;
         mem_write_addr <= buf_start_addr + arp_request_counter;
@@ -304,7 +338,7 @@ always @ (posedge clk) begin
         mem_write_data <= write_counter[0] == 0 ? 0 : dest_vlan_port_r;
     end
     else if (next_write_state == WRITE_CHECKSUM) begin
-        mem_write_addr <= buf_start_addr + 28 + (write_counter - 8);
+        mem_write_addr <= buf_start_addr + 28 + write_counter;
         mem_write_ena <= 1;
         mem_write_data <= write_counter[0] == 0 ? checksum_text[15:8] : checksum_text[7:0];
     end else begin
@@ -322,10 +356,7 @@ always @ (posedge clk) begin
         end
 
         mem_write_ena <= next_read_state > START && next_read_state <= BODY;
-
-        if (next_read_state == TTL)
-            mem_write_data <= rx_axis_fifo_tdata - 1; // TTL --
-        else mem_write_data <= rx_axis_fifo_tdata;
+        mem_write_data <= rx_axis_fifo_tdata;
     end
 end
 
@@ -339,9 +370,13 @@ always @ (posedge clk) begin
         mem_read_addr <= buf_start_addr;
 end*/
 //assign mem_read_ena = ipv4_write_state == WRITE_PUSH;
-assign buf_start = next_write_state == WRITE_PUSH;
+assign buf_start = next_write_state == WRITE_PUSH || next_write_state == WRITE_TOCPU;
 assign buf_last = next_read_state == OVER;
 assign buf_end_addr = buf_start_addr + mem_write_counter; // mark the farthest point the writer pointer reaches
+always @(posedge clk) begin
+    if (ipv4_read_state == IDLE) to_cpu <= 0;
+    else to_cpu <= dst_ip == MY_IPV4_ADDRESS;
+end
 
 assign complete = ipv4_read_state == OVER;
 
@@ -358,7 +393,7 @@ arp_request_sender arp_request_sender_inst (
     .clk(clk), 
     .rst(rst), 
     .ready(next_write_state == WRITE_ARPREQUEST), 
-    .opcode(1), 
+    .opcode(8'h1), 
     .last(arp_request_last), 
     .arp_counter(arp_request_counter), 
     .my_mac_address(MY_MAC_ADDRESS), 

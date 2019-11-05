@@ -16,7 +16,9 @@ module buffer_pushing
 
     output wire mem_read_ena,
     input wire [7:0] mem_read_data,
-    output wire [11:0] mem_read_addr
+    output wire [11:0] mem_read_addr,
+
+    input wire to_cpu
 );
 
 localparam  IDLE = 3'd0,

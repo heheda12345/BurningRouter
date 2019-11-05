@@ -31,6 +31,7 @@ wire tx_axis_fifo_tvalid;
 wire [7:0] tx_axis_fifo_tdata;
 wire tx_axis_fifo_tlast;
 wire tx_axis_fifo_tready;
+wire from_cpu, to_cpu;
 
 eth_mac_wrapper eth_mac_wraper_i(
     .rx_mac_aclk(eth_rx_mac_aclk),
@@ -122,6 +123,8 @@ pkg_classify pkg_classify_inst(
     .MY_MAC_ADDRESS(MY_MAC_ADDR)
 );
 
+assign from_cpu = vlan_port == 0;
+
 arp_table arp_table_inst (
     .clk(axi_tclk), 
     .syn_rst(axi_treset), 
@@ -172,7 +175,9 @@ buffer_pushing buffer_pushing_i (
 
     .mem_read_ena(mem_read_ena),
     .mem_read_data(mem_read_data),
-    .mem_read_addr(mem_read_addr)
+    .mem_read_addr(mem_read_addr),
+
+    .to_cpu(to_cpu)
 );
 
 arp_module arp_module_inst(
@@ -204,7 +209,8 @@ arp_module arp_module_inst(
 
     .MY_MAC_ADDRESS(MY_MAC_ADDR),
     .MY_IPV4_ADDRESS(MY_IPV4_ADDR),
-    .vlan_port(vlan_port)
+    .vlan_port(vlan_port),
+    .from_cpu(from_cpu)
 );
 
 ipv4_module ipv4_module_inst(
@@ -236,6 +242,9 @@ ipv4_module ipv4_module_inst(
     .arp_table_query_ipv4_addr(arp_table_query_ipv4_addr), 
     .arp_table_output_mac_addr(arp_table_query_output_mac_addr), 
     .arp_table_query_exist(arp_table_query_exist),
+
+    .to_cpu(to_cpu),
+    .from_cpu(from_cpu),
 
     .MY_MAC_ADDRESS(MY_MAC_ADDR),
     .MY_IPV4_ADDRESS(MY_IPV4_ADDR)

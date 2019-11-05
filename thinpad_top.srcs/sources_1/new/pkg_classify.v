@@ -10,7 +10,7 @@ S5. swap dest, src. type(2) -> A. ARP(0x0806) B. IPv4(0x0800)
 */
 
 module pkg_classify(
-(*MARK_DEBUG="TRUE"*) input            axi_tclk,
+    input            axi_tclk,
     input            axi_tresetn,
 
     output     [15:0] debug,
@@ -194,7 +194,7 @@ always @ (posedge axi_tclk) begin
     endcase
 end
 
-assign is_arp = sub_procedure_type == ARP;
-assign is_ipv4 = sub_procedure_type == IPV4;
+assign is_arp = sub_procedure_type == ARP && read_state == WAIT;
+assign is_ipv4 = sub_procedure_type == IPV4 && read_state == WAIT;
 
 endmodule // pkg_classify
