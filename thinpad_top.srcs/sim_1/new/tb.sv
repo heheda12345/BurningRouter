@@ -52,6 +52,11 @@ wire [3:0] eth_rgmii_td; //RGMII TX 数据
 wire eth_rgmii_tx_ctl;   //RGMII TX 控制
 wire eth_rgmii_txc;      //RGMII TX 时钟
 
+wire cpu_rx_qword_tready, cpu_rx_qword_tvalid;
+wire cpu_tx_qword_tready, cpu_tx_qword_tvalid;
+wire [31:0] cpu_rx_qword_tdata, cpu_tx_qword_tdata;
+wire [3:0] cpu_rx_qword_tlast, cpu_tx_qword_tlast;
+
 //Windows�???要注意路径分隔符的转义，例如"D:\\foo\\bar.bin"
 parameter BASE_RAM_INIT_FILE = "/tmp/main.bin"; //BaseRAM初始化文件，请修改为实际的绝对路�???
 parameter EXT_RAM_INIT_FILE = "/tmp/eram.bin";    //ExtRAM初始化文件，请修改为实际的绝对路�???
@@ -126,7 +131,15 @@ thinpad_top dut(
     .eth_rgmii_rxc(eth_rgmii_rxc),
     .eth_rgmii_td(eth_rgmii_td),
     .eth_rgmii_tx_ctl(eth_rgmii_tx_ctl),
-    .eth_rgmii_txc(eth_rgmii_txc)
+    .eth_rgmii_txc(eth_rgmii_txc),
+    .cpu_rx_qword_tdata(cpu_rx_qword_tdata),
+    .cpu_rx_qword_tlast(cpu_rx_qword_tlast),
+    .cpu_rx_qword_tvalid(cpu_rx_qword_tvalid),
+    .cpu_rx_qword_tready(cpu_rx_qword_tready),
+    .cpu_tx_qword_tdata(cpu_tx_qword_tdata),
+    .cpu_tx_qword_tlast(cpu_tx_qword_tlast),
+    .cpu_tx_qword_tvalid(cpu_tx_qword_tvalid),
+    .cpu_tx_qword_tready(cpu_tx_qword_tready)
 );
 // 时钟�???
 clock osc(
@@ -258,6 +271,18 @@ rgmii_model rgmii(
     .rgmii_td(eth_rgmii_td),
     .rgmii_txc(eth_rgmii_txc),
     .rgmii_tx_ctl(eth_rgmii_tx_ctl)
+);
+
+cpu_interface_model cpu_itf (
+    .clk_cpu(clk_50M),
+    .cpu_rx_qword_tdata(cpu_rx_qword_tdata),
+    .cpu_rx_qword_tlast(cpu_rx_qword_tlast),
+    .cpu_rx_qword_tvalid(cpu_rx_qword_tvalid),
+    .cpu_rx_qword_tready(cpu_rx_qword_tready),
+    .cpu_tx_qword_tdata(cpu_tx_qword_tdata),
+    .cpu_tx_qword_tlast(cpu_tx_qword_tlast),
+    .cpu_tx_qword_tvalid(cpu_tx_qword_tvalid),
+    .cpu_tx_qword_tready(cpu_tx_qword_tready)
 );
 
 // Lookup Table Test

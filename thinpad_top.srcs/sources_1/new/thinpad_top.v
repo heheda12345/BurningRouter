@@ -80,7 +80,20 @@ module thinpad_top(
     output wire video_hsync,       //行同步（水平同步）信号
     output wire video_vsync,       //场同步（垂直同步）信号
     output wire video_clk,         //像素时钟输出
-    output wire video_de           //行数据有效信号，用于区分消隐区
+    output wire video_de,           //行数据有效信号，用于区分消隐区
+
+    // for debug
+    // in the future these interfaces will be removed
+    // CPU receiving FIFO
+    output wire [31:0] cpu_rx_qword_tdata,
+    output wire [3:0] cpu_rx_qword_tlast,
+    output wire cpu_rx_qword_tvalid,
+    input wire cpu_rx_qword_tready,
+    // CPU transmitting FIFO
+    input wire [31:0] cpu_tx_qword_tdata,
+    input wire [3:0] cpu_tx_qword_tlast,
+    input wire cpu_tx_qword_tvalid,
+    output wire cpu_tx_qword_tready
 );
 
 /* =========== Demo code begin =========== */
@@ -297,6 +310,10 @@ eth_mac_reset_sync reset_sync_i(
 );
 assign eth_sync_rst_n = ~eth_sync_rst;
 
+wire [7:0] cpu_rx_axis_tdata, cpu_tx_axis_tdata;
+wire cpu_rx_axis_tlast, cpu_rx_axis_tready, cpu_rx_axis_tvalid;
+wire cpu_tx_axis_tlast, cpu_tx_axis_tready, cpu_tx_axis_tvalid;
+
 router_core router_core_i(
     .eth_rx_mac_aclk(eth_rx_mac_aclk),
     .eth_rx_mac_resetn(eth_sync_rst_n),
@@ -311,8 +328,96 @@ router_core router_core_i(
     .eth_tx_axis_mac_tvalid(eth_tx_axis_mac_tvalid),
     .eth_tx_axis_mac_tlast(eth_tx_axis_mac_tlast),
     .eth_tx_axis_mac_tready(eth_tx_axis_mac_tready),
-    .eth_tx_axis_mac_tuser(eth_tx_axis_mac_tuser)
+    .eth_tx_axis_mac_tuser(eth_tx_axis_mac_tuser),
+
+    // transmitted by CPU
+    .cpu_rx_axis_tdata(cpu_rx_axis_tdata),
+    .cpu_rx_axis_tlast(cpu_rx_axis_tlast),
+    .cpu_rx_axis_tvalid(cpu_rx_axis_tvalid),
+    .cpu_rx_axis_tready(cpu_rx_axis_tready),
+    // received by CPU
+    .cpu_tx_axis_tdata(cpu_tx_axis_tdata),
+    .cpu_tx_axis_tlast(cpu_tx_axis_tlast),
+    .cpu_tx_axis_tvalid(cpu_tx_axis_tvalid),
+    .cpu_tx_axis_tready(cpu_tx_axis_tready)
 );
 
+wire [35:0] fifo_cpu2router_din, fifo_router2cpu_dout;
+wire fifo_cpu2router_empty, fifo_cpu2router_full;
+wire [8:0] fifo_cpu2router_dout, fifo_router2cpu_din;
+wire fifo_router2cpu_wr_en, fifo_cpu2router_rd_en;
+wire fifo_router2cpu_empty, fifo_router2cpu_full;
+
+// assign cpu_rx_axis_tvalid = ~fifo_cpu2router_empty;
+// assign cpu_tx_axis_tready = cpu_tx_axis_tvalid && ~fifo_router2cpu_full;
+assign cpu_rx_qword_tvalid = ~fifo_router2cpu_empty; // non-empty, CPU read is ok
+assign cpu_tx_qword_tready = cpu_tx_qword_tvalid && ~fifo_cpu2router_full; // CPU ready to send
+assign fifo_cpu2router_din = { 
+    cpu_tx_qword_tdata[31:24], cpu_tx_qword_tlast[3], 
+    cpu_tx_qword_tdata[23:16], cpu_tx_qword_tlast[2], 
+    cpu_tx_qword_tdata[15:8], cpu_tx_qword_tlast[1], 
+    cpu_tx_qword_tdata[7:0], cpu_tx_qword_tlast[0]
+};
+assign cpu_rx_qword_tdata = {
+    fifo_router2cpu_dout[35:28],
+    fifo_router2cpu_dout[26:19],
+    fifo_router2cpu_dout[17:10],
+    fifo_router2cpu_dout[8:1]
+};
+assign cpu_rx_qword_tlast = {
+    fifo_router2cpu_dout[27],
+    fifo_router2cpu_dout[18],
+    fifo_router2cpu_dout[9],
+    fifo_router2cpu_dout[0]
+};
+
+fifo_cpu2router fifo_cpu2router_inst(
+    .rd_clk(eth_rx_mac_aclk),
+    .wr_clk(clk_50M),
+    .rst(eth_sync_rst),
+    // <-CPU
+    .full(fifo_cpu2router_full),
+    .din(fifo_cpu2router_din),
+    .wr_en(cpu_tx_qword_tready),
+    // ->router
+    .empty(fifo_cpu2router_empty),
+    .dout(fifo_cpu2router_dout),
+    .rd_en(fifo_cpu2router_rd_en)
+);
+fifo_router2cpu fifo_router2cpu_inst(
+    .rd_clk(clk_50M),
+    .wr_clk(eth_rx_mac_aclk),
+    .rst(eth_sync_rst),
+    // <-router
+    .full(fifo_router2cpu_full),
+    .din(fifo_router2cpu_din),
+    .wr_en(fifo_router2cpu_wr_en),
+    // ->CPU
+    .empty(fifo_router2cpu_empty),
+    .dout(fifo_router2cpu_dout),
+    .rd_en(cpu_rx_qword_tready)
+);
+fifo_native2axis fifo_native2axis_inst(
+    .clk(eth_rx_mac_aclk),
+    .rst(eth_sync_rst),
+    .native_empty(fifo_cpu2router_empty),
+    .native_dout(fifo_cpu2router_dout),
+    .native_rd_en(fifo_cpu2router_rd_en),
+    .axis_tdata(cpu_rx_axis_tdata),
+    .axis_tlast(cpu_rx_axis_tlast),
+    .axis_tready(cpu_rx_axis_tready),
+    .axis_tvalid(cpu_rx_axis_tvalid)
+);
+fifo_axis2native fifo_axis2native_inst(
+    .clk(eth_rx_mac_aclk),
+    .rst(eth_sync_rst),
+    .axis_tdata(cpu_tx_axis_tdata),
+    .axis_tlast(cpu_tx_axis_tlast),
+    .axis_tready(cpu_tx_axis_tready),
+    .axis_tvalid(cpu_tx_axis_tvalid),
+    .native_full(fifo_router2cpu_full),
+    .native_din(fifo_router2cpu_din),
+    .native_wr_en(fifo_router2cpu_wr_en)
+);
 
 endmodule

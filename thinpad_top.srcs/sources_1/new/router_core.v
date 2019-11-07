@@ -1,4 +1,5 @@
 module router_core(
+    // MAC-side AxiStream interface
     input            eth_rx_mac_aclk,
     input            eth_rx_mac_resetn,
     (*MARK_DEBUG="TRUE"*) input [7:0]      eth_rx_axis_mac_tdata,
@@ -6,14 +7,24 @@ module router_core(
     (*MARK_DEBUG="TRUE"*) input            eth_rx_axis_mac_tlast,
     input            eth_rx_axis_mac_tuser,
 
-    // MAC-side (read-side) AxiStream interface
     input            eth_tx_mac_aclk,
     input            eth_tx_mac_resetn,
     (*MARK_DEBUG="TRUE"*) output [7:0]     eth_tx_axis_mac_tdata,
     (*MARK_DEBUG="TRUE"*) output           eth_tx_axis_mac_tvalid,
     (*MARK_DEBUG="TRUE"*) output           eth_tx_axis_mac_tlast,
     (*MARK_DEBUG="TRUE"*) input            eth_tx_axis_mac_tready,
-    output           eth_tx_axis_mac_tuser
+    output           eth_tx_axis_mac_tuser,
+
+    // CPU-side AxiStream interface (use eth_rx_mac clock)
+    input [7:0]      cpu_rx_axis_tdata,
+    input            cpu_rx_axis_tvalid,
+    input            cpu_rx_axis_tlast,
+    output           cpu_rx_axis_tready,
+
+    output [7:0]     cpu_tx_axis_tdata,
+    output           cpu_tx_axis_tvalid,
+    output           cpu_tx_axis_tlast,
+    input            cpu_tx_axis_tready
 );
 
 
@@ -22,15 +33,15 @@ wire [31:0] MY_IPV4_ADDR;
 assign MY_MAC_ADDR = 48'h020203030000;
 assign MY_IPV4_ADDR = 32'h0A000001;
 
-wire rx_axis_fifo_tvalid;
-wire [7:0] rx_axis_fifo_tdata;
-wire rx_axis_fifo_tlast;
-wire rx_axis_fifo_tready;
+wire eth_rx_axis_fifo_tvalid, rx_axis_fifo_tvalid;
+wire [7:0] eth_rx_axis_fifo_tdata, rx_axis_fifo_tdata;
+wire eth_rx_axis_fifo_tlast, rx_axis_fifo_tlast;
+wire eth_rx_axis_fifo_tready, rx_axis_fifo_tready;
 
-wire tx_axis_fifo_tvalid;
-wire [7:0] tx_axis_fifo_tdata;
-wire tx_axis_fifo_tlast;
-wire tx_axis_fifo_tready;
+wire eth_tx_axis_fifo_tvalid;
+wire [7:0] eth_tx_axis_fifo_tdata;
+wire eth_tx_axis_fifo_tlast;
+wire eth_tx_axis_fifo_tready;
 wire from_cpu, to_cpu;
 
 eth_mac_wrapper eth_mac_wraper_i(
@@ -49,15 +60,15 @@ eth_mac_wrapper eth_mac_wraper_i(
     .tx_axis_mac_tready(eth_tx_axis_mac_tready),
     .tx_axis_mac_tuser(eth_tx_axis_mac_tuser), 
 
-    .rx_axis_fifo_tvalid(rx_axis_fifo_tvalid),
-    .rx_axis_fifo_tdata(rx_axis_fifo_tdata),
-    .rx_axis_fifo_tlast(rx_axis_fifo_tlast),
-    .rx_axis_fifo_tready(rx_axis_fifo_tready),
+    .rx_axis_fifo_tvalid(eth_rx_axis_fifo_tvalid),
+    .rx_axis_fifo_tdata(eth_rx_axis_fifo_tdata),
+    .rx_axis_fifo_tlast(eth_rx_axis_fifo_tlast),
+    .rx_axis_fifo_tready(eth_rx_axis_fifo_tready),
 
-    .tx_axis_fifo_tvalid(tx_axis_fifo_tvalid),
-    .tx_axis_fifo_tdata(tx_axis_fifo_tdata),
-    .tx_axis_fifo_tlast(tx_axis_fifo_tlast),
-    .tx_axis_fifo_tready(tx_axis_fifo_tready)
+    .tx_axis_fifo_tvalid(eth_tx_axis_fifo_tvalid),
+    .tx_axis_fifo_tdata(eth_tx_axis_fifo_tdata),
+    .tx_axis_fifo_tlast(eth_tx_axis_fifo_tlast),
+    .tx_axis_fifo_tready(eth_tx_axis_fifo_tready)
 );
 
 wire is_ipv4, is_arp, ipv4_ready, arp_ready, ipv4_complete, arp_complete;
@@ -98,6 +109,28 @@ wire resetn = eth_rx_mac_resetn | eth_tx_mac_resetn ;
 wire axi_treset = !resetn;
 wire axi_tclk = eth_rx_mac_aclk;
 
+rx_fifo_switch rx_fifo_switch_inst (
+    .clk(axi_tclk),
+    .rst(axi_treset),
+    
+    .eth_rx_axis_tdata(eth_rx_axis_fifo_tdata),
+    .eth_rx_axis_tvalid(eth_rx_axis_fifo_tvalid), 
+    .eth_rx_axis_tlast(eth_rx_axis_fifo_tlast), 
+    .eth_rx_axis_tready(eth_rx_axis_fifo_tready), 
+
+    .cpu_rx_axis_tdata(cpu_rx_axis_tdata),
+    .cpu_rx_axis_tvalid(cpu_rx_axis_tvalid), 
+    .cpu_rx_axis_tlast(cpu_rx_axis_tlast), 
+    .cpu_rx_axis_tready(cpu_rx_axis_tready), 
+
+    .merged_rx_axis_tdata(rx_axis_fifo_tdata),
+    .merged_rx_axis_tvalid(rx_axis_fifo_tvalid),
+    .merged_rx_axis_tlast(rx_axis_fifo_tlast),
+    .merged_rx_axis_tready(rx_axis_fifo_tready),
+
+    .is_cpu(from_cpu)
+);
+
 pkg_classify pkg_classify_inst(
     .axi_tclk(axi_tclk), // i 
     .axi_tresetn(resetn), // i
@@ -123,7 +156,7 @@ pkg_classify pkg_classify_inst(
     .MY_MAC_ADDRESS(MY_MAC_ADDR)
 );
 
-assign from_cpu = vlan_port == 0;
+//assign from_cpu = vlan_port == 0;
 
 arp_table arp_table_inst (
     .clk(axi_tclk), 
@@ -168,10 +201,15 @@ buffer_pushing buffer_pushing_i (
     .last(buf_last), // i
     .finish(buf_finish), // o
 
-    .tx_axis_fifo_tdata(tx_axis_fifo_tdata),
-    .tx_axis_fifo_tlast(tx_axis_fifo_tlast),
-    .tx_axis_fifo_tvalid(tx_axis_fifo_tvalid),
-    .tx_axis_fifo_tready(tx_axis_fifo_tready),
+    .tx_axis_fifo_tdata(eth_tx_axis_fifo_tdata),
+    .tx_axis_fifo_tlast(eth_tx_axis_fifo_tlast),
+    .tx_axis_fifo_tvalid(eth_tx_axis_fifo_tvalid),
+    .tx_axis_fifo_tready(eth_tx_axis_fifo_tready),
+
+    .cpu_tx_axis_fifo_tdata(cpu_tx_axis_tdata),
+    .cpu_tx_axis_fifo_tready(cpu_tx_axis_tready),
+    .cpu_tx_axis_fifo_tvalid(cpu_tx_axis_tvalid),
+    .cpu_tx_axis_fifo_tlast(cpu_tx_axis_tlast),
 
     .mem_read_ena(mem_read_ena),
     .mem_read_data(mem_read_data),
