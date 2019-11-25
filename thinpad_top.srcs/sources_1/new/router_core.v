@@ -29,9 +29,9 @@ module router_core(
 
 
 wire [47:0] MY_MAC_ADDR;
-wire [31:0] MY_IPV4_ADDR;
+wire [32*4-1:0] MY_IPV4_ADDR = {32'h0a000101, 32'h0a000001, 32'h0a000201, 32'h0a000301};
 assign MY_MAC_ADDR = 48'h020203030000;
-assign MY_IPV4_ADDR = 32'h0A000001;
+wire [31:0] MY_IPV4_ADDR_PORT;
 
 wire eth_rx_axis_fifo_tvalid, rx_axis_fifo_tvalid;
 wire [7:0] eth_rx_axis_fifo_tdata, rx_axis_fifo_tdata;
@@ -246,7 +246,7 @@ arp_module arp_module_inst(
     .arp_table_input_ipv4_addr(arp_table_input_ipv4_addr), 
 
     .MY_MAC_ADDRESS(MY_MAC_ADDR),
-    .MY_IPV4_ADDRESS(MY_IPV4_ADDR),
+    .MY_IPV4_ADDRESS(MY_IPV4_ADDR_PORT),
     .vlan_port(vlan_port),
     .from_cpu(from_cpu)
 );
@@ -285,7 +285,8 @@ ipv4_module ipv4_module_inst(
     .from_cpu(from_cpu),
 
     .MY_MAC_ADDRESS(MY_MAC_ADDR),
-    .MY_IPV4_ADDRESS(MY_IPV4_ADDR)
+    .MY_IPV4_ADDRESS(MY_IPV4_ADDR_PORT),
+    .MY_IPV4_ADDRESSES(MY_IPV4_ADDR)
 );
 
 assign mem_write_addr = is_arp ? arp_mem_write_addr : (
@@ -338,8 +339,8 @@ end
 
 always @(posedge axi_tclk) begin
     if (counter == 100) begin
-        lookup_modify_in_addr <= 32'h0a00000b;
-        lookup_modify_in_nexthop <= 32'h0a00000b;
+        lookup_modify_in_addr <= 32'h0a00010b;
+        lookup_modify_in_nexthop <= 32'h0a00010b;
         lookup_modify_in_nextport <= 2'h0;
         lookup_modify_in_len <= 32;
         lookup_modify_in_ready <= 1;
@@ -372,5 +373,29 @@ always @(posedge axi_tclk) begin
     end
 end
 
+ip_address_port_access ip_address_port_access_inst (
+    .ip_addresses(MY_IPV4_ADDR),
+    .vlan_port(vlan_port), 
+    .ip_address(MY_IPV4_ADDR_PORT)
+);
+
 
 endmodule // router_core
+
+// get correct ip address according to the port
+module ip_address_port_access(
+    input [127:0] ip_addresses,
+    input [7:0] vlan_port, 
+    output [31:0] ip_address
+);
+
+assign ip_address = 
+    vlan_port == 4 ? ip_addresses[31:0] : (
+        vlan_port == 3 ? ip_addresses[63:32] : (
+            vlan_port == 2 ? ip_addresses[95:64] : (
+                vlan_port == 1 ? ip_addresses[127:96] : 0
+            )
+        )
+    );
+
+endmodule // ip_address_port_access

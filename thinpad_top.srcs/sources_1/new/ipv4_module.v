@@ -48,6 +48,7 @@ module ipv4_module(
     output reg to_cpu,
     
     input [31:0] MY_IPV4_ADDRESS, 
+    input [127:0] MY_IPV4_ADDRESSES, 
     input [47:0] MY_MAC_ADDRESS
 );
 
@@ -108,6 +109,7 @@ wire [7:0] arp_request_data;
 wire [5:0] arp_request_counter;
 wire arp_request_last;
 reg arp_table_query_out_ready;
+wire [31:0] MY_IPV4_ADDRESS_NEW;
 
 wire body_start;
 wire is_writing;
@@ -397,10 +399,16 @@ arp_request_sender arp_request_sender_inst (
     .last(arp_request_last), 
     .arp_counter(arp_request_counter), 
     .my_mac_address(MY_MAC_ADDRESS), 
-    .my_ipv4_address(MY_IPV4_ADDRESS),
+    .my_ipv4_address(MY_IPV4_ADDRESS_NEW),
     .target_ipv4_address(dest_ipv4_address_r), 
     .target_vlan_port(dest_vlan_port_r),
     .data(arp_request_data)
+);
+
+ip_address_port_access ip_address_port_access_inst (
+    .ip_addresses(MY_IPV4_ADDRESSES),
+    .vlan_port(dest_vlan_port_r), 
+    .ip_address(MY_IPV4_ADDRESS_NEW)
 );
 /*
 async_setter # (.LEN(4), .ADDR_WIDTH(2)) src_ip_setter (
