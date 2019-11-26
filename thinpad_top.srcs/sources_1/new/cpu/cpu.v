@@ -4,12 +4,14 @@ module cpu(
 
     input wire[31:0] pc_data_i,
     output wire[19:0] pc_addr_o,
+    input wire if_stall_req, 
 
     input wire[31:0] ram_data_i,
     output wire[19:0] ram_addr_o,
     output wire[3:0] ram_be_o,
     output wire ram_we_o,
-    output wire ram_oe_o
+    output wire ram_oe_o,
+    input wire mem_stall_req
 );
 
 
@@ -317,7 +319,8 @@ ctrl CTRL(
     .rst(rst),
     
     .id_req(id_stall_req_o),
-
+    .mem_req(mem_stall_req),
+    .if_req(if_stall_req),
 
     .pc_stall(pc_stall_i),
     .if_stall(if_stall_i),

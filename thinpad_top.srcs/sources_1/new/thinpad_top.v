@@ -309,7 +309,7 @@ eth_mac_wrapper eth_mac_wraper_i(
 
 
 // base ram saves instructions
-assign base_ram_data = 32'bz;
+// assign base_ram_data = 32'bz;
 assign base_ram_oe_n = 1'b0;
 assign base_ram_we_n = 1'b1;
 assign base_ram_be_n = 4'b0000;
@@ -318,24 +318,55 @@ assign base_ram_ce_n = 1'b0;
 //ext ram is cpu's ram
 assign ext_ram_ce_n = 1'b0;
 
-wire [3:0] ram_be;
-wire ram_we, ram_oe;
-assign ext_ram_be_n = ~ram_be;
-assign ext_ram_we_n = ~ram_we;
-assign ext_ram_oe_n = ~ram_oe;
+wire [3:0] mem_be;
+wire pc_stall, mem_we, mem_oe, mem_stall;
+// assign ext_ram_be_n = ~ram_be;
+// assign ext_ram_we_n = ~ram_we;
+// assign ext_ram_oe_n = ~ram_oe;
+wire [31:0] pc_data, mem_data;
+wire [19:0] pc_addr, mem_addr;
+
+bus bus_inst(
+    .clk(clk_10M),
+    .rst(reset_btn),
+
+    .pcram_data(base_ram_data),
+    .pcram_addr(base_ram_addr),
+    .pcram_be_n(base_ram_be_n),
+    .pcram_we_n(base_ram_we_n),
+    .pcram_oe_n(base_ram_oe_n),
+
+    .dtram_data(ext_ram_data),
+    .dtram_addr(ext_ram_addr),
+    .dtram_be_n(ext_ram_be_n),
+    .dtram_we_n(ext_ram_we_n),
+    .dtram_oe_n(ext_ram_oe_n),
+
+    .pc_data(pc_data),
+    .pc_addr(pc_addr),
+    .pc_stall(pc_stall),
+
+    .mem_data(mem_data),
+    .mem_addr_i(mem_addr),
+    .mem_be_i(mem_be),
+    .mem_oe_i(mem_oe),
+    .mem_we_i(mem_we),
+    .mem_stall(mem_stall)
+);
 
 cpu CPU(
     .clk(clk_10M),
     .rst(reset_btn),
 
-    .pc_data_i(base_ram_data),
-    .pc_addr_o(base_ram_addr),
+    .pc_data_i(pc_data),
+    .pc_addr_o(pc_addr),
+    .if_stall_req(pc_stall),
 
-    .ram_data_i(ext_ram_data),
-    .ram_addr_o(ext_ram_addr),
-    .ram_be_o(ram_be),
-    .ram_we_o(ram_we),
-    .ram_oe_o(ram_oe)
+    .ram_data_i(mem_data),
+    .ram_addr_o(mem_addr),
+    .ram_be_o(mem_be),
+    .ram_we_o(mem_we),
+    .ram_oe_o(mem_oe)
 );
 
 endmodule
