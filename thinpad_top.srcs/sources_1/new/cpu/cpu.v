@@ -106,7 +106,7 @@ wire wb_stall_i;
 wire [31:0] mem_ram_addr_o;
 assign ram_addr_o = mem_ram_addr_o;//[21:2];
 wire mem_ram_we_o;
-assign ram_we_o = clk & mem_ram_we_o;
+assign ram_we_o = mem_ram_we_o;
 
 pc_reg PC_REG(
     .clk(clk),

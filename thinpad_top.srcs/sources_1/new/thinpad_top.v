@@ -121,8 +121,8 @@ end
 // assign ext_ram_oe_n = 1'b1;
 // assign ext_ram_we_n = 1'b1;
 
-assign uart_rdn = 1'b1;
-assign uart_wrn = 1'b1;
+// assign uart_rdn = 1'b1;
+// assign uart_wrn = 1'b1;
 
 // 数码管连接关系示意图，dpy1同理
 // p=dpy0[0] // ---a---
@@ -215,7 +215,7 @@ vga #(12, 800, 856, 976, 1040, 600, 637, 643, 666, 1, 1) vga800x600at75 (
 // assign base_ram_oe_n = 1'b0;
 // assign base_ram_we_n = 1'b1;
 // assign base_ram_be_n = 4'b0000;
-assign base_ram_ce_n = 1'b0;
+// assign base_ram_ce_n = 1'b0;
 
 //ext ram is cpu's ram
 assign ext_ram_ce_n = 1'b0;
@@ -237,6 +237,7 @@ bus bus_inst(
     .pcram_be_n(base_ram_be_n),
     .pcram_we_n(base_ram_we_n),
     .pcram_oe_n(base_ram_oe_n),
+    .pcram_ce_n(base_ram_ce_n),
 
     .dtram_data(ext_ram_data),
     .dtram_addr(ext_ram_addr),
@@ -253,7 +254,13 @@ bus bus_inst(
     .mem_be_i(mem_be),
     .mem_oe_i(mem_oe),
     .mem_we_i(mem_we),
-    .mem_stall(mem_stall)
+    .mem_stall(mem_stall),
+
+    .uart_dataready(uart_dataready),
+    .uart_tsre(uart_tsre),
+    .uart_tbre(uart_tbre),
+    .uart_rdn(uart_rdn),
+    .uart_wrn(uart_wrn)
 );
 
 cpu CPU(

@@ -225,7 +225,7 @@ always @(*) begin
                 instvalid <= INSTINVALID;
 
                 link_addr_o <= 0;
-                if (reg1_data_i == reg2_data_i) begin
+                if (reg1_o == reg2_o) begin
                     branch_flag_o <= 1;
                     branch_target_addr_o <= add_sign_pc;
                     next_inst_in_delayslot_o <= 1;
@@ -243,7 +243,7 @@ always @(*) begin
                 instvalid <= INSTINVALID;
 
                 link_addr_o <= 0;
-                if (reg1_data_i != reg2_data_i) begin
+                if (reg1_o != reg2_o) begin
                     branch_flag_o <= 1;
                     branch_target_addr_o <= add_sign_pc;
                     next_inst_in_delayslot_o <= 1;
@@ -261,7 +261,7 @@ always @(*) begin
                 instvalid <= INSTINVALID;
 
                 link_addr_o <= 0;
-                if (reg1_data_i[31] == 1'b0 && reg1_data_i != 32'h00000000) begin
+                if (reg1_o[31] == 1'b0 && reg1_o != 32'h00000000) begin
                     branch_flag_o <= 1;
                     branch_target_addr_o <= add_sign_pc;
                     next_inst_in_delayslot_o <= 1;
