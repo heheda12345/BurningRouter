@@ -29,6 +29,7 @@ always @(*) begin
         wd_o <= 0;
         wreg_o <= 0;
         wdata_o <= 0;
+        ram_addr_o <= ram_addr_i;
     end else begin
         wd_o <= wd_i;
         wreg_o <= wreg_i;

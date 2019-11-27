@@ -20,7 +20,7 @@ end
 
 always @(posedge clk) begin
     if (ce == 1'b0) begin
-        pc <= 0;
+        pc <= 32'h80000000; // Program execution start address
     end else if(pc_stall == 1'b0) begin
         if (branch_flag_i == 1'b1) begin
             pc <= branch_target_addr_i;

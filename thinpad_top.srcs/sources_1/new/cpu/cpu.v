@@ -3,13 +3,15 @@ module cpu(
     input wire rst,
 
     input wire[31:0] pc_data_i,
-    output wire[19:0] pc_addr_o,
+    output wire[31:0] pc_addr_o,
+    input wire if_stall_req, 
 
     input wire[31:0] ram_data_i,
-    output wire[19:0] ram_addr_o,
+    output wire[31:0] ram_addr_o,
     output wire[3:0] ram_be_o,
     output wire ram_we_o,
-    output wire ram_oe_o
+    output wire ram_oe_o,
+    input wire mem_stall_req
 );
 
 
@@ -89,7 +91,7 @@ wire id_wreg_oi;
 wire [4:0] id_wd_oi;
 
 
-assign pc_addr_o = pc[21:2];
+assign pc_addr_o = pc;//[21:2];
 
 // ctrl with other
 wire id_stall_req_o;
@@ -102,7 +104,7 @@ wire wb_stall_i;
 
 // mem <-> ram
 wire [31:0] mem_ram_addr_o;
-assign ram_addr_o = mem_ram_addr_o[21:2];
+assign ram_addr_o = mem_ram_addr_o;//[21:2];
 wire mem_ram_we_o;
 assign ram_we_o = clk & mem_ram_we_o;
 
@@ -317,7 +319,8 @@ ctrl CTRL(
     .rst(rst),
     
     .id_req(id_stall_req_o),
-
+    .mem_req(mem_stall_req),
+    .if_req(if_stall_req),
 
     .pc_stall(pc_stall_i),
     .if_stall(if_stall_i),
