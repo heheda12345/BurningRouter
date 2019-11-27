@@ -1,0 +1,7 @@
+34030020 ori v1 zero 0x20 // $3 = 0x20
+AC030000 sw v1 0x0(zero) //  save 0x20 -> 0
+34020010 ori v0 zero 0x10 // $2 = 0x10
+34020010 ori v0 zero 0x10    // $2 = 0x10
+34020010 ori v0 zero 0x10    // $2 = 0x10
+8C020000 lw v0 0x0(zero) // $2 = 0x20
+34410000 ori at v0 0x0 // $1 = 0x20

@@ -113,13 +113,13 @@ always@(posedge clk_10M or posedge reset_of_clk10M) begin
 end
 
 // 不使用内存、串口时，禁用其使能信号
-assign base_ram_ce_n = 1'b1;
-assign base_ram_oe_n = 1'b1;
-assign base_ram_we_n = 1'b1;
+// assign base_ram_ce_n = 1'b1;
+// assign base_ram_oe_n = 1'b1;
+// assign base_ram_we_n = 1'b1;
 
-assign ext_ram_ce_n = 1'b1;
-assign ext_ram_oe_n = 1'b1;
-assign ext_ram_we_n = 1'b1;
+// assign ext_ram_ce_n = 1'b1;
+// assign ext_ram_oe_n = 1'b1;
+// assign ext_ram_we_n = 1'b1;
 
 assign uart_rdn = 1'b1;
 assign uart_wrn = 1'b1;
@@ -210,5 +210,35 @@ vga #(12, 800, 856, 976, 1040, 600, 637, 643, 666, 1, 1) vga800x600at75 (
     .data_enable(video_de)
 );
 /* =========== Demo code end =========== */
+
+// base ram saves instructions
+assign base_ram_data = 32'bz;
+assign base_ram_oe_n = 1'b0;
+assign base_ram_we_n = 1'b1;
+assign base_ram_be_n = 4'b0000;
+assign base_ram_ce_n = 1'b0;
+
+//ext ram is cpu's ram
+assign ext_ram_ce_n = 1'b0;
+
+wire [3:0] ram_be;
+wire ram_we, ram_oe;
+assign ext_ram_be_n = ~ram_be;
+assign ext_ram_we_n = ~ram_we;
+assign ext_ram_oe_n = ~ram_oe;
+
+cpu CPU(
+    .clk(clk_10M),
+    .rst(reset_btn),
+
+    .pc_data_i(base_ram_data),
+    .pc_addr_o(base_ram_addr),
+
+    .ram_data_i(ext_ram_data),
+    .ram_addr_o(ext_ram_addr),
+    .ram_be_o(ram_be),
+    .ram_we_o(ram_we),
+    .ram_oe_o(ram_oe)
+);
 
 endmodule
