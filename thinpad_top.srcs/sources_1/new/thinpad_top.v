@@ -14,8 +14,8 @@ module thinpad_top(
     output wire[7:0]  dpy1,       //数码管高位信号，包括小数点，输出1点亮
 
     //CPLD串口控制器信号
-    output wire uart_rdn,         //读串口信号，低有效
-    output wire uart_wrn,         //写串口信号，低有效
+    output reg uart_rdn,         //读串口信号，低有效
+    output reg uart_wrn,         //写串口信号，低有效
     input wire uart_dataready,    //串口数据准备好
     input wire uart_tbre,         //发送数据标志
     input wire uart_tsre,         //数据发送完毕标志
@@ -24,9 +24,9 @@ module thinpad_top(
     inout wire[31:0] base_ram_data,  //BaseRAM数据，低8位与CPLD串口控制器共享
     output wire[19:0] base_ram_addr, //BaseRAM地址
     output wire[3:0] base_ram_be_n,  //BaseRAM字节使能，低有效。如果不使用字节使能，请保持为0
-    output wire base_ram_ce_n,       //BaseRAM片选，低有效
-    output wire base_ram_oe_n,       //BaseRAM读使能，低有效
-    output wire base_ram_we_n,       //BaseRAM写使能，低有效
+    output reg base_ram_ce_n,       //BaseRAM片选，低有效
+    output reg base_ram_oe_n,       //BaseRAM读使能，低有效
+    output reg base_ram_we_n,       //BaseRAM写使能，低有效
 
     //ExtRAM信号
     inout wire[31:0] ext_ram_data,  //ExtRAM数据
@@ -113,16 +113,16 @@ always@(posedge clk_10M or posedge reset_of_clk10M) begin
 end
 
 // 不使用内存、串口时，禁用其使能信号
-assign base_ram_ce_n = 1'b1;
-assign base_ram_oe_n = 1'b1;
-assign base_ram_we_n = 1'b1;
+// assign base_ram_ce_n = 1'b1;
+// assign base_ram_oe_n = 1'b1;
+// assign base_ram_we_n = 1'b1;
 
 assign ext_ram_ce_n = 1'b1;
 assign ext_ram_oe_n = 1'b1;
 assign ext_ram_we_n = 1'b1;
 
-assign uart_rdn = 1'b1;
-assign uart_wrn = 1'b1;
+// assign uart_rdn = 1'b1;
+// assign uart_wrn = 1'b1;
 
 // 数码管连接关系示意图，dpy1同理
 // p=dpy0[0] // ---a---
@@ -143,16 +143,16 @@ SEG7_LUT segH(.oSEG1(dpy1), .iDIG(number[7:4])); //dpy1是高位数码管
 reg[15:0] led_bits;
 assign leds = led_bits;
 
-always@(posedge clock_btn or posedge reset_btn) begin
-    if(reset_btn)begin //复位按下，设置LED和数码管为初始值
-        number<=0;
-        led_bits <= 16'h1;
-    end
-    else begin //每次按下时钟按钮，数码管显示值加1，LED循环左移
-        number <= number+1;
-        led_bits <= {led_bits[14:0],led_bits[15]};
-    end
-end
+// always@(posedge clock_btn or posedge reset_btn) begin
+//     if(reset_btn)begin //复位按下，设置LED和数码管为初始值
+//         number<=0;
+//         led_bits <= 16'h1;
+//     end
+//     else begin //每次按下时钟按钮，数码管显示值加1，LED循环左移
+//         number <= number+1;
+//         led_bits <= {led_bits[14:0],led_bits[15]};
+//     end
+// end
 
 //直连串口接收发送演示，从直连串口收到的数据再发送出去
 wire [7:0] ext_uart_rx;
@@ -210,5 +210,73 @@ vga #(12, 800, 856, 976, 1040, 600, 637, 643, 666, 1, 1) vga800x600at75 (
     .data_enable(video_de)
 );
 /* =========== Demo code end =========== */
+
+
+reg[3:0] state;
+reg[31:0] base_ram_data_reg;
+assign base_ram_data = base_ram_data_reg;
+
+always @(*) begin
+    led_bits[0] <= uart_wrn;
+    led_bits[1] <= uart_tbre;
+    led_bits[2] <= uart_tsre;
+    led_bits[3] <= uart_rdn;
+    led_bits[4] <= uart_dataready;
+    led_bits[15:8] <= base_ram_data[7:0];
+end
+
+always@(posedge clock_btn or posedge reset_btn) begin
+    if(reset_btn)begin //复位按下，设置LED和数码管为初始值
+        number<=0;
+        base_ram_ce_n <= 1;
+        base_ram_we_n <= 1;
+        base_ram_oe_n <= 1;
+        uart_wrn <= 1;
+        state <= 4'b0001;
+        base_ram_data_reg[7:0] <= 8'b00000000;
+        uart_rdn <= 1;
+    end
+    else begin //每次按下时钟按钮，数码管显示值加1，LED循环左移
+        case (state)
+            4'b0001: begin
+                uart_wrn <= 0;
+                base_ram_data_reg[7:0] <= 8'b00111001;
+                number <= 1;
+                state <= 4'b0010;
+            end
+            4'b0010: begin
+                uart_wrn <= 1;
+                number <= 2;
+                state <= 4'b0011;
+            end
+            4'b0011: begin
+                number <= 3;
+                if (uart_tbre == 1)
+                    state <= 4'b0100;
+            end
+            4'b0100: begin
+                number <= 4;
+                if (uart_tsre == 1)
+                    state <= 4'b0101;
+            end
+            4'b0101: begin
+                number <= 5;
+                state <= 4'b0110;
+                uart_rdn <= 1;
+                base_ram_data_reg[7:0] <= 8'bzzzzzzzz;
+            end
+            4'b0110: begin
+                number <= 6;
+                if (uart_dataready) begin
+                    state <= 4'b0111;
+                    uart_rdn <= 0;
+                end
+            end
+            4'b0111: begin
+                number <= 7;
+            end
+        endcase
+    end
+end
 
 endmodule
