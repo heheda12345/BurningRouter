@@ -96,7 +96,7 @@ end
 always @(*) begin
     wd_o <= wd_i;
     wreg_o <= wreg_i;
-    ram_addr_o <= 0;
+    ram_addr_o <= alusel_i == `EXE_RES_RAM ? ram_offset_i + reg1_i : 0;
     aluop_o <= aluop_i;
     case (alusel_i)
         `EXE_RES_LOGIC: begin
@@ -113,7 +113,6 @@ always @(*) begin
         end
         `EXE_RES_RAM: begin
             wdata_o <= ramout;
-            ram_addr_o <= ram_offset_i + reg1_i;
         end
         default: begin
             $display("[ex.v] aluop %h not support", aluop_i);

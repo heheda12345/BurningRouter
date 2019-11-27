@@ -15,7 +15,7 @@ module regfile(
     output reg [31:0] rdata2
 );
 
-reg[31:0] regs[4:0];
+reg[31:0] regs[31:0];
 
 // write
 always @(posedge clk) begin
