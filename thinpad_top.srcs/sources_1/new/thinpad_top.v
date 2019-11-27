@@ -310,9 +310,9 @@ eth_mac_wrapper eth_mac_wraper_i(
 
 // base ram saves instructions
 // assign base_ram_data = 32'bz;
-assign base_ram_oe_n = 1'b0;
-assign base_ram_we_n = 1'b1;
-assign base_ram_be_n = 4'b0000;
+// assign base_ram_oe_n = 1'b0;
+// assign base_ram_we_n = 1'b1;
+// assign base_ram_be_n = 4'b0000;
 assign base_ram_ce_n = 1'b0;
 
 //ext ram is cpu's ram
@@ -324,7 +324,7 @@ wire pc_stall, mem_we, mem_oe, mem_stall;
 // assign ext_ram_we_n = ~ram_we;
 // assign ext_ram_oe_n = ~ram_oe;
 wire [31:0] pc_data, mem_data;
-wire [19:0] pc_addr, mem_addr;
+wire [31:0] pc_addr, mem_addr;
 
 bus bus_inst(
     .clk(clk_10M),
