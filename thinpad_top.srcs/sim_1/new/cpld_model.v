@@ -87,6 +87,7 @@ module cpld_model(
 
     always begin
         wait(tx_en == 1);
+        $display("start send: 0x%02x", TxD_data_sync);
         repeat(2)
             @(posedge clk_out2);
         uart_tsre = 0;

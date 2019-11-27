@@ -92,8 +92,8 @@ pll_example clock_gen
   // Clock out ports
   .clk_out1(clk_10M), // 时钟输出1，频率在IP配置界面中设置
   .clk_out2(clk_20M), // 时钟输出2，频率在IP配置界面中设置
-  .clk_out3(clk_125M), // 时钟输出3，频率在IP配置界面中设置
-  .clk_out4(clk_200M), // 时钟输出4，频率在IP配置界面中设置
+//   .clk_out3(clk_125M), // 时钟输出3，频率在IP配置界面中设置
+//   .clk_out4(clk_200M), // 时钟输出4，频率在IP配置界面中设置
   // Status and control signals
   .reset(reset_btn), // PLL复位输入
   .locked(locked), // 锁定输出，"1"表示时钟稳定，可作为后级电路复位
@@ -131,8 +131,17 @@ always@(posedge clk_10M or posedge reset_of_clk10M) begin
     end
 end
 
-assign uart_rdn = 1'b1;
-assign uart_wrn = 1'b1;
+// 不使用内存、串口时，禁用其使能信号
+// assign base_ram_ce_n = 1'b1;
+// assign base_ram_oe_n = 1'b1;
+// assign base_ram_we_n = 1'b1;
+
+// assign ext_ram_ce_n = 1'b1;
+// assign ext_ram_oe_n = 1'b1;
+// assign ext_ram_we_n = 1'b1;
+
+// assign uart_rdn = 1'b1;
+// assign uart_wrn = 1'b1;
 
 // 数码管连接关系示意图，dpy1同理
 // p=dpy0[0] // ---a---
@@ -224,96 +233,11 @@ vga #(12, 800, 856, 976, 1040, 600, 637, 643, 666, 1, 1) vga800x600at75 (
     .data_enable(video_de)
 );
 
-// 以太网 MAC 配置演示
-wire [7:0] eth_rx_axis_mac_tdata;
-wire eth_rx_axis_mac_tvalid;
-wire eth_rx_axis_mac_tlast;
-wire eth_rx_axis_mac_tuser;
-wire [7:0] eth_tx_axis_mac_tdata;
-wire eth_tx_axis_mac_tvalid;
-wire eth_tx_axis_mac_tlast;
-wire eth_tx_axis_mac_tuser;
-wire eth_tx_axis_mac_tready;
-
-wire eth_rx_mac_aclk;
-wire eth_tx_mac_aclk;
-
-eth_mac eth_mac_inst (
-    .gtx_clk(clk_125M),
-    .refclk(clk_200M),
-
-    .glbl_rstn(eth_rst_n),
-    .rx_axi_rstn(eth_rst_n),
-    .tx_axi_rstn(eth_rst_n),
-
-    .rx_mac_aclk(eth_rx_mac_aclk),
-    .rx_axis_mac_tdata(eth_rx_axis_mac_tdata),
-    .rx_axis_mac_tvalid(eth_rx_axis_mac_tvalid),
-    .rx_axis_mac_tlast(eth_rx_axis_mac_tlast),
-    .rx_axis_mac_tuser(eth_rx_axis_mac_tuser),
-
-    .tx_ifg_delay(8'b0),
-    .tx_mac_aclk(eth_tx_mac_aclk),
-    .tx_axis_mac_tdata(eth_tx_axis_mac_tdata),
-    .tx_axis_mac_tvalid(eth_tx_axis_mac_tvalid),
-    .tx_axis_mac_tlast(eth_tx_axis_mac_tlast),
-    .tx_axis_mac_tuser(eth_tx_axis_mac_tuser),
-    .tx_axis_mac_tready(eth_tx_axis_mac_tready),
-
-    .pause_req(1'b0),
-    .pause_val(16'b0),
-
-    .rgmii_txd(eth_rgmii_td),
-    .rgmii_tx_ctl(eth_rgmii_tx_ctl),
-    .rgmii_txc(eth_rgmii_txc),
-    .rgmii_rxd(eth_rgmii_rd),
-    .rgmii_rx_ctl(eth_rgmii_rx_ctl),
-    .rgmii_rxc(eth_rgmii_rxc),
-
-    // receive 1Gb/s | promiscuous | flow control | fcs | vlan | enable
-    .rx_configuration_vector(80'b10100000101110),
-    // transmit 1Gb/s | vlan | enable
-    .tx_configuration_vector(80'b10000000000110)
-);
-// /* =========== Demo code end =========== */
-
-wire eth_sync_rst;
-wire eth_sync_rst_n;
-
-eth_mac_reset_sync reset_sync_i(
-    .reset_in(1'b0),
-    .clk(eth_rx_mac_aclk),
-    .enable(1'b1),
-    .reset_out(eth_sync_rst)
-);
-assign eth_sync_rst_n = ~eth_sync_rst;
-
-eth_mac_wrapper eth_mac_wraper_i(
-    .rx_mac_aclk(eth_rx_mac_aclk),
-    .rx_mac_resetn(eth_sync_rst_n),
-    .rx_axis_mac_tdata(eth_rx_axis_mac_tdata),
-    .rx_axis_mac_tvalid(eth_rx_axis_mac_tvalid),
-    .rx_axis_mac_tlast(eth_rx_axis_mac_tlast),
-    .rx_axis_mac_tuser(eth_rx_axis_mac_tuser),
-
-    .tx_mac_aclk(eth_tx_mac_aclk),
-    .tx_mac_resetn(eth_sync_rst_n),
-    .tx_axis_mac_tdata(eth_tx_axis_mac_tdata),
-    .tx_axis_mac_tvalid(eth_tx_axis_mac_tvalid),
-    .tx_axis_mac_tlast(eth_tx_axis_mac_tlast),
-    .tx_axis_mac_tready(eth_tx_axis_mac_tready),
-    .tx_axis_mac_tuser(eth_tx_axis_mac_tuser), 
-    
-    .led_debug(led_debug)
-);
-
-
-// base ram saves instructions
 // assign base_ram_data = 32'bz;
 // assign base_ram_oe_n = 1'b0;
 // assign base_ram_we_n = 1'b1;
 // assign base_ram_be_n = 4'b0000;
-assign base_ram_ce_n = 1'b0;
+// assign base_ram_ce_n = 1'b0;
 
 //ext ram is cpu's ram
 assign ext_ram_ce_n = 1'b0;
@@ -335,6 +259,7 @@ bus bus_inst(
     .pcram_be_n(base_ram_be_n),
     .pcram_we_n(base_ram_we_n),
     .pcram_oe_n(base_ram_oe_n),
+    .pcram_ce_n(base_ram_ce_n),
 
     .dtram_data(ext_ram_data),
     .dtram_addr(ext_ram_addr),
@@ -351,7 +276,13 @@ bus bus_inst(
     .mem_be_i(mem_be),
     .mem_oe_i(mem_oe),
     .mem_we_i(mem_we),
-    .mem_stall(mem_stall)
+    .mem_stall(mem_stall),
+
+    .uart_dataready(uart_dataready),
+    .uart_tsre(uart_tsre),
+    .uart_tbre(uart_tbre),
+    .uart_rdn(uart_rdn),
+    .uart_wrn(uart_wrn)
 );
 
 cpu CPU(

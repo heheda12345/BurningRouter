@@ -8,6 +8,7 @@ module bus(
     output logic[3:0] pcram_be_n,
     output logic pcram_we_n,
     output logic pcram_oe_n,
+    output logic pcram_ce_n,
     
     // data ram
     inout wire[31:0] dtram_data,
@@ -26,7 +27,13 @@ module bus(
     input wire[3:0] mem_be_i,   // byte enable
     input wire mem_we_i,        // write enable
     input wire mem_oe_i,        // read enable
-    output logic mem_stall
+    output logic mem_stall,
+
+    input wire uart_dataready,
+    input wire uart_tsre,
+    input wire uart_tbre,
+    output logic uart_rdn,
+    output logic uart_wrn
 );
 
 // bit [7:0]
@@ -36,16 +43,19 @@ localparam UART_CTRL_ADDRESS = 32'hBFD003FC;
 
 wire mem_pcram = mem_addr_i >= 32'h80000000 && mem_addr_i <= 32'h803FFFFF;
 wire mem_dtram = mem_addr_i >= 32'h80400000 && mem_addr_i <= 32'h807FFFFF;
+wire mem_sstat = mem_addr_i == UART_CTRL_ADDRESS;
+wire mem_sdata = mem_addr_i == UART_DATA_ADDRESS;
 logic [31:0] pcram_data_reg, dtram_data_reg, mem_data_reg;
 
 wire [19:0] pc_phy_addr = pc_addr[21:2];
 wire [19:0] mem_phy_addr = mem_addr_i[21:2];
-assign pcram_data = !rst && mem_pcram && mem_we_i ? pcram_data_reg : 32'bz;
+assign pcram_data = !rst && (mem_pcram||mem_sdata) && mem_we_i ? pcram_data_reg : 32'bz;
 assign dtram_data = !rst && mem_dtram && mem_we_i ? dtram_data_reg : 32'hz;
 assign mem_data = !rst && mem_oe_i && ~mem_we_i ? mem_data_reg : 32'hz;
 
 assign pc_data = pcram_data;
-assign pc_stall = !rst && mem_pcram && (mem_we_i || mem_oe_i);
+assign pc_stall = !rst && (mem_pcram||mem_sdata) && (mem_we_i || mem_oe_i);
+
 
 always_comb begin
     pcram_be_n = 4'b0000;
@@ -54,16 +64,44 @@ always_comb begin
         pcram_addr = 20'b0;
         pcram_oe_n = 1'b1;
         pcram_we_n = 1'b1;
+        pcram_ce_n = 1'b1;
+        uart_rdn = 1;
+        uart_wrn = 0;
     end else if (pc_stall) begin
-        pcram_data_reg = mem_data;
-        pcram_addr = mem_phy_addr;
-        pcram_we_n = !mem_we_i || mem_oe_i;
-        pcram_oe_n = !mem_oe_i || mem_we_i;
+        if (mem_pcram) begin
+            pcram_data_reg = mem_data;
+            pcram_addr = mem_phy_addr;
+            pcram_we_n = !mem_we_i || mem_oe_i || ~clk;
+            pcram_oe_n = !mem_oe_i || mem_we_i; 
+            pcram_ce_n = 1'b0;
+            uart_rdn = 1;
+            uart_wrn = 1;
+        end else begin // uart
+            // disable bram
+            pcram_we_n = 1;
+            pcram_oe_n = 1;
+            pcram_ce_n = 1;
+            pcram_data_reg = mem_data;
+            // for uart
+            if (!mem_oe_i && mem_we_i) begin
+                uart_wrn = ~clk;
+            end else begin
+                uart_wrn = 1;
+            end
+            if (mem_oe_i && !mem_we_i) begin // read, high to low
+                uart_rdn = clk;
+            end else begin
+                uart_rdn = 1;
+            end
+        end
     end else begin
         pcram_data_reg = 32'b0;
         pcram_addr = pc_phy_addr;
         pcram_we_n = 1'b1;
         pcram_oe_n = 1'b0;
+        pcram_ce_n = 1'b0;
+        uart_rdn = 1;
+        uart_wrn = 1;
     end
 end
 
@@ -79,7 +117,7 @@ always_comb begin
         dtram_addr = mem_phy_addr;
         dtram_data_reg = mem_data;
         dtram_be_n = ~mem_be_i;
-        dtram_we_n = !mem_we_i || mem_oe_i;
+        dtram_we_n = !mem_we_i || mem_oe_i || ~clk;
         dtram_oe_n = !mem_oe_i || mem_we_i;
     end
     else begin
@@ -104,8 +142,12 @@ always_comb begin
         mem_stall = 1'b0;
         if (mem_pcram)
             mem_data_reg = pcram_data;
+        else if (mem_sdata)
+            mem_data_reg = {24'b000000000000000000000000, pcram_data[7:0]};
         else if (mem_dtram)
             mem_data_reg = dtram_data;
+        else if (mem_sstat)
+            mem_data_reg = {30'b000000000000000000000000000000, uart_dataready, uart_tsre};
         else
             mem_data_reg = 32'b0;
     end else begin
