@@ -1,10 +1,10 @@
 -- Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
 -- Tool Version: Vivado v.2018.3 (win64) Build 2405991 Thu Dec  6 23:38:27 MST 2018
--- Date        : Wed Nov 27 11:54:51 2019
--- Host        : DESKTOP-9FUVL9G running 64-bit major release  (build 9200)
--- Command     : write_vhdl -force -mode synth_stub -rename_top pll_example -prefix
---               pll_example_ pll_example_stub.vhdl
+-- Date        : Thu Nov 28 22:36:34 2019
+-- Host        : DESKTOP-BS588P3 running 64-bit major release  (build 9200)
+-- Command     : write_vhdl -force -mode synth_stub
+--               F:/router/router/thinpad_top/thinpad_top.srcs/sources_1/ip/pll_example/pll_example_stub.vhdl
 -- Design      : pll_example
 -- Purpose     : Stub declaration of top-level module interface
 -- Device      : xc7a100tfgg676-2L

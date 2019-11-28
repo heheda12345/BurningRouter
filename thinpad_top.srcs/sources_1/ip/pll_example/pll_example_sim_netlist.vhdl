@@ -1,10 +1,10 @@
 -- Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
 -- Tool Version: Vivado v.2018.3 (win64) Build 2405991 Thu Dec  6 23:38:27 MST 2018
--- Date        : Wed Nov 27 11:54:51 2019
--- Host        : DESKTOP-9FUVL9G running 64-bit major release  (build 9200)
--- Command     : write_vhdl -force -mode funcsim -rename_top pll_example -prefix
---               pll_example_ pll_example_sim_netlist.vhdl
+-- Date        : Thu Nov 28 22:36:34 2019
+-- Host        : DESKTOP-BS588P3 running 64-bit major release  (build 9200)
+-- Command     : write_vhdl -force -mode funcsim
+--               F:/router/router/thinpad_top/thinpad_top.srcs/sources_1/ip/pll_example/pll_example_sim_netlist.vhdl
 -- Design      : pll_example
 -- Purpose     : This VHDL netlist is a functional simulation representation of the design and should not be modified or
 --               synthesized. This netlist cannot be used for SDF annotated simulation.
@@ -22,6 +22,8 @@ entity pll_example_pll_example_clk_wiz is
     locked : out STD_LOGIC;
     clk_in1 : in STD_LOGIC
   );
+  attribute ORIG_REF_NAME : string;
+  attribute ORIG_REF_NAME of pll_example_pll_example_clk_wiz : entity is "pll_example_clk_wiz";
 end pll_example_pll_example_clk_wiz;
 
 architecture STRUCTURE of pll_example_pll_example_clk_wiz is
