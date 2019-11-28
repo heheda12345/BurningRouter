@@ -86,7 +86,7 @@ always @(*) begin
         imm_reg <= 0;
         branch_flag_o <= 0;
         branch_target_addr_o <= 0;
-        is_in_delayslot_o <= 0;
+        next_inst_in_delayslot_o <= 0;
         link_addr_o <= 0;
     end else begin
         reg1_addr_o <= ins_rs;
@@ -94,9 +94,8 @@ always @(*) begin
 
         branch_flag_o <= 0;
         branch_target_addr_o <= 0;
-        is_in_delayslot_o <= 0;
-        link_addr_o <= 0;
         next_inst_in_delayslot_o <= 0;
+        link_addr_o <= 0;
         
         ram_offset_o <= 0;
         case (ins_op)
@@ -423,7 +422,7 @@ always @(*) begin
     if (rst == 1'b1) begin
         is_in_delayslot_o <= 0;
     end else begin
-        is_in_delayslot_o <= next_inst_in_delayslot_o;
+        is_in_delayslot_o <= is_in_delayslot_i;
     end
 end
 endmodule
