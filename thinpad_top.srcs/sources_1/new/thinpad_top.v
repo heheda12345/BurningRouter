@@ -234,7 +234,7 @@ always @(bus_out) begin
 end
 
 bus bus_inst(
-    .clk(clk_10M),
+    .clk(clk_11M0592),
     .rst(reset_btn),
 
     .pcram_data(base_ram_data),
@@ -270,7 +270,7 @@ bus bus_inst(
 );
 
 cpu CPU(
-    .clk(clk_10M),
+    .clk(clk_11M0592),
     .rst(reset_btn),
 
     .pc_data_i(pc_data),
