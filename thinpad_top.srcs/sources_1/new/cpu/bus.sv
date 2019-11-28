@@ -95,8 +95,8 @@ always_comb begin
             // for uart
             if (!mem_oe_i && mem_we_i) begin
                 uart_wrn = ~clk;
-                leds = mem_data[15:0];
-                $display("start send %h", mem_data[7:0]);
+                leds = mem_data_i[15:0];
+                $display("start send %h", mem_data_i[7:0]);
             end else begin
                 uart_wrn = 1;
             end
