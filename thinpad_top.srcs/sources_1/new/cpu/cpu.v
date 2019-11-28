@@ -7,6 +7,7 @@ module cpu(
     input wire if_stall_req, 
 
     input wire[31:0] ram_data_i,
+    output wire[31:0] ram_data_o,
     output wire[31:0] ram_addr_o,
     output wire[3:0] ram_be_o,
     output wire ram_we_o,
@@ -294,6 +295,7 @@ mem MEM(
     .wdata_o(mem_wdata_o),
 
     .ram_data_i(ram_data_i),
+    .ram_data_o(ram_data_o),
     .ram_addr_o(mem_ram_addr_o),
     .ram_be_o(ram_be_o),
     .ram_we_o(mem_ram_we_o),

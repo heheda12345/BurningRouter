@@ -15,6 +15,7 @@ module mem(
 
     // with ram
     input wire[31:0] ram_data_i,
+    output wire[31:0] ram_data_o, 
     output reg[31:0] ram_addr_o,
     output reg[3:0] ram_be_o, // byte enable
     output reg ram_we_o,        // write enable
@@ -22,7 +23,8 @@ module mem(
 );
 
 reg[31:0] data_to_write;
-assign ram_data_i = ram_oe_o ? 32'hzzzzzzzz : data_to_write;
+// assign ram_data_i = ram_oe_o ? 32'hzzzzzzzz : data_to_write;
+assign ram_data_o = data_to_write;
 
 always @(*) begin
     if (rst == 1'b1) begin

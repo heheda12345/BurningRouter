@@ -141,7 +141,7 @@ SEG7_LUT segL(.oSEG1(dpy0), .iDIG(number[3:0])); //dpy0是低位数码管
 SEG7_LUT segH(.oSEG1(dpy1), .iDIG(number[7:4])); //dpy1是高位数码管
 
 reg[15:0] led_bits;
-assign leds = led_bits;
+// assign leds = led_bits;
 
 always@(posedge clock_btn or posedge reset_btn) begin
     if(reset_btn)begin //复位按下，设置LED和数码管为初始值
@@ -220,13 +220,13 @@ vga #(12, 800, 856, 976, 1040, 600, 637, 643, 666, 1, 1) vga800x600at75 (
 //ext ram is cpu's ram
 assign ext_ram_ce_n = 1'b0;
 
-wire [3:0] mem_be;
-wire pc_stall, mem_we, mem_oe, mem_stall;
+(*mark_debug="true"*)wire [3:0] mem_be;
+(*mark_debug="true"*)wire pc_stall, mem_we, mem_oe, mem_stall;
 // assign ext_ram_be_n = ~ram_be;
 // assign ext_ram_we_n = ~ram_we;
 // assign ext_ram_oe_n = ~ram_oe;
-wire [31:0] pc_data, mem_data;
-wire [31:0] pc_addr, mem_addr;
+(*mark_debug="true"*)wire [31:0] pc_data, mem_data_i, mem_data_o;
+(*mark_debug="true"*)wire [31:0] pc_addr, mem_addr;
 
 wire [15:0] bus_out;
 always @(bus_out) begin
@@ -254,7 +254,8 @@ bus bus_inst(
     .pc_addr(pc_addr),
     .pc_stall(pc_stall),
 
-    .mem_data(mem_data),
+    .mem_data_i(mem_data_i),
+    .mem_data_o(mem_data_o),
     .mem_addr_i(mem_addr),
     .mem_be_i(mem_be),
     .mem_oe_i(mem_oe),
@@ -277,7 +278,8 @@ cpu CPU(
     .pc_addr_o(pc_addr),
     .if_stall_req(pc_stall),
 
-    .ram_data_i(mem_data),
+    .ram_data_o(mem_data_i),
+    .ram_data_i(mem_data_o),
     .ram_addr_o(mem_addr),
     .ram_be_o(mem_be),
     .ram_we_o(mem_we),
