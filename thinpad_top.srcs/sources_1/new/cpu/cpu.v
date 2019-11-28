@@ -65,17 +65,17 @@ wire [4:0] mem_wd_o;
 wire [31:0] mem_wdata_o;
 
 // mem-wb -> writeback
-wire wb_wreg_i;
-wire [4:0] wb_wd_i;
-wire [31:0] wb_wdata_i;
+(*mark_debug="true"*)wire wb_wreg_i;
+(*mark_debug="true"*)wire [4:0] wb_wd_i;
+(*mark_debug="true"*)wire [31:0] wb_wdata_i;
 
 // id -> regfile
-wire reg1_read;
-wire reg2_read;
-wire [31:0] reg1_data;
-wire [31:0] reg2_data;
-wire [4:0] reg1_addr;
-wire [4:0] reg2_addr;
+(*mark_debug="true"*)wire reg1_read;
+(*mark_debug="true"*)wire reg2_read;
+(*mark_debug="true"*)wire [31:0] reg1_data;
+(*mark_debug="true"*)wire [31:0] reg2_data;
+(*mark_debug="true"*)wire [4:0] reg1_addr;
+(*mark_debug="true"*)wire [4:0] reg2_addr;
 
 // id -> pc
 wire [31:0] branch_target_addr;

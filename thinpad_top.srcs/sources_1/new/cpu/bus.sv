@@ -73,6 +73,7 @@ always_comb begin
         pcram_ce_n = 1'b1;
         uart_rdn = 1;
         uart_wrn = 0;
+        leds = 0;
     end else if (pc_stall) begin
         if (mem_pcram) begin
             pcram_data_reg = mem_data_i;
@@ -94,7 +95,8 @@ always_comb begin
             // for uart
             if (!mem_oe_i && mem_we_i) begin
                 uart_wrn = ~clk;
-                leds <= mem_data_i[15:0];
+                leds = mem_data[15:0];
+                $display("start send %h", mem_data[7:0]);
             end else begin
                 uart_wrn = 1;
             end
