@@ -150,7 +150,7 @@ always@(posedge clock_btn or posedge reset_btn) begin
     end
     else begin //每次按下时钟按钮，数码管显示值加1，LED循环左移
         number <= number+1;
-        led_bits <= {led_bits[14:0],led_bits[15]};
+        // led_bits <= {led_bits[14:0],led_bits[15]};
     end
 end
 
@@ -228,6 +228,11 @@ wire pc_stall, mem_we, mem_oe, mem_stall;
 wire [31:0] pc_data, mem_data;
 wire [31:0] pc_addr, mem_addr;
 
+wire [15:0] bus_out;
+always @(bus_out) begin
+    led_bits <= bus_out;
+end
+
 bus bus_inst(
     .clk(clk_10M),
     .rst(reset_btn),
@@ -260,7 +265,8 @@ bus bus_inst(
     .uart_tsre(uart_tsre),
     .uart_tbre(uart_tbre),
     .uart_rdn(uart_rdn),
-    .uart_wrn(uart_wrn)
+    .uart_wrn(uart_wrn),
+    .leds(bus_out)
 );
 
 cpu CPU(
@@ -277,5 +283,6 @@ cpu CPU(
     .ram_we_o(mem_we),
     .ram_oe_o(mem_oe)
 );
+
 
 endmodule

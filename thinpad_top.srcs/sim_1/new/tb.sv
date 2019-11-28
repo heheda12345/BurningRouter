@@ -63,12 +63,16 @@ initial begin
         clock_btn = 0; //松开手工时钟按钮
     end
     // 模拟PC通过串口发送字符
-    cpld.pc_send_byte(8'h32);
+    cpld.pc_send_byte(8'h52);
     #10000;
-    cpld.pc_send_byte(8'h33);
+    cpld.pc_send_byte(8'h52);
 end
 
 initial begin
+    reset_btn = 1;
+    #200
+    reset_btn = 0;
+    #10000
     reset_btn = 1;
     #200
     reset_btn = 0;

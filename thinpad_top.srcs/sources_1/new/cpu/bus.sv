@@ -33,7 +33,9 @@ module bus(
     input wire uart_tsre,
     input wire uart_tbre,
     output logic uart_rdn,
-    output logic uart_wrn
+    output logic uart_wrn,
+
+    output logic[15:0] leds
 );
 
 // bit [7:0]
@@ -58,12 +60,12 @@ assign pc_stall = !rst && (mem_pcram||mem_sdata) && (mem_we_i || mem_oe_i);
 
 
 always_comb begin
-    pcram_be_n = 4'b0000;
     if (rst == 1'b1) begin
         pcram_data_reg = 32'b0;
         pcram_addr = 20'b0;
         pcram_oe_n = 1'b1;
         pcram_we_n = 1'b1;
+        pcram_be_n = 4'b0000;
         pcram_ce_n = 1'b1;
         uart_rdn = 1;
         uart_wrn = 0;
@@ -73,6 +75,7 @@ always_comb begin
             pcram_addr = mem_phy_addr;
             pcram_we_n = !mem_we_i || mem_oe_i || ~clk;
             pcram_oe_n = !mem_oe_i || mem_we_i; 
+            pcram_be_n = ~mem_be_i;
             pcram_ce_n = 1'b0;
             uart_rdn = 1;
             uart_wrn = 1;
@@ -80,11 +83,13 @@ always_comb begin
             // disable bram
             pcram_we_n = 1;
             pcram_oe_n = 1;
+            pcram_be_n = 4'b0000;
             pcram_ce_n = 1;
             pcram_data_reg = mem_data;
             // for uart
             if (!mem_oe_i && mem_we_i) begin
                 uart_wrn = ~clk;
+                leds <= mem_data[15:0];
             end else begin
                 uart_wrn = 1;
             end
@@ -100,6 +105,7 @@ always_comb begin
         pcram_we_n = 1'b1;
         pcram_oe_n = 1'b0;
         pcram_ce_n = 1'b0;
+        pcram_be_n = 4'b0000;
         uart_rdn = 1;
         uart_wrn = 1;
     end
