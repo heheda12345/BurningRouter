@@ -1,7 +1,7 @@
 -- Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
 -- Tool Version: Vivado v.2018.3 (win64) Build 2405991 Thu Dec  6 23:38:27 MST 2018
--- Date        : Thu Nov 28 22:36:34 2019
+-- Date        : Fri Nov 29 00:14:57 2019
 -- Host        : DESKTOP-BS588P3 running 64-bit major release  (build 9200)
 -- Command     : write_vhdl -force -mode synth_stub
 --               F:/router/router/thinpad_top/thinpad_top.srcs/sources_1/ip/pll_example/pll_example_stub.vhdl
