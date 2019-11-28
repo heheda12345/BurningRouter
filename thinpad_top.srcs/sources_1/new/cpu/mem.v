@@ -14,7 +14,7 @@ module mem(
     output reg[31:0] wdata_o,
 
     // with ram
-    input wire[31:0] ram_data_i,
+    inout wire[31:0] ram_data_i,
     output reg[31:0] ram_addr_o,
     output reg[3:0] ram_be_o, // byte enable
     output reg ram_we_o,        // write enable

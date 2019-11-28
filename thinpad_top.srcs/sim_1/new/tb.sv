@@ -72,9 +72,9 @@ initial begin
     reset_btn = 1;
     #200
     reset_btn = 0;
-    #10000
+    #100000
     reset_btn = 1;
-    #200
+    #2000
     reset_btn = 0;
 end
 

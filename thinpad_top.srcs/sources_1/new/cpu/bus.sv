@@ -3,11 +3,11 @@ module bus(
     input wire rst,
 
     // instruction ram
-    inout wire[31:0] pcram_data,
-    output logic[19:0] pcram_addr,
+    (*mark_debug="true"*)inout wire[31:0] pcram_data,
+    (*mark_debug="true"*)output logic[19:0] pcram_addr,
     output logic[3:0] pcram_be_n,
-    output logic pcram_we_n,
-    output logic pcram_oe_n,
+    (*mark_debug="true"*)output logic pcram_we_n,
+    (*mark_debug="true"*)output logic pcram_oe_n,
     output logic pcram_ce_n,
     
     // data ram
@@ -22,11 +22,11 @@ module bus(
     input wire [31:0] pc_addr, 
     output logic pc_stall, 
     // mem interface
-    inout wire[31:0] mem_data,
-    input wire[31:0] mem_addr_i,
+    (*mark_debug="true"*)inout wire[31:0] mem_data,
+    (*mark_debug="true"*)input wire[31:0] mem_addr_i,
     input wire[3:0] mem_be_i,   // byte enable
-    input wire mem_we_i,        // write enable
-    input wire mem_oe_i,        // read enable
+    (*mark_debug="true"*)input wire mem_we_i,        // write enable
+    (*mark_debug="true"*)input wire mem_oe_i,        // read enable
     output logic mem_stall,
 
     input wire uart_dataready,
@@ -69,6 +69,7 @@ always_comb begin
         pcram_ce_n = 1'b1;
         uart_rdn = 1;
         uart_wrn = 0;
+        leds = 0;
     end else if (pc_stall) begin
         if (mem_pcram) begin
             pcram_data_reg = mem_data;
@@ -89,7 +90,8 @@ always_comb begin
             // for uart
             if (!mem_oe_i && mem_we_i) begin
                 uart_wrn = ~clk;
-                leds <= mem_data[15:0];
+                leds = mem_data[15:0];
+                $display("start send %h", mem_data[7:0]);
             end else begin
                 uart_wrn = 1;
             end
