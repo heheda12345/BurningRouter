@@ -320,16 +320,6 @@ set_property -dict {PACKAGE_PIN U16 IOSTANDARD LVCMOS33} [get_ports ext_ram_we_n
 set_property CFGBVS VCCO [current_design]
 set_property CONFIG_VOLTAGE 3.3 [current_design]
 
-
-connect_debug_port u_ila_0/probe0 [get_nets [list {base_ram_data_IBUF[0]} {base_ram_data_IBUF[1]} {base_ram_data_IBUF[2]} {base_ram_data_IBUF[3]} {base_ram_data_IBUF[4]} {base_ram_data_IBUF[5]} {base_ram_data_IBUF[6]} {base_ram_data_IBUF[7]} {base_ram_data_IBUF[8]} {base_ram_data_IBUF[9]} {base_ram_data_IBUF[10]} {base_ram_data_IBUF[11]} {base_ram_data_IBUF[12]} {base_ram_data_IBUF[13]} {base_ram_data_IBUF[14]} {base_ram_data_IBUF[15]} {base_ram_data_IBUF[16]} {base_ram_data_IBUF[17]} {base_ram_data_IBUF[18]} {base_ram_data_IBUF[19]} {base_ram_data_IBUF[20]} {base_ram_data_IBUF[21]} {base_ram_data_IBUF[22]} {base_ram_data_IBUF[23]} {base_ram_data_IBUF[24]} {base_ram_data_IBUF[25]} {base_ram_data_IBUF[26]} {base_ram_data_IBUF[27]} {base_ram_data_IBUF[28]} {base_ram_data_IBUF[29]} {base_ram_data_IBUF[30]} {base_ram_data_IBUF[31]}]]
-connect_debug_port u_ila_1/clk [get_nets [list n_1_614_BUFG]]
-connect_debug_port u_ila_1/probe0 [get_nets [list {base_ram_data_OBUF[0]} {base_ram_data_OBUF[1]} {base_ram_data_OBUF[2]} {base_ram_data_OBUF[3]} {base_ram_data_OBUF[4]} {base_ram_data_OBUF[5]} {base_ram_data_OBUF[6]} {base_ram_data_OBUF[7]} {base_ram_data_OBUF[8]} {base_ram_data_OBUF[9]} {base_ram_data_OBUF[10]} {base_ram_data_OBUF[11]} {base_ram_data_OBUF[12]} {base_ram_data_OBUF[13]} {base_ram_data_OBUF[14]} {base_ram_data_OBUF[15]} {base_ram_data_OBUF[16]} {base_ram_data_OBUF[17]} {base_ram_data_OBUF[18]} {base_ram_data_OBUF[19]} {base_ram_data_OBUF[20]} {base_ram_data_OBUF[21]} {base_ram_data_OBUF[22]} {base_ram_data_OBUF[23]} {base_ram_data_OBUF[24]} {base_ram_data_OBUF[25]} {base_ram_data_OBUF[26]} {base_ram_data_OBUF[27]} {base_ram_data_OBUF[28]} {base_ram_data_OBUF[29]} {base_ram_data_OBUF[30]} {base_ram_data_OBUF[31]}]]
-
-connect_debug_port u_ila_0/probe40 [get_nets [list CPU/ID/reset_btn]]
-
-connect_debug_port u_ila_0/probe0 [get_nets [list {bus_inst/mem_data[0]} {bus_inst/mem_data[1]} {bus_inst/mem_data[2]} {bus_inst/mem_data[3]} {bus_inst/mem_data[4]} {bus_inst/mem_data[5]} {bus_inst/mem_data[6]} {bus_inst/mem_data[7]} {bus_inst/mem_data[8]} {bus_inst/mem_data[9]} {bus_inst/mem_data[10]} {bus_inst/mem_data[11]} {bus_inst/mem_data[12]} {bus_inst/mem_data[13]} {bus_inst/mem_data[14]} {bus_inst/mem_data[15]} {bus_inst/mem_data[16]} {bus_inst/mem_data[17]} {bus_inst/mem_data[18]} {bus_inst/mem_data[19]} {bus_inst/mem_data[20]} {bus_inst/mem_data[21]} {bus_inst/mem_data[22]} {bus_inst/mem_data[23]} {bus_inst/mem_data[24]} {bus_inst/mem_data[25]} {bus_inst/mem_data[26]} {bus_inst/mem_data[27]} {bus_inst/mem_data[28]} {bus_inst/mem_data[29]} {bus_inst/mem_data[30]} {bus_inst/mem_data[31]}]]
-connect_debug_port dbg_hub/clk [get_nets clk_10M]
-
 create_debug_core u_ila_0 ila
 set_property ALL_PROBE_SAME_MU true [get_debug_cores u_ila_0]
 set_property ALL_PROBE_SAME_MU_CNT 1 [get_debug_cores u_ila_0]
@@ -340,14 +330,14 @@ set_property C_INPUT_PIPE_STAGES 0 [get_debug_cores u_ila_0]
 set_property C_TRIGIN_EN false [get_debug_cores u_ila_0]
 set_property C_TRIGOUT_EN false [get_debug_cores u_ila_0]
 set_property port_width 1 [get_debug_ports u_ila_0/clk]
-connect_debug_port u_ila_0/clk [get_nets [list clock_gen/inst/clk_out1]]
+connect_debug_port u_ila_0/clk [get_nets [list clk_11M0592_IBUF_BUFG]]
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe0]
-set_property port_width 32 [get_debug_ports u_ila_0/probe0]
-connect_debug_port u_ila_0/probe0 [get_nets [list {bus_inst/mem_addr_i[0]} {bus_inst/mem_addr_i[1]} {bus_inst/mem_addr_i[2]} {bus_inst/mem_addr_i[3]} {bus_inst/mem_addr_i[4]} {bus_inst/mem_addr_i[5]} {bus_inst/mem_addr_i[6]} {bus_inst/mem_addr_i[7]} {bus_inst/mem_addr_i[8]} {bus_inst/mem_addr_i[9]} {bus_inst/mem_addr_i[10]} {bus_inst/mem_addr_i[11]} {bus_inst/mem_addr_i[12]} {bus_inst/mem_addr_i[13]} {bus_inst/mem_addr_i[14]} {bus_inst/mem_addr_i[15]} {bus_inst/mem_addr_i[16]} {bus_inst/mem_addr_i[17]} {bus_inst/mem_addr_i[18]} {bus_inst/mem_addr_i[19]} {bus_inst/mem_addr_i[20]} {bus_inst/mem_addr_i[21]} {bus_inst/mem_addr_i[22]} {bus_inst/mem_addr_i[23]} {bus_inst/mem_addr_i[24]} {bus_inst/mem_addr_i[25]} {bus_inst/mem_addr_i[26]} {bus_inst/mem_addr_i[27]} {bus_inst/mem_addr_i[28]} {bus_inst/mem_addr_i[29]} {bus_inst/mem_addr_i[30]} {bus_inst/mem_addr_i[31]}]]
+set_property port_width 5 [get_debug_ports u_ila_0/probe0]
+connect_debug_port u_ila_0/probe0 [get_nets [list {CPU/reg1_addr[0]} {CPU/reg1_addr[1]} {CPU/reg1_addr[2]} {CPU/reg1_addr[3]} {CPU/reg1_addr[4]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe1]
-set_property port_width 32 [get_debug_ports u_ila_0/probe1]
-connect_debug_port u_ila_0/probe1 [get_nets [list {bus_inst/pc_data[0]} {bus_inst/pc_data[1]} {bus_inst/pc_data[2]} {bus_inst/pc_data[3]} {bus_inst/pc_data[4]} {bus_inst/pc_data[5]} {bus_inst/pc_data[6]} {bus_inst/pc_data[7]} {bus_inst/pc_data[8]} {bus_inst/pc_data[9]} {bus_inst/pc_data[10]} {bus_inst/pc_data[11]} {bus_inst/pc_data[12]} {bus_inst/pc_data[13]} {bus_inst/pc_data[14]} {bus_inst/pc_data[15]} {bus_inst/pc_data[16]} {bus_inst/pc_data[17]} {bus_inst/pc_data[18]} {bus_inst/pc_data[19]} {bus_inst/pc_data[20]} {bus_inst/pc_data[21]} {bus_inst/pc_data[22]} {bus_inst/pc_data[23]} {bus_inst/pc_data[24]} {bus_inst/pc_data[25]} {bus_inst/pc_data[26]} {bus_inst/pc_data[27]} {bus_inst/pc_data[28]} {bus_inst/pc_data[29]} {bus_inst/pc_data[30]} {bus_inst/pc_data[31]}]]
+set_property port_width 5 [get_debug_ports u_ila_0/probe1]
+connect_debug_port u_ila_0/probe1 [get_nets [list {CPU/reg2_addr[0]} {CPU/reg2_addr[1]} {CPU/reg2_addr[2]} {CPU/reg2_addr[3]} {CPU/reg2_addr[4]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe2]
 set_property port_width 32 [get_debug_ports u_ila_0/probe2]
@@ -355,227 +345,43 @@ connect_debug_port u_ila_0/probe2 [get_nets [list {CPU/reg1_data[0]} {CPU/reg1_d
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe3]
 set_property port_width 32 [get_debug_ports u_ila_0/probe3]
-connect_debug_port u_ila_0/probe3 [get_nets [list {CPU/wb_wdata_i[0]} {CPU/wb_wdata_i[1]} {CPU/wb_wdata_i[2]} {CPU/wb_wdata_i[3]} {CPU/wb_wdata_i[4]} {CPU/wb_wdata_i[5]} {CPU/wb_wdata_i[6]} {CPU/wb_wdata_i[7]} {CPU/wb_wdata_i[8]} {CPU/wb_wdata_i[9]} {CPU/wb_wdata_i[10]} {CPU/wb_wdata_i[11]} {CPU/wb_wdata_i[12]} {CPU/wb_wdata_i[13]} {CPU/wb_wdata_i[14]} {CPU/wb_wdata_i[15]} {CPU/wb_wdata_i[16]} {CPU/wb_wdata_i[17]} {CPU/wb_wdata_i[18]} {CPU/wb_wdata_i[19]} {CPU/wb_wdata_i[20]} {CPU/wb_wdata_i[21]} {CPU/wb_wdata_i[22]} {CPU/wb_wdata_i[23]} {CPU/wb_wdata_i[24]} {CPU/wb_wdata_i[25]} {CPU/wb_wdata_i[26]} {CPU/wb_wdata_i[27]} {CPU/wb_wdata_i[28]} {CPU/wb_wdata_i[29]} {CPU/wb_wdata_i[30]} {CPU/wb_wdata_i[31]}]]
+connect_debug_port u_ila_0/probe3 [get_nets [list {CPU/reg2_data[0]} {CPU/reg2_data[1]} {CPU/reg2_data[2]} {CPU/reg2_data[3]} {CPU/reg2_data[4]} {CPU/reg2_data[5]} {CPU/reg2_data[6]} {CPU/reg2_data[7]} {CPU/reg2_data[8]} {CPU/reg2_data[9]} {CPU/reg2_data[10]} {CPU/reg2_data[11]} {CPU/reg2_data[12]} {CPU/reg2_data[13]} {CPU/reg2_data[14]} {CPU/reg2_data[15]} {CPU/reg2_data[16]} {CPU/reg2_data[17]} {CPU/reg2_data[18]} {CPU/reg2_data[19]} {CPU/reg2_data[20]} {CPU/reg2_data[21]} {CPU/reg2_data[22]} {CPU/reg2_data[23]} {CPU/reg2_data[24]} {CPU/reg2_data[25]} {CPU/reg2_data[26]} {CPU/reg2_data[27]} {CPU/reg2_data[28]} {CPU/reg2_data[29]} {CPU/reg2_data[30]} {CPU/reg2_data[31]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe4]
 set_property port_width 5 [get_debug_ports u_ila_0/probe4]
 connect_debug_port u_ila_0/probe4 [get_nets [list {CPU/wb_wd_i[0]} {CPU/wb_wd_i[1]} {CPU/wb_wd_i[2]} {CPU/wb_wd_i[3]} {CPU/wb_wd_i[4]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe5]
-set_property port_width 5 [get_debug_ports u_ila_0/probe5]
-connect_debug_port u_ila_0/probe5 [get_nets [list {CPU/reg2_addr[0]} {CPU/reg2_addr[1]} {CPU/reg2_addr[2]} {CPU/reg2_addr[3]} {CPU/reg2_addr[4]}]]
+set_property port_width 32 [get_debug_ports u_ila_0/probe5]
+connect_debug_port u_ila_0/probe5 [get_nets [list {CPU/wb_wdata_i[0]} {CPU/wb_wdata_i[1]} {CPU/wb_wdata_i[2]} {CPU/wb_wdata_i[3]} {CPU/wb_wdata_i[4]} {CPU/wb_wdata_i[5]} {CPU/wb_wdata_i[6]} {CPU/wb_wdata_i[7]} {CPU/wb_wdata_i[8]} {CPU/wb_wdata_i[9]} {CPU/wb_wdata_i[10]} {CPU/wb_wdata_i[11]} {CPU/wb_wdata_i[12]} {CPU/wb_wdata_i[13]} {CPU/wb_wdata_i[14]} {CPU/wb_wdata_i[15]} {CPU/wb_wdata_i[16]} {CPU/wb_wdata_i[17]} {CPU/wb_wdata_i[18]} {CPU/wb_wdata_i[19]} {CPU/wb_wdata_i[20]} {CPU/wb_wdata_i[21]} {CPU/wb_wdata_i[22]} {CPU/wb_wdata_i[23]} {CPU/wb_wdata_i[24]} {CPU/wb_wdata_i[25]} {CPU/wb_wdata_i[26]} {CPU/wb_wdata_i[27]} {CPU/wb_wdata_i[28]} {CPU/wb_wdata_i[29]} {CPU/wb_wdata_i[30]} {CPU/wb_wdata_i[31]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe6]
-set_property port_width 5 [get_debug_ports u_ila_0/probe6]
-connect_debug_port u_ila_0/probe6 [get_nets [list {CPU/reg1_addr[0]} {CPU/reg1_addr[1]} {CPU/reg1_addr[2]} {CPU/reg1_addr[3]} {CPU/reg1_addr[4]}]]
+set_property port_width 32 [get_debug_ports u_ila_0/probe6]
+connect_debug_port u_ila_0/probe6 [get_nets [list {mem_data_o[0]} {mem_data_o[1]} {mem_data_o[2]} {mem_data_o[3]} {mem_data_o[4]} {mem_data_o[5]} {mem_data_o[6]} {mem_data_o[7]} {mem_data_o[8]} {mem_data_o[9]} {mem_data_o[10]} {mem_data_o[11]} {mem_data_o[12]} {mem_data_o[13]} {mem_data_o[14]} {mem_data_o[15]} {mem_data_o[16]} {mem_data_o[17]} {mem_data_o[18]} {mem_data_o[19]} {mem_data_o[20]} {mem_data_o[21]} {mem_data_o[22]} {mem_data_o[23]} {mem_data_o[24]} {mem_data_o[25]} {mem_data_o[26]} {mem_data_o[27]} {mem_data_o[28]} {mem_data_o[29]} {mem_data_o[30]} {mem_data_o[31]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe7]
-set_property port_width 32 [get_debug_ports u_ila_0/probe7]
-connect_debug_port u_ila_0/probe7 [get_nets [list {CPU/reg2_data[0]} {CPU/reg2_data[1]} {CPU/reg2_data[2]} {CPU/reg2_data[3]} {CPU/reg2_data[4]} {CPU/reg2_data[5]} {CPU/reg2_data[6]} {CPU/reg2_data[7]} {CPU/reg2_data[8]} {CPU/reg2_data[9]} {CPU/reg2_data[10]} {CPU/reg2_data[11]} {CPU/reg2_data[12]} {CPU/reg2_data[13]} {CPU/reg2_data[14]} {CPU/reg2_data[15]} {CPU/reg2_data[16]} {CPU/reg2_data[17]} {CPU/reg2_data[18]} {CPU/reg2_data[19]} {CPU/reg2_data[20]} {CPU/reg2_data[21]} {CPU/reg2_data[22]} {CPU/reg2_data[23]} {CPU/reg2_data[24]} {CPU/reg2_data[25]} {CPU/reg2_data[26]} {CPU/reg2_data[27]} {CPU/reg2_data[28]} {CPU/reg2_data[29]} {CPU/reg2_data[30]} {CPU/reg2_data[31]}]]
+set_property port_width 4 [get_debug_ports u_ila_0/probe7]
+connect_debug_port u_ila_0/probe7 [get_nets [list {mem_be[0]} {mem_be[1]} {mem_be[2]} {mem_be[3]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe8]
-set_property port_width 20 [get_debug_ports u_ila_0/probe8]
-connect_debug_port u_ila_0/probe8 [get_nets [list {base_ram_addr_OBUF[0]} {base_ram_addr_OBUF[1]} {base_ram_addr_OBUF[2]} {base_ram_addr_OBUF[3]} {base_ram_addr_OBUF[4]} {base_ram_addr_OBUF[5]} {base_ram_addr_OBUF[6]} {base_ram_addr_OBUF[7]} {base_ram_addr_OBUF[8]} {base_ram_addr_OBUF[9]} {base_ram_addr_OBUF[10]} {base_ram_addr_OBUF[11]} {base_ram_addr_OBUF[12]} {base_ram_addr_OBUF[13]} {base_ram_addr_OBUF[14]} {base_ram_addr_OBUF[15]} {base_ram_addr_OBUF[16]} {base_ram_addr_OBUF[17]} {base_ram_addr_OBUF[18]} {base_ram_addr_OBUF[19]}]]
+set_property port_width 32 [get_debug_ports u_ila_0/probe8]
+connect_debug_port u_ila_0/probe8 [get_nets [list {mem_data_i[0]} {mem_data_i[1]} {mem_data_i[2]} {mem_data_i[3]} {mem_data_i[4]} {mem_data_i[5]} {mem_data_i[6]} {mem_data_i[7]} {mem_data_i[8]} {mem_data_i[9]} {mem_data_i[10]} {mem_data_i[11]} {mem_data_i[12]} {mem_data_i[13]} {mem_data_i[14]} {mem_data_i[15]} {mem_data_i[16]} {mem_data_i[17]} {mem_data_i[18]} {mem_data_i[19]} {mem_data_i[20]} {mem_data_i[21]} {mem_data_i[22]} {mem_data_i[23]} {mem_data_i[24]} {mem_data_i[25]} {mem_data_i[26]} {mem_data_i[27]} {mem_data_i[28]} {mem_data_i[29]} {mem_data_i[30]} {mem_data_i[31]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe9]
-set_property port_width 1 [get_debug_ports u_ila_0/probe9]
-connect_debug_port u_ila_0/probe9 [get_nets [list bus_inst/mem_oe_i]]
+set_property port_width 32 [get_debug_ports u_ila_0/probe9]
+connect_debug_port u_ila_0/probe9 [get_nets [list {mem_addr[0]} {mem_addr[1]} {mem_addr[2]} {mem_addr[3]} {mem_addr[4]} {mem_addr[5]} {mem_addr[6]} {mem_addr[7]} {mem_addr[8]} {mem_addr[9]} {mem_addr[10]} {mem_addr[11]} {mem_addr[12]} {mem_addr[13]} {mem_addr[14]} {mem_addr[15]} {mem_addr[16]} {mem_addr[17]} {mem_addr[18]} {mem_addr[19]} {mem_addr[20]} {mem_addr[21]} {mem_addr[22]} {mem_addr[23]} {mem_addr[24]} {mem_addr[25]} {mem_addr[26]} {mem_addr[27]} {mem_addr[28]} {mem_addr[29]} {mem_addr[30]} {mem_addr[31]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe10]
 set_property port_width 1 [get_debug_ports u_ila_0/probe10]
-connect_debug_port u_ila_0/probe10 [get_nets [list bus_inst/mem_we_i]]
+connect_debug_port u_ila_0/probe10 [get_nets [list CPU/reg1_read]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe11]
 set_property port_width 1 [get_debug_ports u_ila_0/probe11]
-connect_debug_port u_ila_0/probe11 [get_nets [list {bus_inst/pcram_data_OBUF[0]}]]
+connect_debug_port u_ila_0/probe11 [get_nets [list CPU/reg2_read]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe12]
 set_property port_width 1 [get_debug_ports u_ila_0/probe12]
-connect_debug_port u_ila_0/probe12 [get_nets [list {bus_inst/pcram_data_OBUF[1]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe13]
-set_property port_width 1 [get_debug_ports u_ila_0/probe13]
-connect_debug_port u_ila_0/probe13 [get_nets [list {bus_inst/pcram_data_OBUF[2]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe14]
-set_property port_width 1 [get_debug_ports u_ila_0/probe14]
-connect_debug_port u_ila_0/probe14 [get_nets [list {bus_inst/pcram_data_OBUF[3]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe15]
-set_property port_width 1 [get_debug_ports u_ila_0/probe15]
-connect_debug_port u_ila_0/probe15 [get_nets [list {bus_inst/pcram_data_OBUF[4]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe16]
-set_property port_width 1 [get_debug_ports u_ila_0/probe16]
-connect_debug_port u_ila_0/probe16 [get_nets [list {bus_inst/pcram_data_OBUF[5]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe17]
-set_property port_width 1 [get_debug_ports u_ila_0/probe17]
-connect_debug_port u_ila_0/probe17 [get_nets [list {bus_inst/pcram_data_OBUF[6]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe18]
-set_property port_width 1 [get_debug_ports u_ila_0/probe18]
-connect_debug_port u_ila_0/probe18 [get_nets [list {bus_inst/pcram_data_OBUF[7]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe19]
-set_property port_width 1 [get_debug_ports u_ila_0/probe19]
-connect_debug_port u_ila_0/probe19 [get_nets [list {bus_inst/pcram_data_OBUF[8]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe20]
-set_property port_width 1 [get_debug_ports u_ila_0/probe20]
-connect_debug_port u_ila_0/probe20 [get_nets [list {bus_inst/pcram_data_OBUF[9]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe21]
-set_property port_width 1 [get_debug_ports u_ila_0/probe21]
-connect_debug_port u_ila_0/probe21 [get_nets [list {bus_inst/pcram_data_OBUF[10]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe22]
-set_property port_width 1 [get_debug_ports u_ila_0/probe22]
-connect_debug_port u_ila_0/probe22 [get_nets [list {bus_inst/pcram_data_OBUF[11]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe23]
-set_property port_width 1 [get_debug_ports u_ila_0/probe23]
-connect_debug_port u_ila_0/probe23 [get_nets [list {bus_inst/pcram_data_OBUF[12]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe24]
-set_property port_width 1 [get_debug_ports u_ila_0/probe24]
-connect_debug_port u_ila_0/probe24 [get_nets [list {bus_inst/pcram_data_OBUF[13]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe25]
-set_property port_width 1 [get_debug_ports u_ila_0/probe25]
-connect_debug_port u_ila_0/probe25 [get_nets [list {bus_inst/pcram_data_OBUF[14]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe26]
-set_property port_width 1 [get_debug_ports u_ila_0/probe26]
-connect_debug_port u_ila_0/probe26 [get_nets [list {bus_inst/pcram_data_OBUF[15]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe27]
-set_property port_width 1 [get_debug_ports u_ila_0/probe27]
-connect_debug_port u_ila_0/probe27 [get_nets [list {bus_inst/pcram_data_OBUF[16]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe28]
-set_property port_width 1 [get_debug_ports u_ila_0/probe28]
-connect_debug_port u_ila_0/probe28 [get_nets [list {bus_inst/pcram_data_OBUF[17]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe29]
-set_property port_width 1 [get_debug_ports u_ila_0/probe29]
-connect_debug_port u_ila_0/probe29 [get_nets [list {bus_inst/pcram_data_OBUF[18]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe30]
-set_property port_width 1 [get_debug_ports u_ila_0/probe30]
-connect_debug_port u_ila_0/probe30 [get_nets [list {bus_inst/pcram_data_OBUF[19]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe31]
-set_property port_width 1 [get_debug_ports u_ila_0/probe31]
-connect_debug_port u_ila_0/probe31 [get_nets [list {bus_inst/pcram_data_OBUF[20]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe32]
-set_property port_width 1 [get_debug_ports u_ila_0/probe32]
-connect_debug_port u_ila_0/probe32 [get_nets [list {bus_inst/pcram_data_OBUF[21]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe33]
-set_property port_width 1 [get_debug_ports u_ila_0/probe33]
-connect_debug_port u_ila_0/probe33 [get_nets [list {bus_inst/pcram_data_OBUF[22]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe34]
-set_property port_width 1 [get_debug_ports u_ila_0/probe34]
-connect_debug_port u_ila_0/probe34 [get_nets [list {bus_inst/pcram_data_OBUF[23]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe35]
-set_property port_width 1 [get_debug_ports u_ila_0/probe35]
-connect_debug_port u_ila_0/probe35 [get_nets [list {bus_inst/pcram_data_OBUF[24]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe36]
-set_property port_width 1 [get_debug_ports u_ila_0/probe36]
-connect_debug_port u_ila_0/probe36 [get_nets [list {bus_inst/pcram_data_OBUF[25]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe37]
-set_property port_width 1 [get_debug_ports u_ila_0/probe37]
-connect_debug_port u_ila_0/probe37 [get_nets [list {bus_inst/pcram_data_OBUF[26]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe38]
-set_property port_width 1 [get_debug_ports u_ila_0/probe38]
-connect_debug_port u_ila_0/probe38 [get_nets [list {bus_inst/pcram_data_OBUF[27]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe39]
-set_property port_width 1 [get_debug_ports u_ila_0/probe39]
-connect_debug_port u_ila_0/probe39 [get_nets [list {bus_inst/pcram_data_OBUF[28]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe40]
-set_property port_width 1 [get_debug_ports u_ila_0/probe40]
-connect_debug_port u_ila_0/probe40 [get_nets [list {bus_inst/pcram_data_OBUF[29]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe41]
-set_property port_width 1 [get_debug_ports u_ila_0/probe41]
-connect_debug_port u_ila_0/probe41 [get_nets [list {bus_inst/pcram_data_OBUF[30]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe42]
-set_property port_width 1 [get_debug_ports u_ila_0/probe42]
-connect_debug_port u_ila_0/probe42 [get_nets [list {bus_inst/pcram_data_OBUF[31]}]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe43]
-set_property port_width 1 [get_debug_ports u_ila_0/probe43]
-connect_debug_port u_ila_0/probe43 [get_nets [list bus_inst/pcram_oe_n]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe44]
-set_property port_width 1 [get_debug_ports u_ila_0/probe44]
-connect_debug_port u_ila_0/probe44 [get_nets [list bus_inst/pcram_we_n]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe45]
-set_property port_width 1 [get_debug_ports u_ila_0/probe45]
-connect_debug_port u_ila_0/probe45 [get_nets [list CPU/reg1_read]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe46]
-set_property port_width 1 [get_debug_ports u_ila_0/probe46]
-connect_debug_port u_ila_0/probe46 [get_nets [list CPU/reg2_read]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe47]
-set_property port_width 1 [get_debug_ports u_ila_0/probe47]
-connect_debug_port u_ila_0/probe47 [get_nets [list CPU/wb_wreg_i]]
-create_debug_core u_ila_1 ila
-set_property ALL_PROBE_SAME_MU true [get_debug_cores u_ila_1]
-set_property ALL_PROBE_SAME_MU_CNT 1 [get_debug_cores u_ila_1]
-set_property C_ADV_TRIGGER false [get_debug_cores u_ila_1]
-set_property C_DATA_DEPTH 1024 [get_debug_cores u_ila_1]
-set_property C_EN_STRG_QUAL false [get_debug_cores u_ila_1]
-set_property C_INPUT_PIPE_STAGES 0 [get_debug_cores u_ila_1]
-set_property C_TRIGIN_EN false [get_debug_cores u_ila_1]
-set_property C_TRIGOUT_EN false [get_debug_cores u_ila_1]
-set_property port_width 1 [get_debug_ports u_ila_1/clk]
-connect_debug_port u_ila_1/clk [get_nets [list reset_btn_IBUF_BUFG]]
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe0]
-set_property port_width 4 [get_debug_ports u_ila_1/probe0]
-connect_debug_port u_ila_1/probe0 [get_nets [list {mem_be[0]} {mem_be[1]} {mem_be[2]} {mem_be[3]}]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe1]
-set_property port_width 32 [get_debug_ports u_ila_1/probe1]
-connect_debug_port u_ila_1/probe1 [get_nets [list {mem_data_o[0]} {mem_data_o[1]} {mem_data_o[2]} {mem_data_o[3]} {mem_data_o[4]} {mem_data_o[5]} {mem_data_o[6]} {mem_data_o[7]} {mem_data_o[8]} {mem_data_o[9]} {mem_data_o[10]} {mem_data_o[11]} {mem_data_o[12]} {mem_data_o[13]} {mem_data_o[14]} {mem_data_o[15]} {mem_data_o[16]} {mem_data_o[17]} {mem_data_o[18]} {mem_data_o[19]} {mem_data_o[20]} {mem_data_o[21]} {mem_data_o[22]} {mem_data_o[23]} {mem_data_o[24]} {mem_data_o[25]} {mem_data_o[26]} {mem_data_o[27]} {mem_data_o[28]} {mem_data_o[29]} {mem_data_o[30]} {mem_data_o[31]}]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe2]
-set_property port_width 32 [get_debug_ports u_ila_1/probe2]
-connect_debug_port u_ila_1/probe2 [get_nets [list {mem_data_i[0]} {mem_data_i[1]} {mem_data_i[2]} {mem_data_i[3]} {mem_data_i[4]} {mem_data_i[5]} {mem_data_i[6]} {mem_data_i[7]} {mem_data_i[8]} {mem_data_i[9]} {mem_data_i[10]} {mem_data_i[11]} {mem_data_i[12]} {mem_data_i[13]} {mem_data_i[14]} {mem_data_i[15]} {mem_data_i[16]} {mem_data_i[17]} {mem_data_i[18]} {mem_data_i[19]} {mem_data_i[20]} {mem_data_i[21]} {mem_data_i[22]} {mem_data_i[23]} {mem_data_i[24]} {mem_data_i[25]} {mem_data_i[26]} {mem_data_i[27]} {mem_data_i[28]} {mem_data_i[29]} {mem_data_i[30]} {mem_data_i[31]}]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe3]
-set_property port_width 1 [get_debug_ports u_ila_1/probe3]
-connect_debug_port u_ila_1/probe3 [get_nets [list mem_stall]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe4]
-set_property port_width 1 [get_debug_ports u_ila_1/probe4]
-connect_debug_port u_ila_1/probe4 [get_nets [list pc_stall]]
-create_debug_core u_ila_2 ila
-set_property ALL_PROBE_SAME_MU true [get_debug_cores u_ila_2]
-set_property ALL_PROBE_SAME_MU_CNT 1 [get_debug_cores u_ila_2]
-set_property C_ADV_TRIGGER false [get_debug_cores u_ila_2]
-set_property C_DATA_DEPTH 1024 [get_debug_cores u_ila_2]
-set_property C_EN_STRG_QUAL false [get_debug_cores u_ila_2]
-set_property C_INPUT_PIPE_STAGES 0 [get_debug_cores u_ila_2]
-set_property C_TRIGIN_EN false [get_debug_cores u_ila_2]
-set_property C_TRIGOUT_EN false [get_debug_cores u_ila_2]
-set_property port_width 1 [get_debug_ports u_ila_2/clk]
-connect_debug_port u_ila_2/clk [get_nets [list clk_11M0592_IBUF_BUFG]]
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_2/probe0]
-set_property port_width 32 [get_debug_ports u_ila_2/probe0]
-connect_debug_port u_ila_2/probe0 [get_nets [list {pc_addr[0]} {pc_addr[1]} {pc_addr[2]} {pc_addr[3]} {pc_addr[4]} {pc_addr[5]} {pc_addr[6]} {pc_addr[7]} {pc_addr[8]} {pc_addr[9]} {pc_addr[10]} {pc_addr[11]} {pc_addr[12]} {pc_addr[13]} {pc_addr[14]} {pc_addr[15]} {pc_addr[16]} {pc_addr[17]} {pc_addr[18]} {pc_addr[19]} {pc_addr[20]} {pc_addr[21]} {pc_addr[22]} {pc_addr[23]} {pc_addr[24]} {pc_addr[25]} {pc_addr[26]} {pc_addr[27]} {pc_addr[28]} {pc_addr[29]} {pc_addr[30]} {pc_addr[31]}]]
+connect_debug_port u_ila_0/probe12 [get_nets [list CPU/wb_wreg_i]]
 set_property C_CLK_INPUT_FREQ_HZ 300000000 [get_debug_cores dbg_hub]
 set_property C_ENABLE_CLK_DIVIDER false [get_debug_cores dbg_hub]
 set_property C_USER_SCAN_CHAIN 1 [get_debug_cores dbg_hub]
