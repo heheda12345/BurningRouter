@@ -160,6 +160,9 @@ always @(*) begin
         `EXE_RES_MOVE: begin
             wdata_o <= moveres;
         end
+        `EXE_RES_NOP: begin
+            wdata_o <= reg1_i; // magic, for syscall
+        end
         default: begin
             $display("[ex.v] aluop %h not support", aluop_i);
             wdata_o <= 0;

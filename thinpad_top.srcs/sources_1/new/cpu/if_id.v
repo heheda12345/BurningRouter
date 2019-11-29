@@ -20,7 +20,7 @@ always @(posedge clk) begin
     end else if (flush == 1'b1) begin
         id_pc <= 0;
         id_inst <= 0;
-    end if (id_stall == 1'b0) begin
+    end else if (id_stall == 1'b0) begin
         $display("pc %h %h", if_pc, if_inst);
         id_pc <= if_pc;
         id_inst <= if_inst;

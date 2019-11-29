@@ -194,7 +194,7 @@ always @(*) begin
                         alusel_o <= `EXE_RES_NOP;
                         reg1_read_o <= 0;
                         reg2_read_o <= 0;
-                        imm_reg <= 0;
+                        imm_reg <= {12'b0, inst_i[25:6]};
                         wd_o <= 0;
                         instvalid <= INSTVALID;
                         is_syscall <= 1;

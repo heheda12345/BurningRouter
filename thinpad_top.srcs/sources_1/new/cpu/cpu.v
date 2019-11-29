@@ -5,6 +5,7 @@ module cpu(
     input wire[31:0] pc_data_i,
     output wire[31:0] pc_addr_o,
     input wire if_stall_req, 
+    input wire [5:0] int_i,
 
     input wire[31:0] ram_data_i,
     output wire[31:0] ram_data_o,
@@ -142,7 +143,6 @@ wire wb_cp0_reg_we_i;
 wire [4:0] wb_cp0_reg_write_addr_i;
 wire [4:0] cp0_raddr_i;
 wire [31:0] wb_cp0_reg_data_i;
-wire [5:0] int_i;
 
 wire [31:0] cp0_data_o;
 wire[31:0]	cp0_status;
@@ -154,19 +154,21 @@ wire[31:0]	cp0_ebase;
 wire flush;
 wire[31:0] new_pc;
 wire[31:0] latest_epc;
+wire[31:0] mem_syscall_bias;
 
 
 pc_reg PC_REG(
     .clk(clk),
     .rst(rst),
-    .ce(if_pc_ce_o),
+    .flush(flush),
+    .pc_stall(pc_stall_i),
 
     .branch_flag_i(branch_flag),
     .branch_target_addr_i(branch_target_addr),
 
     .pc(pc),
-
-    .pc_stall(pc_stall_i)
+    .new_pc(new_pc),
+    .ce(if_pc_ce_o)
 );
 
 if_id IF_ID(
@@ -407,7 +409,8 @@ mem MEM(
     .excepttype_o(mem_excepttype_o),
 	.cp0_epc_o(latest_epc),
 	.is_in_delay_slot_o(mem_is_in_delayslot_o),
-	.current_inst_address_o(mem_current_inst_address_o)
+	.current_inst_address_o(mem_current_inst_address_o),
+    .syscall_bias(mem_syscall_bias)
 );
 
 mem_wb MEM_WB(
@@ -438,6 +441,7 @@ ctrl CTRL(
     .id_req(id_stall_req_o),
     .mem_req(mem_stall_req),
     .if_req(if_stall_req),
+    .syscall_bias(mem_syscall_bias),
 
     .pc_stall(pc_stall_i),
     .if_stall(if_stall_i),

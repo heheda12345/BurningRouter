@@ -34,7 +34,7 @@ always @(posedge clk) begin
                     status_o <= data_i;
                 end
                 `CP0_REG_CAUSE: begin // cause
-                    cause_o[15:8] <= data_i[15:8]; // different from openmips, as ip4 can be set
+                    cause_o[9:8] <= data_i[9:8];
                     cause_o[23] <= data_i[23];
                     cause_o[22] <= data_i[22];
                 end
@@ -42,7 +42,7 @@ always @(posedge clk) begin
                     epc_o <= data_i;
                 end
                 `CP0_REG_EBASE: begin // ebase
-                    ebase_o <= data_i;
+                    ebase_o <= data_i | 32'h80000000;
                 end
             endcase
         end

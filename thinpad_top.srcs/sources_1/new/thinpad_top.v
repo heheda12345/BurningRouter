@@ -277,6 +277,7 @@ cpu CPU(
     .pc_data_i(pc_data),
     .pc_addr_o(pc_addr),
     .if_stall_req(pc_stall),
+    .int_i({3'b0, uart_dataready, 2'b0}),
 
     .ram_data_o(mem_data_i),
     .ram_data_i(mem_data_o),

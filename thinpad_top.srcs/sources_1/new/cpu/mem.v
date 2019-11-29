@@ -38,7 +38,8 @@ module mem(
     output reg[31:0] excepttype_o,
     output wire[31:0] cp0_epc_o,
     output wire is_in_delay_slot_o,
-    output wire[31:0] current_inst_address_o
+    output wire[31:0] current_inst_address_o,
+    output reg[31:0] syscall_bias
 );
 
 reg[31:0] data_to_write;
@@ -165,7 +166,7 @@ always @(*) begin
     if (rst == 1'b1) begin
         cp0_cause <= 0;
     end else if (wb_cp0_reg_we == 1'b1 && wb_cp0_reg_write_addr == `CP0_REG_CAUSE) begin
-        cp0_cause[15:8] <= wb_cp0_reg_data[15:8]; // different from openmips, as ip4 can be set
+        cp0_cause[9:8] <= wb_cp0_reg_data[9:8];
         cp0_cause[23] <= wb_cp0_reg_data[23];
         cp0_cause[22] <= wb_cp0_reg_data[22];
     end else begin
@@ -181,10 +182,11 @@ always @(*) begin
     end else begin
         excepttype_o <= 0;
         if (current_inst_address_i != 32'h00000000) begin
-            if ((cp0_cause[15:8] & cp0_status[15:8])!=8'h00 && cp0_status[1] == 1'b0 && cp0_status[0] == 1'b1) begin
+            if ((cp0_cause[15:8] & cp0_status[15:8])!=2'b00 && cp0_status[1] == 1'b0 && cp0_status[0] == 1'b1) begin
                 excepttype_o <= 32'h00000001;
-            end else if (excepttype_i[8] == 1'b1) begin
+            end else if (excepttype_i[8] == 1'b1) begin // syscall
                 excepttype_o <= 32'h00000008;
+                syscall_bias <= wdata_i;
             end else if (excepttype_i[12] == 1'b1) begin
                 excepttype_o <= 32'h0000000e;
             end
