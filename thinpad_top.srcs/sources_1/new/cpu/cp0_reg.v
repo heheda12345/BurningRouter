@@ -8,7 +8,7 @@ module cp0_reg(
     input wire[4:0] raddr_i,
     input wire[31:0] data_i,
     input wire[5:0] int_i,
-    input wire[31:0] excepttype_i.
+    input wire[31:0] excepttype_i,
     input wire[31:0] current_inst_addr_i,
     input wire is_in_delay_slot_i,
 

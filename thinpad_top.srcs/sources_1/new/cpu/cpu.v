@@ -59,9 +59,7 @@ wire [7:0] ex_aluop_o;
 wire [31:0] ex_ram_addr_o;
 wire ex_cp0_reg_we_o;
 wire [4:0] ex_cp0_reg_write_addr_o;
-wire [31:0] ex_cp0_reg_data_o; 
-wire[4:0] ex_cp0_reg_write_addr_o;
-wire[31:0] ex_cp0_reg_data_o; 	
+wire [31:0] ex_cp0_reg_data_o;
 wire[31:0] ex_excepttype_o;
 wire[31:0] ex_current_inst_address_o;
 wire ex_is_in_delayslot_o;
@@ -72,9 +70,6 @@ wire [4:0] mem_wd_i;
 wire [31:0] mem_wdata_i;
 wire [7:0] mem_alu_op_i;
 wire [31:0] mem_ram_addr_i;
-wire mem_cp0_reg_we_i;
-wire[4:0] mem_cp0_reg_write_addr_i;
-wire[31:0] mem_cp0_reg_data_i;
 wire mem_cp0_reg_we_i;
 wire[4:0] mem_cp0_reg_write_addr_i;
 wire[31:0] mem_cp0_reg_data_i;
@@ -99,7 +94,7 @@ wire[31:0] mem_current_inst_address_o;
 (*mark_debug="true"*)wire [31:0] wb_wdata_i;
 wire[31:0] wb_excepttype_i;
 wire wb_is_in_delayslot_i;
-wire[`RegBus] wb_current_inst_address_i;
+wire[31:0] wb_current_inst_address_i;
 
 // id -> regfile
 (*mark_debug="true"*)wire reg1_read;
@@ -257,7 +252,7 @@ regfile REGFILE(
 id_ex ID_EX(
     .clk(clk),
     .rst(rst),
-    .flush(flush)
+    .flush(flush),
     
     .id_aluop(id_aluop_o),
     .id_alusel(id_alusel_o),
@@ -286,7 +281,7 @@ id_ex ID_EX(
     .is_in_delayslot_o(id_back_is_in_delayslot),
     .ex_ram_offset(ex_ram_offset),
     .ex_inst(ex_inst_i),
-	.ex_current_inst_address(ex_current_inst_address_i)
+	.ex_current_inst_address(ex_current_inst_address_i),
     .ex_excepttype(ex_excepttype_i),
 
     .cur_aluop(id_aluop_o),
@@ -340,13 +335,13 @@ ex EX(
 	.cp0_reg_data_o(ex_cp0_reg_data_o),
     .excepttype_o(ex_excepttype_o),
 	.is_in_delayslot_o(ex_is_in_delayslot_o),
-	.current_inst_address_o(ex_current_inst_address_o),	
+	.current_inst_address_o(ex_current_inst_address_o)
 );
 
 ex_mem EX_MEM(
     .clk(clk),
     .rst(rst),
-    .flush(flush)
+    .flush(flush),
     
     .ex_wd(ex_wd_o),
     .ex_wreg(ex_wreg_o),
@@ -387,7 +382,7 @@ mem MEM(
 	.cp0_reg_write_addr_i(mem_cp0_reg_write_addr_i),
 	.cp0_reg_data_i(mem_cp0_reg_data_i),
     .excepttype_i(mem_excepttype_i),
-	.is_in_delayslot_i(mem_is_in_delayslot_i),
+	.is_in_delay_slot_i(mem_is_in_delayslot_i),
 	.current_inst_address_i(mem_current_inst_address_i),
 	.cp0_status_i(cp0_status),
 	.cp0_cause_i(cp0_cause),
@@ -411,14 +406,14 @@ mem MEM(
 	.cp0_reg_data_o(mem_cp0_reg_data_o),
     .excepttype_o(mem_excepttype_o),
 	.cp0_epc_o(latest_epc),
-	.is_in_delayslot_o(mem_is_in_delayslot_o),
+	.is_in_delay_slot_o(mem_is_in_delayslot_o),
 	.current_inst_address_o(mem_current_inst_address_o)
 );
 
 mem_wb MEM_WB(
     .clk(clk),
     .rst(rst),
-    .flush(flush)
+    .flush(flush),
 
     .mem_wd(mem_wd_o),
     .mem_wreg(mem_wreg_o),
@@ -469,7 +464,7 @@ cp0_reg CP0_REG(
 	.int_i(int_i),
     .excepttype_i(mem_excepttype_o),
 	.current_inst_addr_i(mem_current_inst_address_o),
-	.is_in_delayslot_i(mem_is_in_delayslot_o),
+	.is_in_delay_slot_i(mem_is_in_delayslot_o),
 
 	.data_o(cp0_data_o),
     .status_o(cp0_status),
