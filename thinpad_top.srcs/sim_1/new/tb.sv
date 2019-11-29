@@ -64,17 +64,13 @@ initial begin
     end
     // 模拟PC通过串口发送字符
     cpld.pc_send_byte(8'h52);
-    #10000;
-    cpld.pc_send_byte(8'h52);
+    // #10000;
+    // cpld.pc_send_byte(8'h52);
 end
 
 initial begin
     reset_btn = 1;
     #200
-    reset_btn = 0;
-    #100000
-    reset_btn = 1;
-    #2000
     reset_btn = 0;
 end
 

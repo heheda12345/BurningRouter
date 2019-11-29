@@ -72,7 +72,7 @@ always_comb begin
         pcram_be_n = 4'b0000;
         pcram_ce_n = 1'b1;
         uart_rdn = 1;
-        uart_wrn = 0;
+        uart_wrn = 1;
         leds = 0;
     end else if (pc_stall) begin
         if (mem_pcram) begin
