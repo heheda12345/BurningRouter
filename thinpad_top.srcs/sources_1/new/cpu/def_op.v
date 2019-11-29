@@ -31,6 +31,9 @@
 `define EXE_BRANCH_OP 8'b00000010
 `define EXE_NOP_OP    8'b00000000
 
+`define EXE_MFC0_OP 8'b01011101
+`define EXE_MTC0_OP 8'b01100000
+
 //AluSel
 `define EXE_RES_LOGIC 3'b001
 `define EXE_RES_SHIFT 3'b010
@@ -38,6 +41,7 @@
 `define EXE_RES_ARITHMETIC 3'b011
 `define EXE_RES_BRANCH 3'b100
 `define EXE_RES_RAM 3'b101
+`define EXE_RES_MOVE 3'b110
 
 // branch & jump
 `define EXE_JUMP 6'b000010
@@ -52,3 +56,8 @@
 `define EXE_LW 6'b100011
 `define EXE_SB 6'b101000
 `define EXE_SW 6'b101011
+
+// CP0
+`define EXE_COP 6'b010000
+`define EXE_MT 5'b00100
+`define EXE_MF 5'b00000

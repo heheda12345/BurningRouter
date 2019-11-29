@@ -47,7 +47,8 @@ module id(
 
     output reg next_inst_in_delayslot_o,
 
-    output reg stall_req_o
+    output reg stall_req_o,
+    output wire[31:0] inst_o
 );
 
 // refer to tsinghua web learning
@@ -70,6 +71,8 @@ assign nxt_pc = pc_i + 32'h00000004;
 assign nxt_nxt_pc = pc_i + 32'h00000008;
 assign add_sign_pc = nxt_pc + {{14{ins_imm[15]}}, ins_imm, 2'b00};
 assign sign_imm = {{16{sign_imm[15]}}, ins_imm};
+
+assign inst_o = inst_i;
 
 // translate
 always @(*) begin
@@ -364,6 +367,33 @@ always @(*) begin
                 instvalid <= INSTVALID;
 
                 ram_offset_o <= sign_imm;
+            end
+            `EXE_COP: begin
+                case (ins_rs)
+                    `EXE_MF: begin
+                        wreg_o <= 1;
+                        aluop_o <= `EXE_MFC0_OP;
+                        alusel_o <= `EXE_RES_MOVE;
+                        reg1_read_o <= 0;
+                        reg2_read_o <= 0;
+                        imm_reg <= 0;
+                        wd_o <= ins_rt;
+                        instvalid <= INSTVALID;
+                    end
+                    `EXE_MT: begin
+                        wreg_o <= 0;
+                        aluop_o <= `EXE_MTC0_OP;
+                        alusel_o <= `EXE_RES_MOVE;
+                        reg1_read_o <= 0;
+                        reg2_read_o <= 1;
+                        imm_reg <= 0;
+                        wd_o <= 0;
+                        instvalid <= INSTVALID;
+                    end
+                    default: begin
+                        $display("[id.v] cop0 %h not support", ins_rs);
+                    end
+                endcase
             end
             default: begin
                 $display("[id.v] op %h not support", ins_op);

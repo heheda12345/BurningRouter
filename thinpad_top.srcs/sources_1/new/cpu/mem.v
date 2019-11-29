@@ -8,6 +8,9 @@ module mem(
     input wire[31:0] wdata_i,
     input wire[7:0] alu_op_i,
     input wire[31:0] ram_addr_i,
+    input wire cp0_reg_we_i,
+    input wire[4:0] cp0_reg_write_addr_i,
+    input wire[31:0] cp0_reg_data_i,
 
     output reg[4:0] wd_o,
     output reg wreg_o,
@@ -19,7 +22,10 @@ module mem(
     output reg[31:0] ram_addr_o,
     output reg[3:0] ram_be_o, // byte enable
     output reg ram_we_o,        // write enable
-    output reg ram_oe_o         // read enable
+    output reg ram_oe_o,        // read enable
+    output reg cp0_reg_we_o,
+    output reg[4:0] cp0_reg_write_addr_o,
+    output reg[31:0] cp0_reg_data_o
 );
 
 reg[31:0] data_to_write;
@@ -32,10 +38,16 @@ always @(*) begin
         wreg_o <= 0;
         wdata_o <= 0;
         ram_addr_o <= ram_addr_i;
+        cp0_reg_we_o <= 0;
+        cp0_reg_write_addr_o <= 0;
+        cp0_reg_data_o <= 0;
     end else begin
         wd_o <= wd_i;
         wreg_o <= wreg_i;
         wdata_o <= wdata_i;
+        cp0_reg_we_o <= cp0_reg_we_i;
+        cp0_reg_write_addr_o <= cp0_reg_write_addr_i;
+        cp0_reg_data_o <= cp0_reg_data_i;
         ram_be_o <= 0;
         ram_we_o <= 0;
         ram_oe_o <= 0;
