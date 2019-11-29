@@ -20,6 +20,8 @@ module ex(
     input wire wb_cp0_reg_we,
     input wire [4:0] wb_cp0_reg_write_addr,
     input wire [31:0] wb_cp0_reg_data,
+    input wire [31:0] excepttype_i,
+    input wire [31:0] current_inst_address_i,
 
     output reg [4:0] wd_o,
     output reg wreg_o,
@@ -29,10 +31,17 @@ module ex(
     output reg [4:0] cp0_reg_read_addr_o,
     output reg cp0_reg_we_o,
     output reg [4:0] cp0_reg_write_addr_o,
-    output reg [31:0] cp0_reg_data_o
+    output reg [31:0] cp0_reg_data_o,
+    output wire [31:0] excepttype_o,
+    output wire is_in_delayslot_o,
+    output wire [31:0] current_inst_address_o
 );
 
 reg[31:0] moveres, logicout, shiftout, arithout, ramout;
+
+assign excepttype_o = excepttype_i;
+assign is_in_delayslot_o = is_in_delayslot;
+assign current_inst_address_o = current_inst_address_i;
 
 always @(*) begin
     if (rst == 1'b1) begin

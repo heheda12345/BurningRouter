@@ -48,7 +48,9 @@ module id(
     output reg next_inst_in_delayslot_o,
 
     output reg stall_req_o,
-    output wire[31:0] inst_o
+    output wire[31:0] inst_o,
+    output wire[31:0] excepttype_o,
+    output wire[31:0] current_inst_address_o
 );
 
 // refer to tsinghua web learning
@@ -74,6 +76,9 @@ assign sign_imm = {{16{sign_imm[15]}}, ins_imm};
 
 assign inst_o = inst_i;
 
+reg is_syscall, is_eret;
+assign excepttype_o = {19'b0, is_eret, 3'b0, is_syscall, 8'b0};
+assign current_inst_address_o = pc_i;
 // translate
 always @(*) begin
     if (rst == 1'b1) begin
@@ -91,6 +96,7 @@ always @(*) begin
         branch_target_addr_o <= 0;
         next_inst_in_delayslot_o <= 0;
         link_addr_o <= 0;
+        // is_syscall & is_eret
     end else begin
         reg1_addr_o <= ins_rs;
         reg2_addr_o <= ins_rt;
@@ -101,6 +107,9 @@ always @(*) begin
         link_addr_o <= 0;
         
         ram_offset_o <= 0;
+        is_syscall <= 0;
+        is_eret <= 0;
+        instvalid <= INSTINVALID;
         case (ins_op)
             `EXE_SPECIAL: begin
                 case (ins_func)
@@ -178,6 +187,17 @@ always @(*) begin
                         imm_reg <= 0;
                         wd_o <= ins_rd;
                         instvalid <= INSTVALID;
+                    end
+                    `EXE_SYSCALL_FUNC: begin
+                        wreg_o <= 0;
+                        aluop_o <= `EXE_SYSCALL_OP;
+                        alusel_o <= `EXE_RES_NOP;
+                        reg1_read_o <= 0;
+                        reg2_read_o <= 0;
+                        imm_reg <= 0;
+                        wd_o <= 0;
+                        instvalid <= INSTVALID;
+                        is_syscall <= 1;
                     end
                     default: begin
                         $display("[id.v] func %h not support", ins_func);
@@ -389,6 +409,21 @@ always @(*) begin
                         imm_reg <= 0;
                         wd_o <= 0;
                         instvalid <= INSTVALID;
+                    end
+                    `EXE_ERET: begin
+                        if (inst_i != `EXE_ERET_32) begin
+                            $display("[id.v] invalid ere %h", inst_i);
+                        end else begin
+                            wreg_o <= 0;
+                            aluop_o <= `EXE_ERET_OP;
+                            alusel_o <= `EXE_RES_NOP;
+                            reg1_read_o <= 0;
+                            reg2_read_o <= 0;
+                            imm_reg <= 0;
+                            wd_o <= 0;
+                            instvalid <= INSTVALID;
+                            is_eret <= 1;
+                        end
                     end
                     default: begin
                         $display("[id.v] cop0 %h not support", ins_rs);

@@ -1,6 +1,7 @@
 module mem_wb(
     input wire clk,
     input wire rst,
+    input wire flush,
     
     input wire[4:0] mem_wd,
     input wire mem_wreg,
@@ -21,6 +22,13 @@ module mem_wb(
 
 always @(posedge clk) begin
     if (rst == 1'b1) begin
+        wb_wd <= 0;
+        wb_wreg <= 0;
+        wb_wdata <= 0;
+        wb_cp0_reg_we <= 0;
+        wb_cp0_reg_write_addr <= 0;
+        wb_cp0_reg_data <= 0;
+    end else if (flush == 1'b1) begin
         wb_wd <= 0;
         wb_wreg <= 0;
         wb_wdata <= 0;
