@@ -156,8 +156,7 @@ wire flush;
 wire[31:0] new_pc;
 wire[31:0] latest_epc;
 wire[31:0] mem_syscall_bias;
-assign leds[0] = flush;
-assign leds[15:1] = cp0_cause[15:1];
+assign leds[15:0] = cp0_epc[15:0];
 
 pc_reg PC_REG(
     .clk(clk),
