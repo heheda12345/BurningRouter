@@ -508,7 +508,7 @@ always @(*) begin
 end
 
 wire stall_req_reg1, stall_req_reg2, pre_is_load;
-assign pre_is_load = (pre_aluop == `EXE_LB_OP || pre_aluop == `EXE_LW_OP);
+assign pre_is_load = (pre_aluop == `EXE_LB_OP || pre_aluop == `EXE_LW_OP || pre_aluop == `EXE_LH_OP);
 assign stall_req_reg1 = reg1_read_o == 1'b1 && pre_wd == reg1_addr_o;
 assign stall_req_reg2 = reg2_read_o == 1'b1 && pre_wd == reg2_addr_o;
 always @(*) begin
