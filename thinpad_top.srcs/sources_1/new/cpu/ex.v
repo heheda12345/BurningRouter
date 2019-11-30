@@ -49,6 +49,9 @@ always @(*) begin
     end else begin
         moveres <= 0;
         case (aluop_i)
+            `EXE_MOVZ_OP: begin
+                moveres <= reg1_i;
+            end
             `EXE_MFC0_OP: begin
                 cp0_reg_read_addr_o <= inst_i[15:11];
                 if (mem_cp0_reg_we == 1'b1 && mem_cp0_reg_write_addr == inst_i[15:11]) begin

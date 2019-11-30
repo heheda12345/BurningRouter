@@ -199,6 +199,20 @@ always @(*) begin
                         instvalid <= INSTVALID;
                         is_syscall <= 1;
                     end
+                    `EXE_MOVZ_FUNC: begin
+                        if (reg2_o == 32'h00000000) begin
+                            wreg_o <= 1;
+                        end else begin
+                            wreg_o <= 0;
+                        end
+                        aluop_o <= `EXE_MOVZ_OP;
+                        alusel_o <= `EXE_RES_MOVE;
+                        reg1_read_o <= 1;
+                        reg2_read_o <= 1;
+                        imm_reg <= 0;
+                        wd_o <= ins_rd;
+                        instvalid <= INSTVALID;
+                    end
                     default: begin
                         $display("[id.v] func %h not support", ins_func);
                     end

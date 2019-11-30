@@ -7,6 +7,7 @@
 `define EXE_AND_FUNC  6'b100100
 `define EXE_OR_FUNC   6'b100101
 `define EXE_XOR_FUNC 6'b100110
+`define EXE_MOVZ_FUNC 6'b001010
 `define EXE_ADDIU 6'b001001
 `define EXE_ANDI 6'b001100
 `define EXE_ORI  6'b001101
@@ -33,6 +34,7 @@
 
 `define EXE_MFC0_OP 8'b01011101
 `define EXE_MTC0_OP 8'b01100000
+`define EXE_MOVZ_OP 8'b00001010
 
 //AluSel
 `define EXE_RES_LOGIC 3'b001
