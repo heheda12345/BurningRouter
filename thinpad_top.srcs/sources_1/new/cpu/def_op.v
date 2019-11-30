@@ -19,6 +19,7 @@
 //AluOp
 `define EXE_LB_OP 8'b00100000
 `define EXE_LW_OP 8'b00100011
+`define EXE_LH_OP 8'b01100001
 `define EXE_SB_OP 8'b00101000
 `define EXE_SW_OP 8'b00101011
 
@@ -58,6 +59,7 @@
 // RAM
 `define EXE_LB 6'b100000
 `define EXE_LW 6'b100011
+`define EXE_LH 6'b100001
 `define EXE_SB 6'b101000
 `define EXE_SW 6'b101011
 

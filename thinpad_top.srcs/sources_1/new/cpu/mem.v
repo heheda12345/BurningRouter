@@ -99,6 +99,21 @@ always @(*) begin
                     end
                 endcase
             end
+            `EXE_LH_OP: begin
+                ram_addr_o <= ram_addr_i;
+                ram_we <= 0;
+                ram_oe_o <= 1;
+                case (ram_addr_i[1])
+                    1'b0: begin
+                        ram_be_o <= 4'b1111;
+                        wdata_o <= {{16{ram_data_i[15]}}, ram_data_i[15:0]};
+                    end
+                    1'b1: begin
+                        ram_be_o <= 4'b1111;
+                        wdata_o <= {{16{ram_data_i[31]}}, ram_data_i[31:16]};
+                    end
+                endcase
+            end
             `EXE_LW_OP: begin
                 ram_addr_o <= ram_addr_i;
                 ram_we <= 0;
