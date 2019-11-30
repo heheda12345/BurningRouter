@@ -13,7 +13,8 @@ module cpu(
     output wire[3:0] ram_be_o,
     output wire ram_we_o,
     output wire ram_oe_o,
-    input wire mem_stall_req
+    input wire mem_stall_req,
+    output wire[15:0] leds
 );
 
 
@@ -155,7 +156,8 @@ wire flush;
 wire[31:0] new_pc;
 wire[31:0] latest_epc;
 wire[31:0] mem_syscall_bias;
-
+assign leds[0] = flush;
+assign leds[15:1] = cp0_cause[15:1];
 
 pc_reg PC_REG(
     .clk(clk),

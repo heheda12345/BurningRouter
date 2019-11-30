@@ -182,7 +182,7 @@ always @(*) begin
     end else begin
         excepttype_o <= 0;
         if (current_inst_address_i != 32'h00000000) begin
-            if ((cp0_cause[15:8] & cp0_status[15:8])!=2'b00 && cp0_status[1] == 1'b0 && cp0_status[0] == 1'b1) begin
+            if ((cp0_cause[15:8] & cp0_status[15:8])!=8'h00 && cp0_status[1] == 1'b0 && cp0_status[0] == 1'b1) begin
                 excepttype_o <= 32'h00000001;
             end else if (excepttype_i[8] == 1'b1) begin // syscall
                 excepttype_o <= 32'h00000008;

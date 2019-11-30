@@ -228,9 +228,10 @@ assign ext_ram_ce_n = 1'b0;
 (*mark_debug="true"*)wire [31:0] pc_data, mem_data_i, mem_data_o;
 (*mark_debug="true"*)wire [31:0] pc_addr, mem_addr;
 
+wire [15:0] cpu_out;
 wire [15:0] bus_out;
-always @(bus_out) begin
-    led_bits <= bus_out;
+always @(cpu_out) begin
+    led_bits <= cpu_out;
 end
 
 bus bus_inst(
@@ -284,7 +285,8 @@ cpu CPU(
     .ram_addr_o(mem_addr),
     .ram_be_o(mem_be),
     .ram_we_o(mem_we),
-    .ram_oe_o(mem_oe)
+    .ram_oe_o(mem_oe),
+    .leds(cpu_out)
 );
 
 
