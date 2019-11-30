@@ -145,16 +145,16 @@ always@(posedge clk_10M or posedge reset_of_clk10M) begin
 end
 
 // 不使用内存、串口时，禁用其使能信号
-assign base_ram_ce_n = 1'b1;
-assign base_ram_oe_n = 1'b1;
-assign base_ram_we_n = 1'b1;
+// assign base_ram_ce_n = 1'b1;
+// assign base_ram_oe_n = 1'b1;
+// assign base_ram_we_n = 1'b1;
 
-assign ext_ram_ce_n = 1'b1;
-assign ext_ram_oe_n = 1'b1;
-assign ext_ram_we_n = 1'b1;
+// assign ext_ram_ce_n = 1'b1;
+// assign ext_ram_oe_n = 1'b1;
+// assign ext_ram_we_n = 1'b1;
 
-assign uart_rdn = 1'b1;
-assign uart_wrn = 1'b1;
+// assign uart_rdn = 1'b1;
+// assign uart_wrn = 1'b1;
 
 // 数码管连接关系示意图，dpy1同理
 // p=dpy0[0] // ---a---
@@ -418,6 +418,78 @@ fifo_axis2native fifo_axis2native_inst(
     .native_full(fifo_router2cpu_full),
     .native_din(fifo_router2cpu_din),
     .native_wr_en(fifo_router2cpu_wr_en)
+);
+
+// cpu
+assign ext_ram_ce_n = 1'b0;
+
+(*mark_debug="true"*)wire [3:0] mem_be;
+(*mark_debug="true"*)wire pc_stall, mem_we, mem_oe, mem_stall;
+// assign ext_ram_be_n = ~ram_be;
+// assign ext_ram_we_n = ~ram_we;
+// assign ext_ram_oe_n = ~ram_oe;
+(*mark_debug="true"*)wire [31:0] pc_data, mem_data_i, mem_data_o;
+(*mark_debug="true"*)wire [31:0] pc_addr, mem_addr;
+
+wire [15:0] cpu_out;
+wire [15:0] bus_out;
+always @(cpu_out) begin
+    led_bits <= cpu_out;
+end
+
+bus bus_inst(
+    .clk(clk_11M0592),
+    .rst(reset_btn),
+
+    .pcram_data(base_ram_data),
+    .pcram_addr(base_ram_addr),
+    .pcram_be_n(base_ram_be_n),
+    .pcram_we_n(base_ram_we_n),
+    .pcram_oe_n(base_ram_oe_n),
+    .pcram_ce_n(base_ram_ce_n),
+
+    .dtram_data(ext_ram_data),
+    .dtram_addr(ext_ram_addr),
+    .dtram_be_n(ext_ram_be_n),
+    .dtram_we_n(ext_ram_we_n),
+    .dtram_oe_n(ext_ram_oe_n),
+
+    .pc_data(pc_data),
+    .pc_addr(pc_addr),
+    .pc_stall(pc_stall),
+
+    .mem_data_i(mem_data_i),
+    .mem_data_o(mem_data_o),
+    .mem_addr_i(mem_addr),
+    .mem_be_i(mem_be),
+    .mem_oe_i(mem_oe),
+    .mem_we_i(mem_we),
+    .mem_stall(mem_stall),
+
+    .uart_dataready(uart_dataready),
+    .uart_tsre(uart_tsre),
+    .uart_tbre(uart_tbre),
+    .uart_rdn(uart_rdn),
+    .uart_wrn(uart_wrn),
+    .leds(bus_out)
+);
+
+cpu CPU(
+    .clk(clk_11M0592),
+    .rst(reset_btn),
+
+    .pc_data_i(pc_data),
+    .pc_addr_o(pc_addr),
+    .if_stall_req(pc_stall),
+    .int_i({3'b0, uart_dataready, 2'b0}),
+
+    .ram_data_o(mem_data_i),
+    .ram_data_i(mem_data_o),
+    .ram_addr_o(mem_addr),
+    .ram_be_o(mem_be),
+    .ram_we_o(mem_we),
+    .ram_oe_o(mem_oe),
+    .leds(cpu_out)
 );
 
 endmodule
