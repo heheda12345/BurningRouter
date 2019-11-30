@@ -101,6 +101,10 @@ always @(*) begin
             `EXE_SRL_OP: begin
                 shiftout <= reg2_i >> reg1_i[4:0];
             end
+            `EXE_SRA_OP: begin
+                shiftout <= ({32{reg2_i[31]}} << (6'd32-{1'b0,reg1_i[4:0]}))
+                            | reg2_i >> reg1_i[4:0];
+            end
             default: begin
                 shiftout <= 0;
             end

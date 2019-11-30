@@ -148,6 +148,16 @@ always @(*) begin
                         wd_o <= ins_rd;
                         instvalid <= INSTVALID;
                     end
+                    `EXE_SRA_FUNC: begin
+                        wreg_o <= 1;
+                        aluop_o <= `EXE_SRA_OP;
+                        alusel_o <= `EXE_RES_SHIFT;
+                        reg1_read_o <= 0;
+                        reg2_read_o <= 1;
+                        imm_reg <= {27'b0, ins_sa};
+                        wd_o <= ins_rd;
+                        instvalid <= INSTVALID;
+                    end
                     `EXE_ADDU_FUNC: begin
                         wreg_o <= 1;
                         aluop_o <= `EXE_ADDU_OP;
