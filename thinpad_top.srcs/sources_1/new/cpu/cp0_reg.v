@@ -21,7 +21,6 @@ module cp0_reg(
 
 always @(posedge clk) begin
     if (rst == 1'b1) begin
-        data_o <= 0;
         status_o <= 32'b00010000000000000000000000000000;
         cause_o <= 0;
         ebase_o <= 0;
