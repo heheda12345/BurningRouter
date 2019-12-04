@@ -32,6 +32,7 @@ localparam IDLE_MAC = 2'h0,
 
 reg [1:0] read_state, next_read_state;
 reg eth_rx_end, cpu_rx_end;
+reg is_cpu_r, is_eth_r;
 wire eth_ok = read_state == IDLE_MAC && eth_rx_axis_tvalid;
 wire cpu_ok = read_state == IDLE_CPU && cpu_rx_axis_tvalid;
 
@@ -42,26 +43,43 @@ end
 
 always @(*) begin
     case (read_state)
-        IDLE_MAC: 
+        IDLE_MAC: begin
+            // is_cpu_r <= 0;
+            // is_eth_r <= eth_rx_axis_tvalid && eth_rx_axis_tready;
             next_read_state <= !eth_rx_axis_tvalid ? IDLE_CPU : (eth_rx_axis_tready ? BUSY_MAC : IDLE_MAC);
-        IDLE_CPU: 
+        end
+        IDLE_CPU: begin
+            // is_cpu_r <= cpu_rx_axis_tvalid && cpu_rx_axis_tready;
+            // is_eth_r <= 0;
             next_read_state <= !cpu_rx_axis_tvalid ? IDLE_MAC : (cpu_rx_axis_tready ? BUSY_CPU : IDLE_CPU);
-        BUSY_MAC:
+        end
+        BUSY_MAC: begin
+            // is_eth_r <= 1;
+            // is_cpu_r <= 0;
             next_read_state <= eth_rx_end ? IDLE_CPU : BUSY_MAC;
-        BUSY_CPU:
+        end
+        BUSY_CPU: begin
+            // is_eth_r <= 0;
+            // is_cpu_r <= 1;
             next_read_state <= cpu_rx_end ? IDLE_MAC : BUSY_CPU;
-        default: 
+        end
+        default: begin
+            // is_eth_r <= 0;
+            // is_cpu_r <= 0;
             next_read_state <= IDLE_MAC;
+        end
     endcase
 end
 
 always @(posedge clk) begin
     eth_rx_end <= eth_rx_axis_tlast && eth_rx_axis_tvalid;
     cpu_rx_end <= cpu_rx_axis_tlast && cpu_rx_axis_tvalid;
+    is_cpu_r <= next_read_state == BUSY_CPU;
+    is_eth_r <= next_read_state == BUSY_MAC;
 end
 
-assign is_cpu = next_read_state == BUSY_CPU;
-assign is_eth = next_read_state == BUSY_MAC;
+assign is_cpu = is_cpu_r;
+assign is_eth = is_eth_r;
 assign merged_rx_axis_tdata = next_read_state == BUSY_CPU ? cpu_rx_axis_tdata : eth_rx_axis_tdata;
 assign merged_rx_axis_tlast = next_read_state == BUSY_CPU ? cpu_rx_axis_tlast : eth_rx_axis_tlast;
 assign merged_rx_axis_tvalid = eth_rx_axis_tvalid && read_state == IDLE_MAC || cpu_rx_axis_tvalid && read_state == IDLE_CPU
