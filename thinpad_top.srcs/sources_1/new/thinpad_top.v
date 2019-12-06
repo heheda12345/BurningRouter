@@ -97,10 +97,15 @@ pll_example clock_gen
  );
 
 reg reset_of_clk10M;
+reg reset_of_clk20M;
 // 异步复位，同步释放
 always@(posedge clk_10M or negedge locked) begin
     if(~locked) reset_of_clk10M <= 1'b1;
     else        reset_of_clk10M <= 1'b0;
+end
+always@(posedge clk_20M or negedge locked) begin
+    if(~locked) reset_of_clk20M <= 1'b1;
+    else        reset_of_clk20M <= 1'b0;
 end
 
 always@(posedge clk_10M or posedge reset_of_clk10M) begin
@@ -235,8 +240,8 @@ always @(cpu_out) begin
 end
 
 bus bus_inst(
-    .clk(clk_11M0592),
-    .rst(reset_btn),
+    .clk(clk_20M),
+    .rst(reset_of_clk20M),
 
     .pcram_data(base_ram_data),
     .pcram_addr(base_ram_addr),
@@ -272,8 +277,8 @@ bus bus_inst(
 );
 
 cpu CPU(
-    .clk(clk_11M0592),
-    .rst(reset_btn),
+    .clk(clk_20M),
+    .rst(reset_of_clk20M),
 
     .pc_data_i(pc_data),
     .pc_addr_o(pc_addr),
