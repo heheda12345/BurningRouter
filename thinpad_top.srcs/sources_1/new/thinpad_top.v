@@ -128,11 +128,15 @@ eth_conf conf(
     .done()
 );
 
-reg reset_of_clk10M;
+reg reset_of_clk10M, reset_of_clk20M;
 // 异步复位，同步释放
 always@(posedge clk_10M or negedge locked) begin
     if(~locked) reset_of_clk10M <= 1'b1;
     else        reset_of_clk10M <= 1'b0;
+end
+always@(posedge clk_20M or negedge locked) begin
+    if(~locked) reset_of_clk20M <= 1'b1;
+    else        reset_of_clk20M <= 1'b0;
 end
 
 always@(posedge clk_10M or posedge reset_of_clk10M) begin
@@ -372,9 +376,45 @@ assign cpu_rx_qword_tlast = {
     fifo_router2cpu_dout[0]
 };
 
+wire [3:0] router_in_index;
+wire router_mem_we, router_mem_oe;
+wire [1:0] router_out_state, router_out_en;
+wire [31:0] router_mem_waddr, router_mem_wdata;
+wire [31:0] router_mem_oaddr, router_mem_odata;
+wire [31:0] router_out_data;
+
+router_controller #(.BUFFER_IND(4)) router_controller_inst
+(
+    .clk(clk_20M),
+    .rst(reset_of_clk20M),
+    .bus_stall(0),
+    .in_index(router_in_index),       // o
+    .mem_write_en(router_mem_we),     // o
+    .mem_write_addr(router_mem_waddr),// o
+    .mem_write_data(router_mem_wdata),// o
+    
+    .out_state(router_out_state),     // o
+    .out_en(router_out_en),           // i
+    .out_data(router_out_data),       // i
+    .mem_read_en(router_mem_oe),      // o
+    .mem_read_addr(router_mem_oaddr), // o
+    .mem_read_data(router_mem_odata), // i
+
+    // cpu receiving
+    .cpu_rx_qword_tdata(cpu_rx_qword_tdata),   // i
+    .cpu_rx_qword_tlast(cpu_rx_qword_tlast),   // i
+    .cpu_rx_qword_tvalid(cpu_rx_qword_tvalid), // i
+    .cpu_rx_qword_tready(cpu_rx_qword_tready), // o
+    // cpu transmitting
+    .cpu_tx_qword_tdata(cpu_tx_qword_tdata),  // o
+    .cpu_tx_qword_tlast(cpu_tx_qword_tlast),  // o
+    .cpu_tx_qword_tvalid(cpu_tx_qword_tvalid),// o
+    .cpu_tx_qword_tready(cpu_tx_qword_tready) // i
+);
+
 fifo_cpu2router fifo_cpu2router_inst(
     .rd_clk(eth_rx_mac_aclk),
-    .wr_clk(clk_50M),
+    .wr_clk(clk_20M),
     .rst(eth_sync_rst),
     // <-CPU
     .full(fifo_cpu2router_full),
@@ -386,7 +426,7 @@ fifo_cpu2router fifo_cpu2router_inst(
     .rd_en(fifo_cpu2router_rd_en)
 );
 fifo_router2cpu fifo_router2cpu_inst(
-    .rd_clk(clk_50M),
+    .rd_clk(clk_20M),
     .wr_clk(eth_rx_mac_aclk),
     .rst(eth_sync_rst),
     // <-router
@@ -439,8 +479,8 @@ always @(cpu_out) begin
 end
 
 bus bus_inst(
-    .clk(clk_10M),
-    .rst(reset_of_clk10M),
+    .clk(clk_20M),
+    .rst(reset_of_clk20M),
 
     .pcram_data(base_ram_data),
     .pcram_addr(base_ram_addr),
@@ -476,8 +516,8 @@ bus bus_inst(
 );
 
 cpu CPU(
-    .clk(clk_10M),
-    .rst(reset_of_clk10M),
+    .clk(clk_20M),
+    .rst(reset_of_clk20M),
 
     .pc_data_i(pc_data),
     .pc_addr_o(pc_addr),

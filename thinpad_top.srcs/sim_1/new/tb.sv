@@ -131,15 +131,16 @@ thinpad_top dut(
     .eth_rgmii_rxc(eth_rgmii_rxc),
     .eth_rgmii_td(eth_rgmii_td),
     .eth_rgmii_tx_ctl(eth_rgmii_tx_ctl),
-    .eth_rgmii_txc(eth_rgmii_txc),
-    .cpu_rx_qword_tdata(cpu_rx_qword_tdata),
-    .cpu_rx_qword_tlast(cpu_rx_qword_tlast),
-    .cpu_rx_qword_tvalid(cpu_rx_qword_tvalid),
-    .cpu_rx_qword_tready(cpu_rx_qword_tready),
-    .cpu_tx_qword_tdata(cpu_tx_qword_tdata),
-    .cpu_tx_qword_tlast(cpu_tx_qword_tlast),
-    .cpu_tx_qword_tvalid(cpu_tx_qword_tvalid),
-    .cpu_tx_qword_tready(cpu_tx_qword_tready)
+    .eth_rgmii_txc(eth_rgmii_txc)
+    // ,
+    // .cpu_rx_qword_tdata(cpu_rx_qword_tdata),
+    // .cpu_rx_qword_tlast(cpu_rx_qword_tlast),
+    // .cpu_rx_qword_tvalid(cpu_rx_qword_tvalid),
+    // .cpu_rx_qword_tready(cpu_rx_qword_tready),
+    // .cpu_tx_qword_tdata(cpu_tx_qword_tdata),
+    // .cpu_tx_qword_tlast(cpu_tx_qword_tlast),
+    // .cpu_tx_qword_tvalid(cpu_tx_qword_tvalid),
+    // .cpu_tx_qword_tready(cpu_tx_qword_tready)
 );
 // 时钟�???
 clock osc(
@@ -275,10 +276,10 @@ rgmii_model rgmii(
 
 cpu_interface_model cpu_itf (
     .clk_cpu(clk_50M),
-    .cpu_rx_qword_tdata(cpu_rx_qword_tdata),
-    .cpu_rx_qword_tlast(cpu_rx_qword_tlast),
-    .cpu_rx_qword_tvalid(cpu_rx_qword_tvalid),
-    .cpu_rx_qword_tready(cpu_rx_qword_tready),
+    // .cpu_rx_qword_tdata(cpu_rx_qword_tdata),
+    // .cpu_rx_qword_tlast(cpu_rx_qword_tlast),
+    // .cpu_rx_qword_tvalid(cpu_rx_qword_tvalid),
+    // .cpu_rx_qword_tready(cpu_rx_qword_tready),
     .cpu_tx_qword_tdata(cpu_tx_qword_tdata),
     .cpu_tx_qword_tlast(cpu_tx_qword_tlast),
     .cpu_tx_qword_tvalid(cpu_tx_qword_tvalid),
