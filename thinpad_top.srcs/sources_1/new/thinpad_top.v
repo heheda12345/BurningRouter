@@ -80,7 +80,7 @@ module thinpad_top(
     output wire video_hsync,       //行同步（水平同步）信号
     output wire video_vsync,       //场同步（垂直同步）信号
     output wire video_clk,         //像素时钟输出
-    output wire video_de,           //行数据有效信号，用于区分消隐区
+    output wire video_de           //行数据有效信号，用于区分消隐区
 
     // for debug
     // in the future these interfaces will be removed
@@ -439,8 +439,8 @@ always @(cpu_out) begin
 end
 
 bus bus_inst(
-    .clk(clk_11M0592),
-    .rst(reset_btn),
+    .clk(clk_10M),
+    .rst(reset_of_clk10M),
 
     .pcram_data(base_ram_data),
     .pcram_addr(base_ram_addr),
@@ -476,8 +476,8 @@ bus bus_inst(
 );
 
 cpu CPU(
-    .clk(clk_11M0592),
-    .rst(reset_btn),
+    .clk(clk_10M),
+    .rst(reset_of_clk10M),
 
     .pc_data_i(pc_data),
     .pc_addr_o(pc_addr),
