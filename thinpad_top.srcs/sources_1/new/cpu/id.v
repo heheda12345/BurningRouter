@@ -68,7 +68,7 @@ parameter INSTVALID=0;
 parameter INSTINVALID=1;
 reg instvalid; // 0-valid, 1-invalid. from cpu book, I don't know why
 
-wire[31:0] nxt_pc, nxt_nxt_pc, add_sign_pc, sign_imm;
+wire[31:0] nxt_pc, nxt_nxt_pc, add_sign_pc, sign_imm, sign_imm18;
 assign nxt_pc = pc_i + 32'h00000004;
 assign nxt_nxt_pc = pc_i + 32'h00000008;
 assign add_sign_pc = nxt_pc + {{14{ins_imm[15]}}, ins_imm, 2'b00};
@@ -412,6 +412,7 @@ always @(*) begin
                 instvalid <= INSTVALID;
 
                 ram_offset_o <= sign_imm18;
+                $display("lwpc %h %h", inst_i, sign_imm18);
             end
             `EXE_SB: begin
                 wreg_o <= 0;
