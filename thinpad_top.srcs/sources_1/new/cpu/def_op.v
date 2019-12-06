@@ -22,6 +22,7 @@
 `define EXE_LH_OP 8'b01100001
 `define EXE_SB_OP 8'b00101000
 `define EXE_SW_OP 8'b00101011
+`define EXE_LWPC_OP 8'b00111011
 
 `define EXE_ADDU_OP  8'b00100001
 `define EXE_AND_OP   8'b00100100
@@ -62,6 +63,7 @@
 `define EXE_LH 6'b100001
 `define EXE_SB 6'b101000
 `define EXE_SW 6'b101011
+`define EXE_LWPC 6'b111011
 
 // CP0
 `define EXE_COP 6'b010000

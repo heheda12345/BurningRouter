@@ -146,7 +146,15 @@ end
 always @(*) begin
     wd_o <= wd_i;
     wreg_o <= wreg_i;
-    ram_addr_o <= alusel_i == `EXE_RES_RAM ? ram_offset_i + reg1_i : 0;
+    if (alusel_i == `EXE_RES_RAM) begin
+        if (aluop_i == `EXE_LWPC_OP) begin
+            ram_addr_o = ram_offset_i + current_inst_address_i;
+        end else begin
+            ram_addr_o = ram_offset_i + reg1_i;
+        end
+    end else begin
+        ram_addr_o <= 0;
+    end
     aluop_o <= aluop_i;
     case (alusel_i)
         `EXE_RES_LOGIC: begin
@@ -172,7 +180,7 @@ always @(*) begin
         end
         default: begin
             $display("[ex.v] aluop %h not support", aluop_i);
-            wdata_o <= 0;
+                wdata_o <= 0;
         end
     endcase
 end
