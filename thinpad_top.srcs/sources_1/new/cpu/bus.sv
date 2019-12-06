@@ -170,3 +170,16 @@ always_comb begin
 end
 
 endmodule // bus
+
+module bus_judger (
+    input wire clk,
+    input wire rst, 
+
+    input wire cpu_req,
+    input wire router_req,
+
+    output reg cpu_ok,
+    output reg router_ok
+);
+    
+endmodule
