@@ -121,6 +121,13 @@ always @(*) begin
                 ram_be_o <= 4'b1111;
                 wdata_o <= ram_data_i;
             end
+            `EXE_LWPC_OP: begin
+                ram_addr_o <= ram_addr_i;
+                ram_we <= 0;
+                ram_oe_o <= 1;
+                ram_be_o <= 4'b1111;
+                wdata_o <= ram_data_i;
+            end
             `EXE_SB_OP: begin
                 ram_addr_o <= ram_addr_i;
                 ram_we <= 1;

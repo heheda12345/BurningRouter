@@ -68,11 +68,12 @@ parameter INSTVALID=0;
 parameter INSTINVALID=1;
 reg instvalid; // 0-valid, 1-invalid. from cpu book, I don't know why
 
-wire[31:0] nxt_pc, nxt_nxt_pc, add_sign_pc, sign_imm;
+wire[31:0] nxt_pc, nxt_nxt_pc, add_sign_pc, sign_imm, sign_imm18;
 assign nxt_pc = pc_i + 32'h00000004;
 assign nxt_nxt_pc = pc_i + 32'h00000008;
 assign add_sign_pc = nxt_pc + {{14{ins_imm[15]}}, ins_imm, 2'b00};
 assign sign_imm = {{16{sign_imm[15]}}, ins_imm};
+assign sign_imm18 = {{12{inst_i[17]}}, inst_i[17:0], 2'b00};
 
 assign inst_o = inst_i;
 
@@ -400,6 +401,19 @@ always @(*) begin
                 
                 ram_offset_o <= sign_imm;
             end
+            `EXE_LWPC: begin
+                wreg_o <= 1;
+                aluop_o <= `EXE_LWPC_OP;
+                alusel_o <= `EXE_RES_RAM;
+                reg1_read_o <= 0;
+                reg2_read_o <= 0;
+                imm_reg <= sign_imm18;
+                wd_o <= ins_rs;
+                instvalid <= INSTVALID;
+
+                ram_offset_o <= sign_imm18;
+                $display("lwpc %h %h", inst_i, sign_imm18);
+            end
             `EXE_SB: begin
                 wreg_o <= 0;
                 aluop_o <= `EXE_SB_OP;
@@ -508,7 +522,7 @@ always @(*) begin
 end
 
 wire stall_req_reg1, stall_req_reg2, pre_is_load;
-assign pre_is_load = (pre_aluop == `EXE_LB_OP || pre_aluop == `EXE_LW_OP || pre_aluop == `EXE_LH_OP);
+assign pre_is_load = (pre_aluop == `EXE_LB_OP || pre_aluop == `EXE_LW_OP || pre_aluop == `EXE_LH_OP || pre_aluop == `EXE_LWPC_OP);
 assign stall_req_reg1 = reg1_read_o == 1'b1 && pre_wd == reg1_addr_o;
 assign stall_req_reg2 = reg2_read_o == 1'b1 && pre_wd == reg2_addr_o;
 always @(*) begin
