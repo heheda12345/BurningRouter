@@ -7,16 +7,21 @@ module cpu_interface_model (
     input cpu_rx_qword_tvalid,
     output cpu_rx_qword_tready,
     // CPU transmitting FIFO
-    output reg [31:0] cpu_tx_qword_tdata,
-    output reg [3:0] cpu_tx_qword_tlast,
-    output reg cpu_tx_qword_tvalid,
-    input cpu_tx_qword_tready
+    // output reg [31:0] cpu_tx_qword_tdata,
+    // output reg [3:0] cpu_tx_qword_tlast,
+    // output reg cpu_tx_qword_tvalid,
+    // input cpu_tx_qword_tready
+    output logic out_en,
+    output logic [31:0] out_data,
+    input wire mem_read_en,
+    input logic [31:0] mem_read_addr,
+    output logic [31:0] mem_read_data
 );
     localparam BUFFER_SIZE = 2000;
     localparam FRAME_COUNT = 10;
 
     logic packet_clk;
-    logic trans, out_en;
+    logic trans;
     logic [7:0] frame_index = 0;
     logic [3:0] data1;
     logic [3:0] data2;
@@ -65,8 +70,25 @@ module cpu_interface_model (
     end
 
     always packet_clk = #1000 ~packet_clk;
+    always_comb begin
+        if (mem_read_addr[10:0] == 11'b0) 
+            mem_read_data <= frame_size[frame_index] - 1;
+        else mem_read_data <= {
+            frame_data[frame_index][mem_read_addr[7:0]-4], 
+            frame_data[frame_index][mem_read_addr[7:0]-3], 
+            frame_data[frame_index][mem_read_addr[7:0]-2], 
+            frame_data[frame_index][mem_read_addr[7:0]-1]
+        };
+    end
     always_ff @ (posedge clk_cpu) begin
-        count <= packet_clk ? count + 4 : 0;
+        if (~packet_clk) count <= 0;
+        else if (mem_read_en) count <= count + 4;
+    end
+    assign out_en = packet_clk;
+    assign out_data = 32'h80100000;
+    /*
+    always_ff @ (posedge clk_cpu) begin
+        // count <= packet_clk ? count + 4 : 0;
         if (packet_clk && count < frame_size[frame_index] - 1) begin
             cpu_tx_qword_tdata <= {
                 frame_data[frame_index][count], 
@@ -87,6 +109,7 @@ module cpu_interface_model (
             cpu_tx_qword_tvalid <= 1'b0;
         end
     end
+    */
     always_ff @ (negedge packet_clk) begin
         frame_index = (frame_index + 1) % frame_count;
     end

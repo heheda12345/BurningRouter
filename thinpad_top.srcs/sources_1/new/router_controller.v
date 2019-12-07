@@ -153,18 +153,116 @@ module router_controller_out(
     input wire clk,
     input wire rst,
 
-    input wire bus_stall,
-    output wire[1:0] out_state, 
-    input       wire out_en, 
-    input wire[31:0] out_data, // addr or length
-    output      reg mem_read_en,
-    output      wire [31:0] mem_read_addr,
-    input       wire [31:0] mem_read_data,
+    input  wire bus_stall,
+    output reg out_state, 
+    input  wire out_en, 
+    input  wire [31:0] out_data, // addr
+    output reg  mem_read_en,
+    output reg [31:0] mem_read_addr,
+    input  wire [31:0] mem_read_data,
     
-    input wire [31:0] cpu_tx_qword_tdata, 
-    input wire [3:0] cpu_tx_qword_tlast, 
-    input wire cpu_tx_qword_tvalid, 
-    output wire cpu_tx_qword_tready
+    output reg [31:0] cpu_tx_qword_tdata, 
+    output reg [3:0] cpu_tx_qword_tlast, 
+    output reg cpu_tx_qword_tvalid, 
+    input  wire cpu_tx_qword_tready
 );
+
+localparam  IDLE = 2'b00,
+            WAIT = 2'b01,
+            READ_LEN = 2'b10,
+            READ_DATA = 2'b11;
+reg [1:0] state;
+reg [10:0] total_len = 0, offset_reg = 0;
+reg [31:0] base_mem_addr;
+
+wire fifo_ready = cpu_tx_qword_tready && cpu_tx_qword_tvalid;
+reg last_stall;
+wire byte_ready = fifo_ready && !last_stall;
+wire [10:0] offset = state == READ_LEN || byte_ready ? offset_reg: offset_reg - 4;
+
+always @(posedge clk) begin
+    last_stall <= bus_stall;
+end
+
+always @(posedge clk or posedge rst) begin
+    if (rst == 1'b1) begin
+        total_len <= 0;
+        state <= IDLE;
+        offset_reg <= 0;
+        base_mem_addr <= 32'h0;
+    end
+    else begin
+        if (out_en) begin
+            out_state <= 1;
+            base_mem_addr <= out_data;
+        end
+        case (state)
+            IDLE: begin
+                state <= !out_en ? IDLE : READ_LEN;
+            end
+            READ_LEN: begin
+                state <= bus_stall ? READ_LEN : READ_DATA;
+                if (!bus_stall) offset_reg <= offset_reg + 4;
+            end
+            READ_DATA: begin
+                if (offset >= total_len) begin
+                    state <= IDLE;
+                    out_state <= 0;
+                    offset_reg <= 0;
+                end else begin
+                    state <= READ_DATA;
+                    offset_reg <= offset + 4;
+                end
+            end
+            default: state <= IDLE;
+        endcase
+        if (state == READ_LEN)
+            total_len <= mem_read_data;
+    end
+end
+
+always @(*) begin
+    mem_read_addr <= base_mem_addr + offset;
+    case (state)
+        IDLE: begin
+            mem_read_en <= 1'b0;
+        end
+        READ_LEN: begin
+            mem_read_en <= 1'b1;
+            mem_read_addr <= base_mem_addr;
+        end
+        READ_DATA: begin
+            mem_read_en <= 1'b1;
+        end
+        default: 
+            mem_read_en <= 1'b0;
+    endcase
+end
+
+always @(posedge clk) begin
+    case (state)
+        IDLE: begin
+            cpu_tx_qword_tvalid <= 0;
+            cpu_tx_qword_tdata <= 0;
+            cpu_tx_qword_tlast <= 4'b0000;
+        end
+        READ_LEN: begin
+            cpu_tx_qword_tvalid <= 0;
+        end
+        READ_DATA: begin
+            cpu_tx_qword_tvalid <= !bus_stall;
+            cpu_tx_qword_tdata <= mem_read_data;
+            cpu_tx_qword_tlast <= {
+                offset == total_len + 3, 
+                offset == total_len + 2, 
+                offset == total_len + 1, 
+                offset == total_len + 0
+            };
+        end
+        default:  begin
+            cpu_tx_qword_tvalid <= 0;
+        end
+    endcase
+end
 
 endmodule // router_controller_out
