@@ -64,7 +64,7 @@ always @(*) begin
     end else if (if_req == 1'b1) begin
         pc_stall <= 1;
         if_stall <= 1;
-        id_stall <= 1;
+        id_stall <= 0;
         ex_stall <= 0;
         mem_stall <= 0;
         wb_stall <= 0;

@@ -181,6 +181,7 @@ if_id IF_ID(
     .if_pc(pc),
     .if_inst(pc_data_i),
 
+    .if_stall(if_stall_i),
     .id_stall(id_stall_i),
 
     .id_pc(id_pc_i),
@@ -272,6 +273,7 @@ id_ex ID_EX(
     .id_excepttype(id_excepttype_o),
 
     .id_stall(id_stall_i),
+    .ex_stall(ex_stall_i),
 
     .ex_aluop(ex_aluop_i),
     .ex_alusel(ex_alusel_i),
