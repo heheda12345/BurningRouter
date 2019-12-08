@@ -376,18 +376,33 @@ assign cpu_rx_qword_tlast = {
     fifo_router2cpu_dout[0]
 };
 
-wire [3:0] router_in_index;
+localparam BUFFER_SIZE_INDEX = 5;
+
+wire router_write_stall, router_read_stall;
+wire [BUFFER_SIZE_INDEX-1:0] router_in_index;
 wire router_mem_we, router_mem_oe;
 wire [1:0] router_out_state, router_out_en;
 wire [31:0] router_mem_waddr, router_mem_wdata;
 wire [31:0] router_mem_oaddr, router_mem_odata;
 wire [31:0] router_out_data;
 
-router_controller #(.BUFFER_IND(4)) router_controller_inst
+// ******for simulation******
+reg bus_stall, bus_stall_reg;
+initial begin
+    bus_stall = 0;
+end
+always bus_stall = #876 ~bus_stall;
+always @ (posedge clk_50M) begin
+    bus_stall_reg <= bus_stall;
+end
+// ***********end************
+
+router_controller #(.BUFFER_IND(BUFFER_SIZE_INDEX)) router_controller_inst
 (
     .clk(clk_20M),
     .rst(reset_of_clk20M),
-    .bus_stall(0),
+    .write_stall(router_write_stall),
+    .read_stall(router_read_stall),
     .in_index(router_in_index),       // o
     .mem_write_en(router_mem_we),     // o
     .mem_write_addr(router_mem_waddr),// o
@@ -464,8 +479,8 @@ fifo_axis2native fifo_axis2native_inst(
 // cpu
 assign ext_ram_ce_n = 1'b0;
 
-(*mark_debug="true"*)wire [3:0] mem_be;
-(*mark_debug="true"*)wire pc_stall, mem_we, mem_oe, mem_stall;
+/*mark_debug="true"*/wire [3:0] mem_be;
+/*mark_debug="true"*/wire pc_stall, mem_we, mem_oe, mem_stall;
 // assign ext_ram_be_n = ~ram_be;
 // assign ext_ram_we_n = ~ram_we;
 // assign ext_ram_oe_n = ~ram_oe;
@@ -495,6 +510,11 @@ bus bus_inst(
     .dtram_we_n(ext_ram_we_n),
     .dtram_oe_n(ext_ram_oe_n),
 
+    .router_in_ind({27'b0, router_in_index}),
+    .router_out_state(router_out_state),
+    .router_out_en(router_out_en),
+    .router_out_data(router_out_data),
+
     .pc_data(pc_data),
     .pc_addr(pc_addr),
     .pc_stall(pc_stall),
@@ -506,6 +526,14 @@ bus bus_inst(
     .mem_oe_i(mem_oe),
     .mem_we_i(mem_we),
     .mem_stall(mem_stall),
+    .router_we(router_mem_we),
+    .router_addr_i(router_mem_waddr),
+    .router_data_i(router_mem_wdata),
+    .router_write_stall(router_write_stall),
+    .router_oe(router_mem_oe),
+    .router_addr_o(router_mem_oaddr),
+    .router_data_o(router_mem_odata),
+    .router_read_stall(router_read_stall),
 
     .uart_dataready(uart_dataready),
     .uart_tsre(uart_tsre),
@@ -522,6 +550,7 @@ cpu CPU(
     .pc_data_i(pc_data),
     .pc_addr_o(pc_addr),
     .if_stall_req(pc_stall),
+    .mem_stall_req(mem_stall),
     .int_i({3'b0, uart_dataready, 2'b0}),
 
     .ram_data_o(mem_data_i),

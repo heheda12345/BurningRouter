@@ -6,7 +6,8 @@ module router_controller
     input wire rst,
 
     // if the bus require the controller to stall
-    input wire bus_stall,
+    input wire read_stall,
+    input wire write_stall,
 
     // IN direction: router -> cpu
     output wire [BUFFER_IND-1:0] in_index,
@@ -41,7 +42,7 @@ router_controller_out router_controller_out_inst
 (
     .clk(clk),
     .rst(rst),
-    .bus_stall(bus_stall),
+    .bus_stall(read_stall),
     .out_state(out_state),
     .out_en(out_en),
     .out_data(out_data),
@@ -58,7 +59,7 @@ router_controller_in  # (.BUFFER_IND(BUFFER_IND) ) router_controller_in_inst
 (
     .clk(clk),
     .rst(rst),
-    .bus_stall(bus_stall),
+    .bus_stall(write_stall),
     .in_index(in_index),
     .mem_write_en(mem_write_en),
     .mem_write_addr(mem_write_addr),
@@ -71,6 +72,7 @@ router_controller_in  # (.BUFFER_IND(BUFFER_IND) ) router_controller_in_inst
 
 endmodule // router_controller
 
+// BUFFER_IND <= 10
 module router_controller_in
 #(parameter BUFFER_IND = 5)
 (
@@ -90,8 +92,8 @@ module router_controller_in
     output wire cpu_rx_qword_tready
 );
 
-localparam BASE_MEM_ADDR = 32'h80700000;
 localparam BLOCK_SIZE = 2048;
+localparam BASE_MEM_ADDR = 32'h80800000 - (BLOCK_SIZE << BUFFER_IND);
 
 localparam  IDLE = 2'h0,
             WRITE_DATA = 2'h1,
@@ -133,17 +135,20 @@ end
 assign cpu_rx_qword_tready = cpu_rx_qword_tvalid && !bus_stall;
 
 always @(posedge clk) begin
-    mem_write_addr <= BASE_MEM_ADDR + cur_index * BLOCK_SIZE;
     if (cpu_rx_qword_tready || state == WRITE_DATA && !is_end) begin
-        mem_write_en <= cpu_rx_qword_tready;
-        mem_write_data <= cpu_rx_qword_tdata;
-        mem_write_addr <= BASE_MEM_ADDR + cur_index * BLOCK_SIZE + mem_addr_offset + 4;
+        mem_write_en <= cpu_rx_qword_tvalid; // just request
+        if (!bus_stall) begin
+            mem_write_data <= cpu_rx_qword_tdata;
+            mem_write_addr <= BASE_MEM_ADDR + cur_index * BLOCK_SIZE + mem_addr_offset + 4;
+        end
     end else if (state == WRITE_DATA && is_end ) begin
         mem_write_en <= 1'b1; // just request
         mem_write_data <= mem_addr_offset;
+        mem_write_addr <= BASE_MEM_ADDR + cur_index * BLOCK_SIZE;
     end else begin
         mem_write_en <= 1'b0;
         mem_write_data <= 0;
+        mem_write_addr <= BASE_MEM_ADDR + cur_index * BLOCK_SIZE;
     end
 end
 
@@ -154,7 +159,7 @@ module router_controller_out(
     input wire rst,
 
     input  wire bus_stall,
-    output reg out_state, 
+    output reg out_state = 1'b0, 
     input  wire out_en, 
     input  wire [31:0] out_data, // addr
     output reg  mem_read_en,
@@ -188,6 +193,7 @@ always @(posedge clk or posedge rst) begin
     if (rst == 1'b1) begin
         total_len <= 0;
         state <= IDLE;
+        out_state <= 0;
         offset_reg <= 0;
         base_mem_addr <= 32'h0;
     end

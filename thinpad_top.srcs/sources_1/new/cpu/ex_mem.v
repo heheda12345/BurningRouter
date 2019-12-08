@@ -15,6 +15,7 @@ module ex_mem(
     input wire ex_is_in_delayslot,
     input wire[31:0] ex_current_inst_address,
 
+    input wire ex_stall, 
     input wire mem_stall, // unimplement
 
     output reg[4:0] mem_wd,
@@ -43,7 +44,7 @@ always @(posedge clk) begin
         mem_excepttype <= 0;
         mem_is_in_delayslot <= 0;
         mem_current_inst_address <= 0;
-    end else if (flush == 1'b1) begin
+    end else if (flush == 1'b1 || ex_stall == 1'b1 && mem_stall == 1'b0) begin
         mem_wd <= 0;
         mem_wreg <= 0;
         mem_wdata <= 0;
@@ -55,7 +56,7 @@ always @(posedge clk) begin
         mem_excepttype <= 0;
         mem_is_in_delayslot <= 0;
         mem_current_inst_address <= 0;
-    end else begin
+    end else if (ex_stall == 1'b0) begin
         mem_wd <= ex_wd;
         mem_wreg <= ex_wreg;
         mem_wdata <= ex_wdata;
@@ -67,7 +68,7 @@ always @(posedge clk) begin
         mem_excepttype <= ex_excepttype;
         mem_is_in_delayslot <= ex_is_in_delayslot;
         mem_current_inst_address <= ex_current_inst_address;
-    end 
+    end
 end
 
 endmodule

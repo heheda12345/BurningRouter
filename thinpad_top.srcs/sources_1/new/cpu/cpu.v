@@ -358,6 +358,7 @@ ex_mem EX_MEM(
 	.ex_is_in_delayslot(ex_is_in_delayslot_o),
 	.ex_current_inst_address(ex_current_inst_address_o),
 
+    .ex_stall(ex_stall_i),
     .mem_stall(mem_stall_i),
 
     .mem_wd(mem_wd_i),
@@ -426,6 +427,7 @@ mem_wb MEM_WB(
 	.mem_cp0_reg_write_addr(mem_cp0_reg_write_addr_o),
 	.mem_cp0_reg_data(mem_cp0_reg_data_o),	
 
+    .mem_stall(mem_stall_i),
     .wb_stall(wb_stall_i),
 
     .wb_wd(wb_wd_i),

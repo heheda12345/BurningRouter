@@ -58,7 +58,7 @@ wire [31:0] cpu_rx_qword_tdata, cpu_tx_qword_tdata;
 wire [3:0] cpu_rx_qword_tlast, cpu_tx_qword_tlast;
 
 //Windows�???要注意路径分隔符的转义，例如"D:\\foo\\bar.bin"
-parameter BASE_RAM_INIT_FILE = "/tmp/main.bin"; //BaseRAM初始化文件，请修改为实际的绝对路�???
+parameter BASE_RAM_INIT_FILE = "baseram.mem"; //BaseRAM初始化文件，请修改为实际的绝对路�???
 parameter EXT_RAM_INIT_FILE = "/tmp/eram.bin";    //ExtRAM初始化文件，请修改为实际的绝对路�???
 parameter FLASH_INIT_FILE = "/tmp/kernel.elf";    //Flash初始化文件，请修改为实际的绝对路�???
 
@@ -354,6 +354,21 @@ wire lookup_succ;
 lookup_test ltt_inst(
     .lku_clk(clk_125M),
     .succ(lookup_succ)
+);
+
+reg [5:0] bj_cpu_req = 0, bj_rt_write_req = 0, bj_rt_read_req = 0;
+
+always_ff @ (posedge clk_50M) bj_rt_read_req = bj_rt_read_req < 12 ? bj_rt_read_req + 1 : 0;
+always_ff @ (posedge clk_50M) bj_rt_write_req = bj_rt_write_req < 14 ? bj_rt_write_req + 1 : 0;
+always_ff @ (posedge clk_50M) bj_cpu_req = bj_cpu_req < 16 ? bj_cpu_req + 1 : 0;
+
+// bus judger test
+bus_judger bus_judger_inst(
+    .clk(clk_50M),
+    .rst(0),
+    .cpu_mem_req(bj_cpu_req < 6),
+    .router_write_req(bj_rt_write_req < 7),
+    .router_read_req(bj_rt_read_req < 8)
 );
 
 endmodule

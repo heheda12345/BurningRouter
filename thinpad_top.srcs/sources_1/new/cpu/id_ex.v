@@ -17,6 +17,7 @@ module id_ex (
     input wire [31:0] id_excepttype,
 
     input wire id_stall,
+    input wire ex_stall,
 
     output reg [7:0] ex_aluop,
     output reg [2:0] ex_alusel,
@@ -88,7 +89,7 @@ always @(posedge clk) begin
         ex_current_inst_address <= 0;
         is_in_delayslot_o <= 0;
         // not clear pre
-    end else if (id_stall == 1'b1) begin
+    end else if (id_stall == 1'b1 && ex_stall == 1'b0) begin
         ex_aluop <= `EXE_NOP_OP;
         ex_alusel <= `EXE_RES_NOP;
         ex_reg1 <= 0;
@@ -109,7 +110,7 @@ always @(posedge clk) begin
         pre_reg2_read <= 0;
         pre_wreg <= 0;
         pre_wd <= 0;
-    end else begin
+    end else if (id_stall == 1'b0) begin
         ex_aluop <= id_aluop;
         ex_alusel <= id_alusel;
         ex_reg1 <= id_reg1;
