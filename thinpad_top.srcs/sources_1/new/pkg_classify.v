@@ -158,7 +158,7 @@ end
 
 // sub procedure
 
-assign sub_procedure_ready = next_read_state == READ_VLAN_TYPE && vlan_type_counter == 1;
+assign sub_procedure_ready = /*next_read_state == READ_VLAN_TYPE && */vlan_type_counter == 1;
 assign ipv4_ready = sub_procedure_ready && protocol_type_1 == 8'h08 && rx_axis_fifo_tvalid && rx_axis_fifo_tdata == 8'h00;
 assign arp_ready = sub_procedure_ready && protocol_type_1 == 8'h08 && rx_axis_fifo_tvalid && rx_axis_fifo_tdata == 8'h06;
 assign sub_procedure_complete = arp_complete || ipv4_complete;

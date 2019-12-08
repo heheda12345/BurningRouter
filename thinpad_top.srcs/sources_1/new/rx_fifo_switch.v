@@ -80,8 +80,8 @@ end
 
 assign is_cpu = is_cpu_r;
 assign is_eth = is_eth_r;
-assign merged_rx_axis_tdata = next_read_state == BUSY_CPU ? cpu_rx_axis_tdata : eth_rx_axis_tdata;
-assign merged_rx_axis_tlast = next_read_state == BUSY_CPU ? cpu_rx_axis_tlast : eth_rx_axis_tlast;
+assign merged_rx_axis_tdata = read_state == BUSY_CPU || read_state == IDLE_CPU ? cpu_rx_axis_tdata : eth_rx_axis_tdata;
+assign merged_rx_axis_tlast = read_state == BUSY_CPU || read_state == IDLE_CPU ? cpu_rx_axis_tlast : eth_rx_axis_tlast;
 assign merged_rx_axis_tvalid = eth_rx_axis_tvalid && read_state == IDLE_MAC || cpu_rx_axis_tvalid && read_state == IDLE_CPU
     || read_state == BUSY_CPU && !cpu_rx_end || read_state == BUSY_MAC && !eth_rx_end;
 assign eth_rx_axis_tready = (eth_ok || read_state == BUSY_MAC) && merged_rx_axis_tready;

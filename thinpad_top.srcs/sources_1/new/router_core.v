@@ -42,7 +42,7 @@ wire eth_tx_axis_fifo_tvalid;
 wire [7:0] eth_tx_axis_fifo_tdata;
 wire eth_tx_axis_fifo_tlast;
 wire eth_tx_axis_fifo_tready;
-wire from_cpu, to_cpu;
+(*MARK_DEBUG="TRUE"*) wire from_cpu, to_cpu;
 
 eth_mac_wrapper eth_mac_wraper_i(
     .rx_mac_aclk(eth_rx_mac_aclk),
