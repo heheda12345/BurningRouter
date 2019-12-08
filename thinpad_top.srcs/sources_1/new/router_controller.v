@@ -93,7 +93,7 @@ module router_controller_in
 );
 
 localparam BLOCK_SIZE = 2048;
-localparam BASE_MEM_ADDR = 32'h80800000 - (BLOCK_SIZE << BUFFER_IND);
+localparam BASE_MEM_ADDR = 32'h80600000;
 
 localparam  IDLE = 2'h0,
             WRITE_DATA = 2'h1,
@@ -208,7 +208,7 @@ always @(posedge clk or posedge rst) begin
             end
             READ_LEN: begin
                 state <= bus_stall ? READ_LEN : READ_DATA;
-                if (!bus_stall) offset_reg <= offset_reg + 4;
+                if (!bus_stall) offset_reg <= offset_reg + 8; // fifo_ready = 0. Real mem offset is 4.
             end
             READ_DATA: begin
                 if (offset >= total_len) begin

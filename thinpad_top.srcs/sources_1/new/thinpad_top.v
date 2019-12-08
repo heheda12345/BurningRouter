@@ -376,7 +376,7 @@ assign cpu_rx_qword_tlast = {
     fifo_router2cpu_dout[0]
 };
 
-localparam BUFFER_SIZE_INDEX = 5;
+localparam BUFFER_SIZE_INDEX = 7;
 
 wire router_write_stall, router_read_stall;
 wire [BUFFER_SIZE_INDEX-1:0] router_in_index;
