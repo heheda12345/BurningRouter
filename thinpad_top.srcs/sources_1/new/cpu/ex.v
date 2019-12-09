@@ -44,6 +44,7 @@ assign is_in_delayslot_o = is_in_delayslot;
 assign current_inst_address_o = current_inst_address_i;
 
 always @(*) begin
+    cp0_reg_read_addr_o <= 0;
     if (rst == 1'b1) begin
         moveres <= 0;
     end else begin

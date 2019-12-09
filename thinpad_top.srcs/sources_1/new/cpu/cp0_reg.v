@@ -84,6 +84,7 @@ always @(*) begin
     if (rst == 1'b1) begin
         data_o <= 0;
     end else begin
+        data_o <= 0;
         case (raddr_i)
             `CP0_REG_STATUS: begin // status
                 data_o <= status_o;

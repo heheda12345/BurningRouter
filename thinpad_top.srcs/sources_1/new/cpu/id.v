@@ -96,10 +96,20 @@ always @(*) begin
         branch_target_addr_o <= 0;
         next_inst_in_delayslot_o <= 0;
         link_addr_o <= 0;
+        ram_offset_o <= 0;
+        is_syscall <= 0;
+        is_eret <= 0;
         // is_syscall & is_eret
     end else begin
+        aluop_o <= 0;
+        alusel_o <= 0;
+        wd_o <= 0;
+        wreg_o <= 0;
+        reg1_read_o <= 0;
+        reg2_read_o <= 0;
         reg1_addr_o <= ins_rs;
         reg2_addr_o <= ins_rt;
+        imm_reg <= 0;
 
         branch_flag_o <= 0;
         branch_target_addr_o <= 0;

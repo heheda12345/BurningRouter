@@ -22,6 +22,7 @@ module ctrl(
 
 
 always @(*) begin
+    new_pc <= 0;
     if (rst == 1'b1) begin
         pc_stall <= 0;
         if_stall <= 0;
@@ -30,7 +31,6 @@ always @(*) begin
         mem_stall <= 0;
         wb_stall <= 0;
         flush <= 0;
-        new_pc <= 0;
     end else if (excepttype_i != 32'h00000000) begin
         flush <= 1;
         pc_stall <= 0;

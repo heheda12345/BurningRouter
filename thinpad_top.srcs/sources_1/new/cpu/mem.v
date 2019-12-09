@@ -71,6 +71,7 @@ always @(*) begin
         cp0_reg_we_o <= cp0_reg_we_i;
         cp0_reg_write_addr_o <= cp0_reg_write_addr_i;
         cp0_reg_data_o <= cp0_reg_data_i;
+        ram_addr_o <= 0;
         ram_be_o <= 0;
         ram_we <= 0;
         ram_oe_o <= 0;
