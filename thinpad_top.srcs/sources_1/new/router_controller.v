@@ -19,10 +19,8 @@ module router_controller
     // CPU send a packet by consecutively write an address and a length.
     // They share a common wire 'out_data'. 
     // 'out_state' represents if writing is available. 
-    // out_state[0] : addr is received; out_state[1] : length is received
-    // (IDLE)00 -> 01/10 -> (BUSY)11 -> ... -> 00
-    output wire[1:0] out_state, 
-    input  wire[1:0] out_en, 
+    output wire out_state, 
+    input  wire out_en, 
     input wire[31:0] out_data, // addr or length
     output wire mem_read_en,
     output wire [31:0] mem_read_addr,

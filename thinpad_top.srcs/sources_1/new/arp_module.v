@@ -93,7 +93,7 @@ wire arp1_equal_enable;
 async_equal # ( .LEN(6) ) arp1_equal (
     .clk(clk), 
     .data_input(rx_axis_fifo_tdata), 
-    .index(arp_counter1), 
+    .index({1'b0, arp_counter1}), 
     .operand(arp_consts),
     .enable(arp1_equal_enable),
     .result(arp1_valid)
@@ -245,7 +245,7 @@ async_setter # (.LEN(4)) target_ip_setter (
 );
 async_getter # (.LEN(6)) my_mac_getter (
     .value(my_mac_addr_i), 
-    .index(general_write_counter), 
+    .index(general_write_counter[3:0]), 
     .data_input(MY_MAC_ADDRESS)
 );
 
