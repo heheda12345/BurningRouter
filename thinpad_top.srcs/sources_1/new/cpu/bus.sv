@@ -277,11 +277,11 @@ always_ff @(posedge clk or posedge rst) begin
                 lookup_modify_in_state <= mem_data_i[0];
             end
         endcase
+        if (lookup_modify_in_state == 1 && lookup_modify_finish) 
+            lookup_modify_in_state <= 0;
+        if (lookup_modify_in_ready == 1) 
+            lookup_modify_in_ready <= 0;
     end
-    if (lookup_modify_in_state == 1 && lookup_modify_finish) 
-        lookup_modify_in_state <= 0;
-    if (lookup_modify_in_ready == 1) 
-        lookup_modify_in_ready <= 0;
 end
 
 endmodule // bus
