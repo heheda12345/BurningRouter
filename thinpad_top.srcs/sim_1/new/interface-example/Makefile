@@ -5,11 +5,13 @@ MAKEFLAGS += --no-builtin-rules
 TARGET ?= mips-mti-elf
 PYTHON ?= python
 
+PROGRAM ?= loopback
+
 .PHONY: clean all move
 
-all: loopback.d move
+all: $(PROGRAM).d move
 
-loopback.o: loopback.s
+$(PROGRAM).o: $(PROGRAM).s
 	$(TARGET)-as -mips32 -EL $^ -o $@
 
 # routerio.d: routerio.o
@@ -29,8 +31,8 @@ header.bin: header_gen.py
 %.d: %.o
 	$(TARGET)-objdump -D $^ -M no-aliases,gpr-names=numeric > $@
 
-baseram.mem: loopback.bin
-	cat loopback.bin > baseram.mem 
+baseram.mem: $(PROGRAM).bin
+	cat $(PROGRAM).bin > baseram.mem 
 
 move: baseram.mem
 	cp baseram.mem ../
