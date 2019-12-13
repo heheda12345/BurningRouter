@@ -24,7 +24,15 @@ module router_core(
     output [7:0]     cpu_tx_axis_tdata,
     output           cpu_tx_axis_tvalid,
     output           cpu_tx_axis_tlast,
-    input            cpu_tx_axis_tready
+    input            cpu_tx_axis_tready,
+
+    
+    input  [31:0] lookup_modify_in_addr,
+    input  [31:0] lookup_modify_in_nexthop,
+    input         lookup_modify_in_ready,
+    input  [1:0]  lookup_modify_in_nextport,
+    input  [6:0]  lookup_modify_in_len,
+    output  wire  lookup_modify_finish
 );
 
 
@@ -94,14 +102,10 @@ wire [47:0] arp_table_input_mac_addr, arp_table_query_output_mac_addr;
 wire [31:0] arp_table_input_ipv4_addr, arp_table_query_ipv4_addr;
 
 wire [31:0] lookup_query_in_addr, lookup_query_out_nexthop;
-reg  [31:0] lookup_modify_in_addr, lookup_modify_in_nexthop;
 wire lookup_query_in_ready, lookup_query_out_ready;
-reg  lookup_modify_in_ready; 
 wire lookup_modify_finish;
 wire lookup_full;
 wire [1:0] lookup_query_out_nextport;
-reg  [1:0] lookup_modify_in_nextport;
-reg  [6:0] lookup_modify_in_len;
 
 wire [11:0] buf_end_addr, buf_start_addr;
 wire buf_ready, buf_finish, buf_start, buf_last;
@@ -337,41 +341,41 @@ always @(posedge axi_tclk) begin
         counter <= counter + 1;
 end
 
-always @(posedge axi_tclk) begin
-    if (counter == 100) begin
-        lookup_modify_in_addr <= 32'h0a00010b;
-        lookup_modify_in_nexthop <= 32'h0a00010b;
-        lookup_modify_in_nextport <= 2'h0;
-        lookup_modify_in_len <= 32;
-        lookup_modify_in_ready <= 1;
-    end else if (counter == 150) begin
-        lookup_modify_in_ready <= 0;
-    end else if (counter == 350) begin
-        lookup_modify_in_addr <= 32'h0a00000c;
-        lookup_modify_in_nexthop <= 32'h0a00000c;
-        lookup_modify_in_nextport <= 2'h1;
-        lookup_modify_in_len <= 32;
-        lookup_modify_in_ready <= 1;
-    end else if (counter == 400) begin
-        lookup_modify_in_ready <= 0;
-    end else if (counter == 600) begin
-        lookup_modify_in_addr <= 32'h0a00020d;
-        lookup_modify_in_nexthop <= 32'h0a00020d;
-        lookup_modify_in_nextport <= 2'h2;
-        lookup_modify_in_len <= 32;
-        lookup_modify_in_ready <= 1;
-    end else if (counter == 650) begin
-        lookup_modify_in_ready <= 0;
-    end else if (counter == 850) begin
-        lookup_modify_in_addr <= 32'h0a00030e;
-        lookup_modify_in_nexthop <= 32'h0a00030e;
-        lookup_modify_in_nextport <= 2'h3;
-        lookup_modify_in_len <= 32;
-        lookup_modify_in_ready <= 1;
-    end else if (counter == 900) begin
-        lookup_modify_in_ready <= 0;
-    end
-end
+// always @(posedge axi_tclk) begin
+//     if (counter == 100) begin
+//         lookup_modify_in_addr <= 32'h0a00010b;
+//         lookup_modify_in_nexthop <= 32'h0a00010b;
+//         lookup_modify_in_nextport <= 2'h0;
+//         lookup_modify_in_len <= 32;
+//         lookup_modify_in_ready <= 1;
+//     end else if (counter == 150) begin
+//         lookup_modify_in_ready <= 0;
+//     end else if (counter == 350) begin
+//         lookup_modify_in_addr <= 32'h0a00000c;
+//         lookup_modify_in_nexthop <= 32'h0a00000c;
+//         lookup_modify_in_nextport <= 2'h1;
+//         lookup_modify_in_len <= 32;
+//         lookup_modify_in_ready <= 1;
+//     end else if (counter == 400) begin
+//         lookup_modify_in_ready <= 0;
+//     end else if (counter == 600) begin
+//         lookup_modify_in_addr <= 32'h0a00020d;
+//         lookup_modify_in_nexthop <= 32'h0a00020d;
+//         lookup_modify_in_nextport <= 2'h2;
+//         lookup_modify_in_len <= 32;
+//         lookup_modify_in_ready <= 1;
+//     end else if (counter == 650) begin
+//         lookup_modify_in_ready <= 0;
+//     end else if (counter == 850) begin
+//         lookup_modify_in_addr <= 32'h0a00030e;
+//         lookup_modify_in_nexthop <= 32'h0a00030e;
+//         lookup_modify_in_nextport <= 2'h3;
+//         lookup_modify_in_len <= 32;
+//         lookup_modify_in_ready <= 1;
+//     end else if (counter == 900) begin
+//         lookup_modify_in_ready <= 0;
+//     end
+// end
 
 ip_address_port_access ip_address_port_access_inst (
     .ip_addresses(MY_IPV4_ADDR),

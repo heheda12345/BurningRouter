@@ -46,6 +46,13 @@ module bus(
     input  wire router_out_state, 
     output reg router_out_en, 
     output reg[31:0] router_out_data, // addr or length
+    // router forward table entry modification
+    output reg [31:0] lookup_modify_in_addr,
+    output reg [31:0] lookup_modify_in_nexthop,
+    output reg lookup_modify_in_ready,
+    output reg [1:0]  lookup_modify_in_nextport,
+    output reg [6:0]  lookup_modify_in_len,
+    input wire lookup_modify_finish,
     
     input wire uart_dataready,
     input wire uart_tsre,
@@ -63,6 +70,11 @@ localparam UART_CTRL_ADDRESS = 32'hBFD003FC;
 localparam ROUTER_RECV_BUF_INDEX = 32'hBFD00400;
 localparam ROUTER_SEND_STATE = 32'hBFD00404; 
 localparam ROUTER_SEND_DATA = 32'hBFD00408; 
+localparam ROUTER_LOOKUP_ADDR = 32'hBFD00410; 
+localparam ROUTER_LOOKUP_NEXTHOP = 32'hBFD00414; 
+localparam ROUTER_LOOKUP_MASKLEN = 32'hBFD00418;
+localparam ROUTER_LOOKUP_NEXTPORT = 32'hBFD0041C;
+localparam ROUTER_LOOKUP_CTRL = 32'hBFD00420;
 
 wire mem_pcram = mem_addr_i >= 32'h80000000 && mem_addr_i <= 32'h803FFFFF;
 wire mem_dtram = mem_addr_i >= 32'h80400000 && mem_addr_i <= 32'h807FFFFF;
@@ -75,6 +87,7 @@ wire mem_rtsd = mem_addr_i == ROUTER_SEND_DATA;
 
 logic [31:0] pcram_data_reg, dtram_data_reg, mem_data_reg;
 logic router_read_ok, mem_ok, router_write_ok;
+logic lookup_modify_in_state;
 
 wire [19:0] pc_phy_addr = pc_addr[21:2];
 wire [19:0] mem_phy_addr = mem_addr_i[21:2];
@@ -224,7 +237,9 @@ always_comb begin
         else if (mem_rtrbi)
             mem_data_reg = {28'b0, router_in_ind};
         else if (mem_rtss)
-            mem_data_reg = {30'b0, router_out_state};
+            mem_data_reg = router_out_state;
+        else if (mem_addr_i == ROUTER_LOOKUP_CTRL)
+            mem_data_reg = lookup_modify_in_state;
         else
             mem_data_reg = 32'b0;
     end else begin
@@ -241,6 +256,32 @@ always_comb begin
         router_out_en <= 1'b0;
         router_out_data <= mem_data_i;
     end
+end
+
+always_ff @(posedge clk or posedge rst) begin
+    if (rst == 1'b1) begin
+        lookup_modify_in_addr <= 0;
+        lookup_modify_in_len <= 0;
+        lookup_modify_in_nexthop <= 0;
+        lookup_modify_in_nextport <= 0;
+        lookup_modify_in_ready <= 0;
+        lookup_modify_in_state <= 0;
+    end else if (mem_we_i) begin
+        case(mem_addr_i)
+            ROUTER_LOOKUP_ADDR:     lookup_modify_in_addr <= mem_data_i;
+            ROUTER_LOOKUP_MASKLEN:  lookup_modify_in_len <= mem_data_i[6:0];
+            ROUTER_LOOKUP_NEXTHOP:  lookup_modify_in_nexthop <= mem_data_i;
+            ROUTER_LOOKUP_NEXTPORT: lookup_modify_in_nextport <= mem_data_i[1:0];
+            ROUTER_LOOKUP_CTRL: if (lookup_modify_in_state == 1'b0)begin
+                lookup_modify_in_ready <= mem_data_i[0];
+                lookup_modify_in_state <= mem_data_i[0];
+            end
+        endcase
+    end
+    if (lookup_modify_in_state == 1 && lookup_modify_finish) 
+        lookup_modify_in_state <= 0;
+    if (lookup_modify_in_ready == 1) 
+        lookup_modify_in_ready <= 0;
 end
 
 endmodule // bus
