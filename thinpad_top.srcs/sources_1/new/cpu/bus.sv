@@ -266,17 +266,19 @@ always_ff @(posedge clk or posedge rst) begin
         lookup_modify_in_nextport <= 0;
         lookup_modify_in_ready <= 0;
         lookup_modify_in_state <= 0;
-    end else if (mem_we_i) begin
-        case(mem_addr_i)
-            ROUTER_LOOKUP_ADDR:     lookup_modify_in_addr <= mem_data_i;
-            ROUTER_LOOKUP_MASKLEN:  lookup_modify_in_len <= mem_data_i[6:0];
-            ROUTER_LOOKUP_NEXTHOP:  lookup_modify_in_nexthop <= mem_data_i;
-            ROUTER_LOOKUP_NEXTPORT: lookup_modify_in_nextport <= mem_data_i[1:0];
-            ROUTER_LOOKUP_CTRL: if (lookup_modify_in_state == 1'b0)begin
-                lookup_modify_in_ready <= mem_data_i[0];
-                lookup_modify_in_state <= mem_data_i[0];
-            end
-        endcase
+    end else begin
+        if (mem_we_i) begin
+            case(mem_addr_i)
+                ROUTER_LOOKUP_ADDR:     lookup_modify_in_addr <= mem_data_i;
+                ROUTER_LOOKUP_MASKLEN:  lookup_modify_in_len <= mem_data_i[6:0];
+                ROUTER_LOOKUP_NEXTHOP:  lookup_modify_in_nexthop <= mem_data_i;
+                ROUTER_LOOKUP_NEXTPORT: lookup_modify_in_nextport <= mem_data_i[1:0];
+                ROUTER_LOOKUP_CTRL: if (lookup_modify_in_state == 1'b0)begin
+                    lookup_modify_in_ready <= mem_data_i[0];
+                    lookup_modify_in_state <= mem_data_i[0];
+                end
+            endcase
+        end
         if (lookup_modify_in_state == 1 && lookup_modify_finish) 
             lookup_modify_in_state <= 0;
         if (lookup_modify_in_ready == 1) 
