@@ -13,11 +13,13 @@ module data_crossdomain
 );
 
 // We use a two-stages shift-register to synchronize 'sync' to the clk_out clock domain
-reg [WIDTH-1:0]  sync0, sync1;
-always @(posedge clk_out) sync0 <= data_in;   // notice that we use clk_out
-always @(posedge clk_out) sync1 <= sync0;   // notice that we use clk_out
+(*ASYNC_REG="TRUE"*)reg [WIDTH-1:0] cdom_sync0, cdom_sync1;
+reg [WIDTH-1:0] cdom_buffer;
+always @(posedge clk_out) cdom_sync0 <= cdom_buffer;   // notice that we use clk_out
+always @(posedge clk_out) cdom_sync1 <= cdom_sync0;   // notice that we use clk_out
+always @(posedge clk_in) cdom_buffer <= data_in; // ** swh: Will this work?
 
-assign data_out = sync1;  // new signal synchronized to (=ready to be used in) clk_out domain
+assign data_out = cdom_sync1;  // new signal synchronized to (=ready to be used in) clk_out domain
 endmodule
 
 module pulse_crossdomain(
@@ -28,12 +30,14 @@ module pulse_crossdomain(
     output pulse_out   // from which we generate a one-clock pulse in clk_out domain
 );
 
-reg pulse_toggle_in;
-always @(posedge clk_in or posedge rst) 
-    pulse_toggle_in <= rst ? 0 : pulse_toggle_in ^ pulse_in;  // when flag is asserted, this signal toggles (clk_in domain)
+reg cdom_pulse_toggle_in;
+always @(posedge clk_in or posedge rst) begin
+    if (rst) cdom_pulse_toggle_in <= 0;
+    else cdom_pulse_toggle_in <= cdom_pulse_toggle_in ^ pulse_in;  // when flag is asserted, this signal toggles (clk_in domain)
+end
 
-reg [2:0] sync;
-always @(posedge clk_out) sync <= {sync[1:0], pulse_toggle_in};  // now we cross the clock domains
+(*ASYNC_REG="TRUE"*)reg [2:0] cdom_pulse_sync;
+always @(posedge clk_out) cdom_pulse_sync <= {cdom_pulse_sync[1:0], cdom_pulse_toggle_in};  // now we cross the clock domains
 
-assign pulse_out = (sync[2] ^ sync[1]);  // and create the clk_out flag
+assign pulse_out = (cdom_pulse_sync[2] ^ cdom_pulse_sync[1]);  // and create the clk_out flag
 endmodule

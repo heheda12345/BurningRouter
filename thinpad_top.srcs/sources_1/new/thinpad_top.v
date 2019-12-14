@@ -381,6 +381,7 @@ router router_inst(
     .eth_tx_mac_aclk(eth_tx_mac_aclk),
     .cpu_clk(clk_20M),
     .eth_sync_rst_n(eth_sync_rst_n),
+    .cpu_rst(reset_of_clk20M),
 
     .eth_rx_axis_mac_tdata(eth_rx_axis_mac_tdata),
     .eth_rx_axis_mac_tvalid(eth_rx_axis_mac_tvalid),

@@ -1,8 +1,9 @@
 module router(
     input wire eth_rx_mac_aclk,
     input wire eth_tx_mac_aclk,
-    input wire eth_sync_rst_n,
     input wire cpu_clk, 
+    input wire eth_sync_rst_n,
+    input wire cpu_rst,
 
     input [7:0]      eth_rx_axis_mac_tdata,
     input            eth_rx_axis_mac_tvalid,
@@ -186,7 +187,7 @@ data_crossdomain #(.WIDTH(2)) data_crossdomain_nextport(
 pulse_crossdomain pulse_crossdomain_ready(
     .clk_in(cpu_clk),
     .clk_out(eth_rx_mac_aclk),
-    .rst(eth_sync_rst),
+    .rst(cpu_rst),
     .pulse_in(lookup_modify_in_ready),
     .pulse_out(lookup_modify_in_ready_router)
 );
