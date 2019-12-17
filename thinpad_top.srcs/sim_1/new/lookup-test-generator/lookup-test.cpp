@@ -174,7 +174,7 @@ struct Trie {
                 }
                 case INS_SET: {
                     entry_to_write = entry_read;
-                    if (!entry_to_write.valid || entry_to_write.maskLen < len-1) {
+                    if (entry_to_write.maskLen < len-1) {
                         entry_to_write.maskLen = len-1;
                         entry_to_write.nextHop = nexthop;
                         entry_to_write.nextPort = nextPort;

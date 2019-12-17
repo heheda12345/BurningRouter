@@ -188,7 +188,7 @@ always @(posedge lku_clk) begin
                     // entry[(upd_child+1)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH],
                     // entry[(upd_child+2)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH],
                     // entry[(upd_child+3)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH]);
-                if (entry_read[VALID_POS] == 0 || entry_read[LEN_END:LEN_BEGIN] < len-1)
+                if (entry_read[LEN_END:LEN_BEGIN] < len-1)
                     entry_to_write <= {1'b1, (len[1:0]-2'b01), lookup_port, lookup_nexthop, entry_read[CHILD_END: CHILD_BEGIN]};
                 else
                     entry_to_write <= entry_read;
