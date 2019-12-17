@@ -30,8 +30,7 @@ parameter STATE_INS_UPD_ROOT = 3'b100;
 parameter STATE_QUE_READ = 3'b101;
 parameter STATE_WAIT_END = 3'b110;
 
-parameter ENTRY_WIDTH = 197;
-parameter ENTRY_ADDR_WIDTH = 6;
+parameter ENTRY_ADDR_WIDTH = 13;
 parameter ENTRY_ADDR_MAX = (1<<ENTRY_ADDR_WIDTH);
 
 //one trie node
@@ -45,6 +44,7 @@ parameter LEN_BEGIN = CHILD_END + 35;
 parameter LEN_END = CHILD_END + 36;
 parameter VALID_POS = CHILD_END + 37;
 
+parameter ENTRY_WIDTH = VALID_POS + 1;
 reg[ENTRY_ADDR_WIDTH-1: 0] write_addr, read_addr, new_read_addr;
 reg[ENTRY_WIDTH-1: 0] entry, entry_to_write, entry_read;
 wire[ENTRY_WIDTH-1: 0] bram_entry_read;

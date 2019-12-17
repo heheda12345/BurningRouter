@@ -281,8 +281,8 @@ void init() {
 
 int main() {
     srand(time(0));
-    int n = 400;
-    freopen("lookup.in", "w", stdout);
+    int n = 5000;
+    freopen("lookup-large.in", "w", stdout);
     printf("%d\n", n);
     int m = n >> 1;
     RoutingTableEntry* entry = new RoutingTableEntry[n]; 

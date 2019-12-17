@@ -22,7 +22,7 @@ always @(posedge clk) begin
         id_pc <= 0;
         id_inst <= 0;
     end else if (if_stall == 1'b0) begin
-        $display("pc %h %h", if_pc, if_inst);
+        // $display("pc %h %h", if_pc, if_inst);
         id_pc <= if_pc;
         id_inst <= if_inst;
     end
