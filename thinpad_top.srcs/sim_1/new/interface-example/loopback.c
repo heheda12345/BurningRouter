@@ -22,16 +22,18 @@ int main() {
 PTR receive_packet(int sys_index) {
     const PTR BUFFER_TAIL_ADDRESS = 0xBFD00400;
     const PTR BUFFER_BASE_ADDRESS = 0x80600000;
+    volatile int * ptr = (int *) BUFFER_TAIL_ADDRESS;
     while (1) {
-        if (*(int*)(BUFFER_TAIL_ADDRESS) != sys_index) break;
+        if (*ptr != sys_index) break;
     }
     return BUFFER_BASE_ADDRESS + ((sys_index ++) << 11);
 }
 void send_packet(PTR addr) {
     const PTR SEND_CONTROL_ADDRESS = 0xBFD00408;
     const PTR SEND_STATE_ADDRESS = 0xBFD00404;
+    volatile int * ptr = (int *) SEND_STATE_ADDRESS;
     while (1) {
-        if (*(int*)(SEND_STATE_ADDRESS) == 0) break;
+        if (*ptr == 0) break;
     }
     *(PTR*)SEND_CONTROL_ADDRESS = addr;
 }
