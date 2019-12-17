@@ -60,6 +60,8 @@ module bus(
     output logic uart_rdn,
     output logic uart_wrn,
 
+    input wire [63:0] timing_mil_secs,
+
     output logic[15:0] leds
 );
 
@@ -75,6 +77,7 @@ localparam ROUTER_LOOKUP_NEXTHOP = 32'hBFD00414;
 localparam ROUTER_LOOKUP_MASKLEN = 32'hBFD00418;
 localparam ROUTER_LOOKUP_NEXTPORT = 32'hBFD0041C;
 localparam ROUTER_LOOKUP_CTRL = 32'hBFD00420;
+localparam CLOCK_MIL_SECONDS = 32'hBFD00440;
 
 wire mem_pcram = mem_addr_i >= 32'h80000000 && mem_addr_i <= 32'h803FFFFF;
 wire mem_dtram = mem_addr_i >= 32'h80400000 && mem_addr_i <= 32'h807FFFFF;
@@ -240,6 +243,10 @@ always_comb begin
             mem_data_reg = router_out_state;
         else if (mem_addr_i == ROUTER_LOOKUP_CTRL)
             mem_data_reg = lookup_modify_in_state;
+        else if (mem_addr_i == CLOCK_MIL_SECONDS)
+            mem_data_reg = timing_mil_secs[31:0];
+        else if (mem_addr_i == CLOCK_MIL_SECONDS + 1)
+            mem_data_reg = timing_mil_secs[63:32];
         else
             mem_data_reg = 32'b0;
     end else begin

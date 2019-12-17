@@ -432,6 +432,13 @@ always @(cpu_out) begin
     led_bits <= cpu_out;
 end
 
+wire [63:0] timing_mils;
+timer #(.FREQ(50000)) timer_inst (
+    .clk(clk_50M),
+    .rst(reset_of_clk20M),
+    .out(timing_mils)
+);
+
 bus bus_inst(
     .clk(clk_20M),
     .rst(reset_of_clk20M),
@@ -460,6 +467,8 @@ bus bus_inst(
     .lookup_modify_in_nextport(lookup_modify_in_nextport),
     .lookup_modify_in_len(lookup_modify_in_len),
     .lookup_modify_finish(lookup_modify_finish),
+
+    .timing_mil_secs(timing_mils),
 
     .pc_data(pc_data),
     .pc_addr(pc_addr),

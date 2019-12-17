@@ -5,7 +5,7 @@ MAKEFLAGS += --no-builtin-rules
 TARGET ?= mips-mti-elf
 PYTHON ?= python
 
-PROGRAM ?= loopback
+PROGRAM ?= clock
 
 .PHONY: clean all move
 
