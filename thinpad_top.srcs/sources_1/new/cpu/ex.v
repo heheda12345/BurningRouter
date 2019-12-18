@@ -137,6 +137,9 @@ always @(*) begin
             `EXE_SB_OP: begin
                 ramout <= reg2_i;
             end
+            `EXE_SH_OP: begin
+                ramout <= reg2_i;
+            end
             `EXE_SW_OP: begin
                 ramout <= reg2_i;
             end

@@ -100,6 +100,29 @@ always @(*) begin
                     end
                 endcase
             end
+            `EXE_LBU_OP: begin
+                ram_addr_o <= ram_addr_i;
+                ram_we <= 0;
+                ram_oe_o <= 1;
+                case (ram_addr_i[1:0])
+                    2'b11: begin
+                        ram_be_o <= 4'b1111;
+                        wdata_o <= {{24{1'b0}}, ram_data_i[31:24]};
+                    end
+                    2'b10: begin
+                        ram_be_o <= 4'b1111;
+                        wdata_o <= {{24{1'b0}}, ram_data_i[23:16]};
+                    end
+                    2'b01: begin
+                        ram_be_o <= 4'b1111;
+                        wdata_o <= {{24{1'b0}}, ram_data_i[15:8]};
+                    end
+                    2'b00: begin
+                        ram_be_o <= 4'b1111;
+                        wdata_o <= {{24{1'b0}}, ram_data_i[7:0]};
+                    end
+                endcase
+            end
             `EXE_LH_OP: begin
                 ram_addr_o <= ram_addr_i;
                 ram_we <= 0;
@@ -112,6 +135,21 @@ always @(*) begin
                     1'b1: begin
                         ram_be_o <= 4'b1111;
                         wdata_o <= {{16{ram_data_i[31]}}, ram_data_i[31:16]};
+                    end
+                endcase
+            end
+            `EXE_LHU_OP: begin
+                ram_addr_o <= ram_addr_i;
+                ram_we <= 0;
+                ram_oe_o <= 1;
+                case (ram_addr_i[1])
+                    1'b0: begin
+                        ram_be_o <= 4'b1111;
+                        wdata_o <= {{16{1'b0}}, ram_data_i[15:0]};
+                    end
+                    1'b1: begin
+                        ram_be_o <= 4'b1111;
+                        wdata_o <= {{16{1'b0}}, ram_data_i[31:16]};
                     end
                 endcase
             end
@@ -143,6 +181,22 @@ always @(*) begin
                     2'b00: begin
                         ram_be_o <= 4'b0001;
                         data_to_write[7:0] <= wdata_i[7:0];
+                    end
+                endcase
+            end
+            `EXE_SH_OP: begin
+                ram_addr_o <= ram_addr_i;
+                ram_we <= 1;
+                ram_oe_o <= 0;
+                data_to_write <= 0;
+                case (ram_addr_i[1:0])
+                    1'b1: begin
+                        ram_be_o <= 4'b1100;
+                        data_to_write[31:16] <= wdata_i[15:0];
+                    end
+                    1'b0: begin
+                        ram_be_o <= 4'b0011;
+                        data_to_write[15:0] <= wdata_i[15:0];
                     end
                 endcase
             end
