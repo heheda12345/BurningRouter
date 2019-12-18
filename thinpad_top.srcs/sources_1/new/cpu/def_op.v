@@ -1,6 +1,7 @@
 //instruction
 // ALU
 `define EXE_SPECIAL 6'b000000
+`define EXE_REGIMM 6'b000001
 `define EXE_SLL_FUNC 6'b000000
 `define EXE_SRL_FUNC 6'b000010
 `define EXE_SRA_FUNC 6'b000011
@@ -70,6 +71,9 @@
 `define EXE_BEQ 6'b000100
 `define EXE_BNE 6'b000101
 `define EXE_BGTZ 6'b000111
+`define EXE_BGEZAL 5'b10001
+`define EXE_BGEZ 5'b00001
+
 
 // RAM
 `define EXE_LB 6'b100000

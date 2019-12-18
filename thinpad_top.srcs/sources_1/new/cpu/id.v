@@ -298,6 +298,43 @@ always @(*) begin
                     end
                 endcase
             end
+            `EXE_REGIMM: begin
+                case (ins_rt)
+                    `EXE_BGEZAL: begin
+                        wreg_o <= 1;
+                        aluop_o <= `EXE_BRANCH_OP;
+                        alusel_o <= `EXE_RES_BRANCH;
+                        reg1_read_o <= 1;
+                        reg2_read_o <= 0;
+                        imm_reg <= 0;
+                        wd_o <= 5'b11111;
+                        instvalid <= INSTINVALID;
+                        link_addr_o <= nxt_nxt_pc;
+                        if (reg1_o[31] == 1'b0) begin
+                            branch_flag_o <= 1;
+                            branch_target_addr_o <= add_sign_pc;
+                            next_inst_in_delayslot_o <= 1;
+                        end
+                    end
+                    `EXE_BGEZ: begin
+                        wreg_o <= 0;
+                        aluop_o <= `EXE_BRANCH_OP;
+                        alusel_o <= `EXE_RES_BRANCH;
+                        reg1_read_o <= 1;
+                        reg2_read_o <= 0;
+                        imm_reg <= 0;
+                        wd_o <= 0;
+                        instvalid <= INSTINVALID;
+
+                        link_addr_o <= 0;
+                        if (reg1_o[31] == 1'b0) begin
+                            branch_flag_o <= 1;
+                            branch_target_addr_o <= add_sign_pc;
+                            next_inst_in_delayslot_o <= 1;
+                        end
+                    end
+                endcase
+            end
             `EXE_JUMP: begin
                 wreg_o <= 0;
                 aluop_o <= `EXE_BRANCH_OP;
