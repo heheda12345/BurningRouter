@@ -9,7 +9,7 @@ PYTHON ?= python
 
 CFLAGS = -ffreestanding -mips32r2 -EL -O2 -mno-abicalls -fno-pic
 
-PROGRAM ?= loopback
+PROGRAM ?= ipbind
 
 .PHONY: clean all move
 .SECONDARY: $(PROGRAM).s.o
@@ -25,8 +25,8 @@ all: $(PROGRAM).d move #
 bootloader.o: bootloader.s
 	$(TARGET)-as -mips32 -EL $^ -o $@
 
-# $(PROGRAM).o: $(PROGRAM).s
-# 	$(TARGET)-as -mips32 -EL $^ -o $@
+$(PROGRAM).o: $(PROGRAM).s
+	$(TARGET)-as -mips32 -EL $^ -o $@
 
 # routerio.d: routerio.o
 # 	$(TARGET)-objdump -D $^ -M no-aliases,gpr-names=numeric > $@

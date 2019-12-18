@@ -16,6 +16,7 @@ insert1:
     sw $4, 8($2)
 tosend:
     lw $3, 16($2)
+    andi $3, 0x1
     bnez $3, tosend
     nop
     sw $5, 16($2)
