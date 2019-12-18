@@ -378,6 +378,7 @@ wire lookup_modify_in_ready;
 wire [1:0] lookup_modify_in_nextport;
 wire [6:0] lookup_modify_in_len;
 wire lookup_modify_finish;
+wire ip_modify_req;
 
 router router_inst(
     .eth_rx_mac_aclk(eth_rx_mac_aclk),
@@ -408,6 +409,7 @@ router router_inst(
     .cpu_tx_qword_tvalid(cpu_tx_qword_tvalid),
     .cpu_tx_qword_tready(cpu_tx_qword_tready),
     
+    .ip_modify_req(ip_modify_req),
     .lookup_modify_in_addr(lookup_modify_in_addr),
     .lookup_modify_in_nexthop(lookup_modify_in_nexthop),
     .lookup_modify_in_ready(lookup_modify_in_ready),
@@ -464,6 +466,7 @@ bus bus_inst(
     .router_out_en(router_out_en),
     .router_out_data(router_out_data),
     
+    .router_ip_modify_req(ip_modify_req),
     .lookup_modify_in_addr(lookup_modify_in_addr),
     .lookup_modify_in_nexthop(lookup_modify_in_nexthop),
     .lookup_modify_in_ready(lookup_modify_in_ready),

@@ -27,7 +27,7 @@ module router(
     output           cpu_rx_qword_tvalid,
     input            cpu_rx_qword_tready,
 
-    
+    input wire    ip_modify_req,    
     input  [31:0] lookup_modify_in_addr,
     input  [31:0] lookup_modify_in_nexthop,
     input         lookup_modify_in_ready,
@@ -47,6 +47,7 @@ wire lookup_modify_in_ready_router;
 wire [1:0] lookup_modify_in_nextport_router;
 wire [6:0] lookup_modify_in_len_router;
 wire lookup_modify_finish_router;
+wire ip_modify_req_router;
 
 router_core router_core_i(
     .eth_rx_mac_aclk(eth_rx_mac_aclk),
@@ -75,6 +76,10 @@ router_core router_core_i(
     .cpu_tx_axis_tvalid(cpu_tx_axis_tvalid),
     .cpu_tx_axis_tready(cpu_tx_axis_tready),
     
+
+    .ip_modify_address(lookup_modify_in_addr_router),
+    .ip_modify_interface(ip_modify_req_router ? lookup_modify_in_nextport_router + 1 : 3'b0),
+
     .lookup_modify_in_addr(lookup_modify_in_addr_router),
     .lookup_modify_in_nexthop(lookup_modify_in_nexthop_router),
     .lookup_modify_in_ready(lookup_modify_in_ready_router),
@@ -197,6 +202,13 @@ pulse_crossdomain pulse_crossdomain_finish(
     .rst(eth_sync_rst),
     .pulse_in(lookup_modify_finish_router),
     .pulse_out(lookup_modify_finish)
+);
+pulse_crossdomain pulse_crossdomain_ip_modify(
+    .clk_in(cpu_clk),
+    .clk_out(eth_rx_mac_aclk),
+    .rst(cpu_rst),
+    .pulse_in(ip_modify_req),
+    .pulse_out(ip_modify_req_router)
 );
 
 endmodule // router

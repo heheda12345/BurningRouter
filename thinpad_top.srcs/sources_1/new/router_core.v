@@ -26,6 +26,8 @@ module router_core(
     output           cpu_tx_axis_tlast,
     input            cpu_tx_axis_tready,
 
+    input wire [31:0] ip_modify_address,
+    input wire [2:0]  ip_modify_interface,
     
     input  [31:0] lookup_modify_in_addr,
     input  [31:0] lookup_modify_in_nexthop,
@@ -37,7 +39,7 @@ module router_core(
 
 
 wire [47:0] MY_MAC_ADDR;
-wire [32*4-1:0] MY_IPV4_ADDR = {32'h0a000101, 32'h0a000001, 32'h0a000201, 32'h0a000301};
+reg [32*4-1:0] MY_IPV4_ADDR = {32'h0a000101, 32'h0a000001, 32'h0a000201, 32'h0a000301};
 assign MY_MAC_ADDR = 48'h020203030000;
 wire [31:0] MY_IPV4_ADDR_PORT;
 
@@ -51,6 +53,19 @@ wire [7:0] eth_tx_axis_fifo_tdata;
 wire eth_tx_axis_fifo_tlast;
 wire eth_tx_axis_fifo_tready;
 (*MARK_DEBUG="TRUE"*) wire from_cpu, to_cpu;
+
+always @(posedge eth_rx_mac_aclk or posedge eth_rx_mac_resetn) begin
+    if (!eth_rx_mac_resetn) begin
+        MY_IPV4_ADDR <= {32'h0a000101, 32'h0a000001, 32'h0a000201, 32'h0a000301};
+    end else if (ip_modify_interface == 3'h1) 
+        MY_IPV4_ADDR[127: 96] <= ip_modify_address;
+    else if (ip_modify_interface == 3'h2) 
+        MY_IPV4_ADDR[95: 64] <= ip_modify_address;
+    else if (ip_modify_interface == 3'h3) 
+        MY_IPV4_ADDR[63: 32] <= ip_modify_address;
+    else if (ip_modify_interface == 3'h4) 
+        MY_IPV4_ADDR[31: 0] <= ip_modify_address;
+end
 
 eth_mac_wrapper eth_mac_wraper_i(
     .rx_mac_aclk(eth_rx_mac_aclk),
