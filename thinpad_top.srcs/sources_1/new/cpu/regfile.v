@@ -22,7 +22,7 @@ always @(posedge clk) begin
     if (rst == 1'b0) begin
         if (we == 1'b1 && waddr != 5'b00000) begin
             regs[waddr] <= wdata;
-            $display("write %h to reg %d", wdata, waddr);
+            // $display("write %h to reg %d", wdata, waddr);
         end
     end
 end

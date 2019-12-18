@@ -18,10 +18,13 @@
 
 //AluOp
 `define EXE_LB_OP 8'b00100000
+`define EXE_LBU_OP 8'b01100100
 `define EXE_LW_OP 8'b00100011
 `define EXE_LH_OP 8'b01100001
-`define EXE_SB_OP 8'b00101000
+`define EXE_LHU_OP 8'b01100101
+`define EXE_SH_OP 8'b00101001
 `define EXE_SW_OP 8'b00101011
+`define EXE_SB_OP 8'b00101000
 
 `define EXE_ADDU_OP  8'b00100001
 `define EXE_AND_OP   8'b00100100
@@ -58,9 +61,12 @@
 
 // RAM
 `define EXE_LB 6'b100000
+`define EXE_LBU 6'b100100
 `define EXE_LW 6'b100011
 `define EXE_LH 6'b100001
+`define EXE_LHU 6'b100101
 `define EXE_SB 6'b101000
+`define EXE_SH 6'b101001
 `define EXE_SW 6'b101011
 
 // CP0

@@ -383,12 +383,36 @@ always @(*) begin
                 imm_reg <= sign_imm;
                 wd_o <= ins_rt;
                 instvalid <= INSTVALID;
-                
+
+                ram_offset_o <= sign_imm;
+            end
+            `EXE_LBU: begin
+                reg_o <= 1;
+                aluop_o <= `EXE_LBU_OP;
+                alusel_o <= `EXE_RES_RAM;
+                reg1_read_o <= 1;
+                reg2_read_o <= 0;
+                imm_reg <= sign_imm;
+                wd_o <= ins_rt;
+                instvalid <= INSTVALID;
+
                 ram_offset_o <= sign_imm;
             end
             `EXE_LH: begin
                 wreg_o <= 1;
                 aluop_o <= `EXE_LH_OP;
+                alusel_o <= `EXE_RES_RAM;
+                reg1_read_o <= 1;
+                reg2_read_o <= 0;
+                imm_reg <= sign_imm;
+                wd_o <= ins_rt;
+                instvalid <= INSTVALID;
+
+                ram_offset_o <= sign_imm;
+            end
+            `EXE_LHU: begin
+                wreg_o <= 1;
+                aluop_o <= `EXE_LHU_OP;
                 alusel_o <= `EXE_RES_RAM;
                 reg1_read_o <= 1;
                 reg2_read_o <= 0;
@@ -422,9 +446,21 @@ always @(*) begin
 
                 ram_offset_o <= sign_imm;
             end
+            `EXE_SH: begin
+                wreg_o <= 0;
+                aluop_o <= `EXE_SH_OP;
+                alusel_o <= `EXE_RES_RAM;
+                reg1_read_o <= 1;
+                reg2_read_o <= 1;
+                imm_reg <= sign_imm;
+                wd_o <= 0;
+                instvalid <= INSTVALID;
+
+                ram_offset_o <= sign_imm;
+            end
             `EXE_SW: begin
                 wreg_o <= 0;
-                    aluop_o <= `EXE_SW_OP;
+                aluop_o <= `EXE_SW_OP;
                 alusel_o <= `EXE_RES_RAM;
                 reg1_read_o <= 1;
                 reg2_read_o <= 1;
@@ -518,7 +554,7 @@ always @(*) begin
 end
 
 wire stall_req_reg1, stall_req_reg2, pre_is_load;
-assign pre_is_load = (pre_aluop == `EXE_LB_OP || pre_aluop == `EXE_LW_OP || pre_aluop == `EXE_LH_OP);
+assign pre_is_load = (pre_aluop == `EXE_LB_OP || pre_aluop == `EXE_LBU_OP || pre_aluop == `EXE_LW_OP || pre_aluop == `EXE_LH_OP || pre_aluop == `EXE_LHU_OP);
 assign stall_req_reg1 = reg1_read_o == 1'b1 && pre_wd == reg1_addr_o;
 assign stall_req_reg2 = reg2_read_o == 1'b1 && pre_wd == reg2_addr_o;
 always @(*) begin

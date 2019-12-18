@@ -174,7 +174,7 @@ struct Trie {
                 }
                 case INS_SET: {
                     entry_to_write = entry_read;
-                    if (!entry_to_write.valid || entry_to_write.maskLen < len-1) {
+                    if (entry_to_write.maskLen < len-1) {
                         entry_to_write.maskLen = len-1;
                         entry_to_write.nextHop = nexthop;
                         entry_to_write.nextPort = nextPort;
@@ -281,8 +281,8 @@ void init() {
 
 int main() {
     srand(time(0));
-    int n = 400;
-    freopen("lookup.in", "w", stdout);
+    int n = 5000;
+    freopen("lookup-large.in", "w", stdout);
     printf("%d\n", n);
     int m = n >> 1;
     RoutingTableEntry* entry = new RoutingTableEntry[n]; 
