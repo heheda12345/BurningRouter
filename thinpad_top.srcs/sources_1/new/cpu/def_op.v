@@ -1,6 +1,7 @@
 //instruction
 // ALU
 `define EXE_SPECIAL 6'b000000
+`define EXE_REGIMM 6'b000001
 `define EXE_SLL_FUNC 6'b000000
 `define EXE_SRL_FUNC 6'b000010
 `define EXE_SRA_FUNC 6'b000011
@@ -11,7 +12,10 @@
 `define EXE_AND_FUNC  6'b100100
 `define EXE_OR_FUNC   6'b100101
 `define EXE_XOR_FUNC 6'b100110
+`define EXE_NOR_FUNC 6'b100111
 `define EXE_MOVZ_FUNC 6'b001010
+`define EXE_SLLV_FUNC 6'b000100
+`define EXE_SRLV_FUNC 6'b000110
 `define EXE_ADDIU 6'b001001
 `define EXE_SLTI 6'b001010
 `define EXE_SLTIU 6'b001011
@@ -38,12 +42,13 @@
 `define EXE_AND_OP   8'b00100100
 `define EXE_OR_OP    8'b00100101
 `define EXE_XOR_OP   8'b00100110
+`define EXE_NOR_OP   8'b00100111
 // LUI: rt <= imm is same as rt <= imm|imm
 
 `define EXE_SLL_OP  8'b01111100
 `define EXE_SRL_OP  8'b00000010
 `define EXE_SRA_OP  8'b00000011
-`define EXE_BRANCH_OP 8'b00000010
+`define EXE_BRANCH_OP 8'b01000010
 `define EXE_NOP_OP    8'b00000000
 
 `define EXE_MFC0_OP 8'b01011101
@@ -66,6 +71,9 @@
 `define EXE_BEQ 6'b000100
 `define EXE_BNE 6'b000101
 `define EXE_BGTZ 6'b000111
+`define EXE_BGEZAL 5'b10001
+`define EXE_BGEZ 5'b00001
+
 
 // RAM
 `define EXE_LB 6'b100000
