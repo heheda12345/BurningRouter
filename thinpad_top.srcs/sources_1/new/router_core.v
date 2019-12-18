@@ -54,7 +54,7 @@ wire eth_tx_axis_fifo_tlast;
 wire eth_tx_axis_fifo_tready;
 (*MARK_DEBUG="TRUE"*) wire from_cpu, to_cpu;
 
-always @(posedge eth_rx_mac_aclk or posedge eth_rx_mac_resetn) begin
+always @(posedge eth_rx_mac_aclk or negedge eth_rx_mac_resetn) begin
     if (!eth_rx_mac_resetn) begin
         MY_IPV4_ADDR <= {32'h0a000101, 32'h0a000001, 32'h0a000201, 32'h0a000301};
     end else if (ip_modify_interface == 3'h1) 
