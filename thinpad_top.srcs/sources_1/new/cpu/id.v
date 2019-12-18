@@ -178,6 +178,36 @@ always @(*) begin
                         wd_o <= ins_rd;
                         instvalid <= INSTVALID;
                     end
+                    `EXE_SUBU_FUNC: begin
+                        wreg_o <= 1;
+                        aluop_o <= `EXE_SUBU_OP;
+                        alusel_o <= `EXE_RES_ARITHMETIC;
+                        reg1_read_o <= 1;
+                        reg2_read_o <= 1;
+                        imm_reg <= 0;
+                        wd_o <= ins_rd;
+                        instvalid <= INSTVALID;
+                    end
+                    `EXE_SLT_FUNC: begin
+                        wreg_o <= 1;
+                        aluop_o <= `EXE_SLT_OP;
+                        alusel_o <= `EXE_RES_ARITHMETIC;
+                        reg1_read_o <= 1;
+                        reg2_read_o <= 1;
+                        imm_reg <= 0;
+                        wd_o <= ins_rd;
+                        instvalid <= INSTVALID;
+                    end
+                    `EXE_SLTU_FUNC: begin
+                        wreg_o <= 1;
+                        aluop_o <= `EXE_SLTU_OP;
+                        alusel_o <= `EXE_RES_ARITHMETIC;
+                        reg1_read_o <= 1;
+                        reg2_read_o <= 1;
+                        imm_reg <= 0;
+                        wd_o <= ins_rd;
+                        instvalid <= INSTVALID;
+                    end
                     `EXE_AND_FUNC: begin
                         wreg_o <= 1;
                         aluop_o <= `EXE_AND_OP;
@@ -387,7 +417,7 @@ always @(*) begin
                 ram_offset_o <= sign_imm;
             end
             `EXE_LBU: begin
-                reg_o <= 1;
+                wreg_o <= 1;
                 aluop_o <= `EXE_LBU_OP;
                 alusel_o <= `EXE_RES_RAM;
                 reg1_read_o <= 1;

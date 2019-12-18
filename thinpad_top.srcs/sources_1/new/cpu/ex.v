@@ -113,6 +113,9 @@ always @(*) begin
     end
 end
 
+wire[31:0] result_minus;
+assign result_minus = reg1_i - reg2_i;
+
 always @(*) begin
     if (rst == 1'b1) begin
         arithout <= 0;
@@ -120,6 +123,17 @@ always @(*) begin
         case (aluop_i)
             `EXE_ADDU_OP: begin
                 arithout <= reg1_i + reg2_i;
+            end
+            `EXE_SUBU_OP: begin
+                arithout <= result_minus; // OK?
+            end
+            `EXE_SLT_OP: begin // OK? one bit only?
+                arithout <= ((reg1_i[31] && !reg2_i[31]) || 
+                             (!reg1_i[31] && !reg2_i[31] && result_minus[31]) ||
+                             (reg1_i[31] && reg2_i[31] && result_minus[31]));
+            end
+            `EXE_SLTU_OP: begin // OK? one bit only?
+                arithout <= (reg1_i < reg2_i);
             end
             default: begin
                 arithout <= 0;
