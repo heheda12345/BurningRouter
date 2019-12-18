@@ -11,6 +11,8 @@ module router_controller
 
     // IN direction: router -> cpu
     output wire [BUFFER_IND-1:0] in_index,
+    output wire in_restart,
+    input wire in_restart_clear,
     output wire mem_write_en,
     output wire [31:0] mem_write_addr,
     output wire [31:0] mem_write_data,
@@ -59,6 +61,8 @@ router_controller_in  # (.BUFFER_IND(BUFFER_IND) ) router_controller_in_inst
     .rst(rst),
     .bus_stall(write_stall),
     .in_index(in_index),
+    .restart(in_restart),
+    .clear_restart(in_restart_clear),
     .mem_write_en(mem_write_en),
     .mem_write_addr(mem_write_addr),
     .mem_write_data(mem_write_data),
@@ -80,6 +84,8 @@ module router_controller_in
     input wire bus_stall,
     // router -> cpu
     output wire [BUFFER_IND-1:0] in_index,
+    output reg restart,
+    input wire clear_restart,
     output reg mem_write_en,
     output reg [31:0] mem_write_addr,
     output reg [31:0] mem_write_data,
@@ -123,14 +129,23 @@ always @(posedge clk or posedge rst) begin
             mem_addr_offset <= mem_addr_offset + 4;
         end
         else if (state == WRITE_LEN && !bus_stall) mem_addr_offset <= 0;
-        if (state == WRITE_LEN) 
+        if (state == WRITE_LEN) begin
             cur_index <= cur_index + 1;
+        end
         if (state == WRITE_DATA)
             total_len <= mem_addr_offset;
     end
 end
 
 assign cpu_rx_qword_tready = cpu_rx_qword_tvalid && !bus_stall;
+
+always @(posedge clk or posedge rst) begin
+    if (rst == 1'b1) restart <= 0;
+    else if (clear_restart) restart <= 0;
+    else if (state == WRITE_LEN && cur_index == (1<<BUFFER_IND) - 1) begin
+        restart <= 1;
+    end
+end
 
 always @(posedge clk) begin
     if (cpu_rx_qword_tready || state == WRITE_DATA && !is_end) begin

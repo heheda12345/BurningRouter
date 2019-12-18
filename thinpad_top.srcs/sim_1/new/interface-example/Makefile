@@ -1,29 +1,37 @@
 
 # disable builtin rules
-MAKEFLAGS += --no-builtin-rules
+MAKEFLAGS += -r
 
-TARGET ?= mips-mti-elf
+TARGET = mipsel-linux-gnu# mips-mti-elf
 PYTHON ?= python
+
+# CC = $(TARGET)-gcc
+
+CFLAGS = -ffreestanding -mips32r2 -EL -O2 -mno-abicalls -fno-pic
 
 PROGRAM ?= loopback
 
 .PHONY: clean all move
+.SECONDARY: $(PROGRAM).s.o
 
-all: $(PROGRAM).d move
+all: $(PROGRAM).d move #
 
-$(PROGRAM).o: $(PROGRAM).s
+%.c.o: %.c
+	$(TARGET)-gcc -c $^ -o $@ $(CFLAGS)
+
+%.o: bootloader.o %.c.o run.lds 
+	$(TARGET)-ld -EL $^ -T run.lds -o $@
+
+bootloader.o: bootloader.s
 	$(TARGET)-as -mips32 -EL $^ -o $@
+
+# $(PROGRAM).o: $(PROGRAM).s
+# 	$(TARGET)-as -mips32 -EL $^ -o $@
 
 # routerio.d: routerio.o
 # 	$(TARGET)-objdump -D $^ -M no-aliases,gpr-names=numeric > $@
 header.bin: header_gen.py
 	$(PYTHON) header_gen.py
-
-%.s.o: %.c
-	$(TARGET)-gcc -c $^ -EL -o $@ -ffreestanding -mips32r2
-
-%.o: %.s.o
-	$(TARGET)-ld -EL $^ -o $@
 
 %.bin: %.o
 	$(TARGET)-objcopy -O binary $^ -j .text -j .rodata -j .data $@

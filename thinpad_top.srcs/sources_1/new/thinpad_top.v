@@ -334,6 +334,7 @@ localparam BUFFER_SIZE_INDEX = 7;
 wire router_write_stall, router_read_stall;
 wire [BUFFER_SIZE_INDEX-1:0] router_in_index;
 wire router_mem_we, router_mem_oe;
+wire router_in_restart_clr, router_in_restart;
 wire [1:0] router_out_state, router_out_en;
 wire [31:0] router_mem_waddr, router_mem_wdata;
 wire [31:0] router_mem_oaddr, router_mem_odata;
@@ -346,6 +347,8 @@ router_controller #(.BUFFER_IND(BUFFER_SIZE_INDEX)) router_controller_inst
     .write_stall(router_write_stall),
     .read_stall(router_read_stall),
     .in_index(router_in_index),       // o
+    .in_restart(router_in_restart),   // o
+    .in_restart_clear(router_in_restart_clr),// i
     .mem_write_en(router_mem_we),     // o
     .mem_write_addr(router_mem_waddr),// o
     .mem_write_data(router_mem_wdata),// o
@@ -432,6 +435,13 @@ always @(cpu_out) begin
     led_bits <= cpu_out;
 end
 
+wire [63:0] timing_mils;
+timer #(.FREQ(50000)) timer_inst (
+    .clk(clk_50M),
+    .rst(reset_of_clk20M),
+    .out(timing_mils)
+);
+
 bus bus_inst(
     .clk(clk_20M),
     .rst(reset_of_clk20M),
@@ -449,7 +459,7 @@ bus bus_inst(
     .dtram_we_n(ext_ram_we_n),
     .dtram_oe_n(ext_ram_oe_n),
 
-    .router_in_ind({27'b0, router_in_index}),
+    .router_in_ind({32'b0, router_in_index}),
     .router_out_state(router_out_state),
     .router_out_en(router_out_en),
     .router_out_data(router_out_data),
@@ -460,6 +470,10 @@ bus bus_inst(
     .lookup_modify_in_nextport(lookup_modify_in_nextport),
     .lookup_modify_in_len(lookup_modify_in_len),
     .lookup_modify_finish(lookup_modify_finish),
+
+    .timing_mil_secs(timing_mils),
+    .router_in_restart(router_in_restart),
+    .router_in_restart_clr(router_in_restart_clr),
 
     .pc_data(pc_data),
     .pc_addr(pc_addr),
