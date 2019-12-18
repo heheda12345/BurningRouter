@@ -42,6 +42,8 @@ module bus(
     output logic dtram_oe_n,
     // router receive buffer address
     input wire [31:0] router_in_ind,
+    input wire router_in_restart,
+    output logic router_in_restart_clr,
     // router packet transmission
     input  wire router_out_state, 
     output reg router_out_en, 
@@ -238,9 +240,9 @@ always_comb begin
         end else if (mem_sstat)
             mem_data_reg = {30'b000000000000000000000000000000, uart_dataready, uart_tsre};
         else if (mem_rtrbi)
-            mem_data_reg = {28'b0, router_in_ind};
+            mem_data_reg = router_in_ind;
         else if (mem_rtss)
-            mem_data_reg = router_out_state;
+            mem_data_reg = {router_in_restart, router_out_state};
         else if (mem_addr_i == ROUTER_LOOKUP_CTRL)
             mem_data_reg = lookup_modify_in_state;
         else if (mem_addr_i == CLOCK_MIL_SECONDS)
@@ -263,6 +265,10 @@ always_comb begin
         router_out_en <= 1'b0;
         router_out_data <= mem_data_i;
     end
+    if (rst == 1'b0 && mem_oe_i && mem_rtrbi) begin
+        router_in_restart_clr <= 1;
+    end
+    else router_in_restart_clr <= 0;
 end
 
 always_ff @(posedge clk or posedge rst) begin
