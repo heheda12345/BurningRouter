@@ -13,6 +13,8 @@
 `define EXE_XOR_FUNC 6'b100110
 `define EXE_MOVZ_FUNC 6'b001010
 `define EXE_ADDIU 6'b001001
+`define EXE_SLTI 6'b001010
+`define EXE_SLTIU 6'b001011
 `define EXE_ANDI 6'b001100
 `define EXE_ORI  6'b001101
 `define EXE_XORI 6'b001110

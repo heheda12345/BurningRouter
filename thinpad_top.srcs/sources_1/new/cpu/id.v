@@ -364,6 +364,26 @@ always @(*) begin
                 wd_o <= ins_rt;
                 instvalid <= INSTVALID;
             end
+            `EXE_SLTI: begin
+                wreg_o <= 1;
+                aluop_o <= `EXE_SLT_OP;
+                alusel_o <= `EXE_RES_ARITHMETIC;
+                reg1_read_o <= 1;
+                reg2_read_o <= 0;
+                imm_reg <= {{16{ins_imm[15]}}, ins_imm};
+                wd_o <= ins_rt;
+                instvalid <= INSTVALID;
+            end
+            `EXE_SLTIU: begin
+                wreg_o <= 1;
+                aluop_o <= `EXE_SLTU_OP;
+                alusel_o <= `EXE_RES_ARITHMETIC;
+                reg1_read_o <= 1;
+                reg2_read_o <= 0;
+                imm_reg <= {{16{ins_imm[15]}}, ins_imm};
+                wd_o <= ins_rt;
+                instvalid <= INSTVALID;
+            end
             `EXE_ANDI: begin
                 wreg_o <= 1;
                 aluop_o <= `EXE_AND_OP;

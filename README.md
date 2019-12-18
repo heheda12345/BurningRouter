@@ -45,3 +45,8 @@ ThinRouter v0.1
   因此接收队列利用效率大约为L/(L+12)，L为数据包的平均长度。
 
 这样看来，总体数据速率基本达到千兆的至少85%，考虑到百兆网口的限制，理论上应该可以满速。
+
+## CPU指令集
+```
+'ADDIU', 'ADDU', 'AND', 'ANDI', 'BEQ', 'BGTZ', 'BNE', 'J', 'JAL', 'JR', 'LB', 'LUI', 'LW', 'OR', 'ORI', 'SB', 'SLL', 'SRL', 'SW', 'XOR', 'XORI', 'lhu', 'sh', 'lbu', 'slti', 'sltiu', 'slt', 'sltu', 'subu']
+```
