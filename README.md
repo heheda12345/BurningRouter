@@ -48,5 +48,5 @@ ThinRouter v0.1
 
 ## CPU指令集
 ```
-'ADDIU', 'ADDU', 'AND', 'ANDI', 'BEQ', 'BGTZ', 'BNE', 'J', 'JAL', 'JR', 'LB', 'LUI', 'LW', 'OR', 'ORI', 'SB', 'SLL', 'SRL', 'SW', 'XOR', 'XORI', 'lhu', 'sh', 'lbu', 'slti', 'sltiu', 'slt', 'sltu', 'subu']
+'ADDIU', 'ADDU', 'AND', 'ANDI', 'BEQ', 'BGTZ', 'BNE', 'J', 'JAL', 'JR', 'LB', 'LUI', 'LW', 'OR', 'ORI', 'SB', 'SLL', 'SRL', 'SW', 'XOR', 'XORI', 'lhu', 'sh', 'lbu', 'slti', 'sltiu', 'slt', 'sltu', 'subu', 'nor']
 ```

@@ -238,6 +238,16 @@ always @(*) begin
                         wd_o <= ins_rd;
                         instvalid <= INSTVALID;
                     end
+                    `EXE_NOR_FUNC: begin
+                        wreg_o <= 1;
+                        aluop_o <= `EXE_NOR_OP;
+                        alusel_o <= `EXE_RES_LOGIC;
+                        reg1_read_o <= 1;
+                        reg2_read_o <= 1;
+                        imm_reg <= 0;
+                        wd_o <= ins_rd;
+                        instvalid <= INSTVALID;
+                    end
                     `EXE_SYSCALL_FUNC: begin
                         wreg_o <= 0;
                         aluop_o <= `EXE_SYSCALL_OP;

@@ -11,6 +11,7 @@
 `define EXE_AND_FUNC  6'b100100
 `define EXE_OR_FUNC   6'b100101
 `define EXE_XOR_FUNC 6'b100110
+`define EXE_NOR_FUNC 6'b100111
 `define EXE_MOVZ_FUNC 6'b001010
 `define EXE_ADDIU 6'b001001
 `define EXE_SLTI 6'b001010
@@ -38,6 +39,7 @@
 `define EXE_AND_OP   8'b00100100
 `define EXE_OR_OP    8'b00100101
 `define EXE_XOR_OP   8'b00100110
+`define EXE_NOR_OP   8'b00100111
 // LUI: rt <= imm is same as rt <= imm|imm
 
 `define EXE_SLL_OP  8'b01111100
