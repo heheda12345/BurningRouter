@@ -168,6 +168,26 @@ always @(*) begin
                         wd_o <= ins_rd;
                         instvalid <= INSTVALID;
                     end
+                    `EXE_SLLV_FUNC: begin
+                        wreg_o <= 1;
+                        aluop_o <= `EXE_SLL_OP;
+                        alusel_o <= `EXE_RES_SHIFT;
+                        reg1_read_o <= 1;
+                        reg2_read_o <= 1;
+                        imm_reg <= 0;
+                        wd_o <= ins_rd;
+                        instvalid <= INSTVALID;
+                    end
+                    `EXE_SRLV_FUNC: begin
+                        wreg_o <= 1;
+                        aluop_o <= `EXE_SRL_OP;
+                        alusel_o <= `EXE_RES_SHIFT;
+                        reg1_read_o <= 1;
+                        reg2_read_o <= 1;
+                        imm_reg <= 0;
+                        wd_o <= ins_rd;
+                        instvalid <= INSTVALID;
+                    end
                     `EXE_ADDU_FUNC: begin
                         wreg_o <= 1;
                         aluop_o <= `EXE_ADDU_OP;
