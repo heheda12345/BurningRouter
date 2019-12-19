@@ -175,7 +175,7 @@ struct Trie {
                 }
                 case INS_SET: {
                     entry_to_write = entry_read;
-                    if (entry_to_write.maskLen < len-1) {
+                    if (entry_read.valid == 0 || entry_to_write.maskLen <= len-1) {
                         entry_to_write.maskLen = len-1;
                         entry_to_write.nextHop = nexthop;
                         entry_to_write.nextPort = nextPort;
@@ -281,7 +281,6 @@ void init() {
 
 
 int main() {
-    srand(time(0));
     int n = 4096;
     freopen("lookup-2048.in", "w", stdout);
     printf("%d\n", n);

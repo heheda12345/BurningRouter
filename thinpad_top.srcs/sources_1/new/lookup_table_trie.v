@@ -30,7 +30,7 @@ parameter STATE_INS_UPD_ROOT = 3'b100;
 parameter STATE_QUE_READ = 3'b101;
 parameter STATE_WAIT_END = 3'b110;
 
-parameter ENTRY_ADDR_WIDTH = 10;
+parameter ENTRY_ADDR_WIDTH = 12;
 parameter ENTRY_ADDR_MAX = (1<<ENTRY_ADDR_WIDTH);
 
 //one trie node
@@ -152,7 +152,7 @@ always @(posedge lku_clk) begin
         STATE_PAUSE: begin
                 // $display("state: pause modify %d query %d full %d", modify_in_ready, query_in_ready, full);
                 if (modify_in_ready && !full) begin
-                    $display("[lookup] modify begin %h->%h", modify_in_addr, modify_in_nexthop);
+                    // $display("[lookup] modify begin %h->%h", modify_in_addr, modify_in_nexthop);
                     dep <= 30;
                     lookup_addr <= modify_in_addr;
                     lookup_port <= modify_in_nextport;
@@ -167,7 +167,7 @@ always @(posedge lku_clk) begin
                     end
                     write_enable <= 0;
                 end else if (query_in_ready) begin
-                    $display("[lookup] query begin %h", query_in_addr);
+                    // $display("[lookup] query begin %h", query_in_addr);
                     dep <= 30;
                     next_state <= STATE_QUE_READ;
                     lookup_addr <= query_in_addr;
@@ -341,13 +341,13 @@ end
 always @(posedge lku_clk) begin
     if (state == STATE_WAIT_END && next_state == STATE_PAUSE) begin
         modify_finish <= 1;
-        $display("[lookup] modify end, node cnt %d", node_cnt);
+        // $display("[lookup] modify end, node cnt %d", node_cnt);
     end else begin
         modify_finish <= 0;
     end
     if (state == STATE_QUE_READ && next_state == STATE_PAUSE) begin
         query_out_ready <= 1;
-        $display("[lookup] query end %h", query_out_nexthop);
+        // $display("[lookup] query end %h", query_out_nexthop);
     end else
         query_out_ready <= 0;
 end

@@ -20,14 +20,14 @@ struct TrieEntry {
     unsigned nextHop;
     unsigned nextPort, maskLen;
     unsigned valid;
-    unsigned child[16];
+    unsigned child[4];
     
     void outit() {
         printf("valid %u\tlen %u\thop %u\tchild ",
             (unsigned) valid,
             (unsigned) maskLen,
             (unsigned) nextHop);
-        for (int i=0; i<4; i++) {
+        for (int i=0; i<1; i++) {
             printf("[%u\t%u\t%u\t%u]\t", child[4*i], child[4*i+1], child[4*i+2], child[4*i+3]);
         }
         printf("\n");
@@ -83,8 +83,8 @@ struct Trie {
         // init
         State state = PAUSE;
         bool read_enable = 0, write_enable = 0;
-        int upd_mask[4] = {8, 12, 14, 15};
-        int upd_extend[4] = {7, 3, 1, 0};
+        int upd_mask[2] = {2, 3};
+        int upd_extend[2] = {1, 0};
         
         //init end
         int dep;
@@ -93,7 +93,7 @@ struct Trie {
         int upd_child, upd_last;
 
         // PAUSE
-        dep = 28;
+        dep = 30;
         read_addr = 1;
         read_enable = 1;
         if (len == 0) {
@@ -132,7 +132,7 @@ struct Trie {
                     break;
                 }
                 case INS_READ: {
-                    if (len <= 4) {
+                    if (len <= 2) {
                         upd_child = addr >> dep & upd_mask[len-1];
                         upd_last = upd_child | upd_extend[len-1];
                         entry = entry_read;
@@ -149,7 +149,7 @@ struct Trie {
                         }
                         state = INS_SET;
                     } else {
-                        upd_child = addr >> dep & 15;
+                        upd_child = addr >> dep & 3;
                         // printf("upd_child %d\n", upd_child);
                         entry = entry_read;
                         if (entry.child[upd_child] == 0) {
@@ -166,8 +166,8 @@ struct Trie {
                             read_addr = entry.child[upd_child];
                             read_enable = true;
                         }
-                        len -= 4;
-                        dep -= 4;
+                        len -= 2;
+                        dep -= 2;
                         state = INS_READ;
                     }
                     break;
@@ -228,7 +228,7 @@ struct Trie {
         TrieEntry entry, entry_read;
         {
             // PAUSE
-            dep = 28;
+            dep = 30;
             read_addr = 1;
             read_enable = 1;
             state = QUE_READ;
@@ -247,12 +247,12 @@ struct Trie {
                     if (entry_read.valid) {
                         ans = make_pair(entry_read.nextHop, entry_read.nextPort);
                     }
-                    upd_child = addr >> dep & 15;
+                    upd_child = addr >> dep & 3;
                     if (entry_read.child[upd_child] > 0) {
                         read_addr = entry_read.child[upd_child];
                         read_enable = true;
                         state = QUE_READ;
-                        dep -= 4;
+                        dep -= 2;
                     } else {
                         state = PAUSE;
                     }
@@ -280,33 +280,25 @@ void init() {
 
 
 int main() {
-    int n = 5000;
-    freopen("lookup-large.in", "w", stdout);
-    printf("%d\n", n);
-    int m = n >> 1;
+    freopen("lookup-2048.in", "r", stdin);
+    int n; scanf("%d", &n);
     RoutingTableEntry* entry = new RoutingTableEntry[n]; 
-    for (int i=0; i<n; i+=2) {
-        entry[i].addr = rd();
-        entry[i].len = rd() % 33;
-        entry[i].nexthop = rd();
-        entry[i].nextPort = rd() % 4;
-        entry[i+1] = entry[i];
-        entry[i].ty = 0;
-        entry[i+1].ty = 1;
+    for (int i=0; i<n; i++) {
+        scanf("%u%x%x%u%u", &entry[i].ty, &entry[i].addr, &entry[i].nexthop, &entry[i].nextPort, &entry[i].len);
     }
-    random_shuffle(entry, entry+n);
+    // random_shuffle(entry, entry+n);
     init();
     for (int i=0; i<n; i++)
         if (entry[i].ty == 0) {
             insert(entry[i]);
         } else {
             auto ans = tr.query(entry[i].addr);
-            entry[i].nexthop = ans.first;
-            entry[i].nextPort = ans.second;
-            entry[i].len = 0;
+            if (ans.first != entry[i].nexthop || ans.second != entry[i].nextPort) {
+                printf("Fail test %d, get %x %d\n", i, entry[i].nexthop, entry[i].nextPort);
+                break;
+            }
         }
-    for (int i=0; i<n; i++)
-        printf("%u %x %x %u %u\n", entry[i].ty, entry[i].addr, entry[i].nexthop, entry[i].nextPort, entry[i].len);
+    printf("succ! use %d nodes\n", tr.node_cnt);
     delete[] entry;
     return 0;
 }
