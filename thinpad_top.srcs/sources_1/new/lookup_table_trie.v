@@ -30,7 +30,7 @@ parameter STATE_INS_UPD_ROOT = 3'b100;
 parameter STATE_QUE_READ = 3'b101;
 parameter STATE_WAIT_END = 3'b110;
 
-parameter ENTRY_ADDR_WIDTH = 13;
+parameter ENTRY_ADDR_WIDTH = 10;
 parameter ENTRY_ADDR_MAX = (1<<ENTRY_ADDR_WIDTH);
 
 //one trie node

@@ -48,5 +48,9 @@ ThinRouter v0.1
 
 ## CPU指令集
 ```
-['ADDIU', 'ADDU', 'AND', 'ANDI', 'BEQ', 'BGTZ', 'BNE', 'J', 'JAL', 'JR', 'LB', 'LUI', 'LW', 'OR', 'ORI', 'SB', 'SLL', 'SRL', 'SW', 'XOR', 'XORI', 'sra', 'lh', 'movz', 'lhu', 'sh', 'lbu', 'slti', 'sltiu', 'slt', 'sltu', 'subu', 'nor', 'sllv', 'srlv', 'bgezal', 'bgez']
+['ADDIU', 'ADDU', 'AND', 'ANDI', 'BEQ', 'BGTZ', 'BNE', 'J', 'JAL', 'JR', 'LB', 'LUI', 'LW', 'OR', 'ORI', 'SB', 'SLL', 'SRL', 'SW', 'XOR', 'XORI', 'sra', 'lh', 'movz', 'lhu', 'sh', 'lbu', 'slti', 'sltiu', 'slt', 'sltu', 'subu', 'nor', 'sllv', 'srlv', 'bgezal', 'bgez', 'bltz']
 ```
+
+## 路由表压测结果
+1. 中等规模路由表压力测试 需要2579个Trie的节点
+2. $2^13$个节点，可插入1600-2000条表项

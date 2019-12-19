@@ -71,6 +71,7 @@
 `define EXE_BEQ 6'b000100
 `define EXE_BNE 6'b000101
 `define EXE_BGTZ 6'b000111
+`define EXE_BLTZ 5'b00000
 `define EXE_BGEZAL 5'b10001
 `define EXE_BGEZ 5'b00001
 
