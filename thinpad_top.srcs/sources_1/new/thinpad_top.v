@@ -525,4 +525,8 @@ cpu CPU(
     .leds(cpu_out)
 );
 
+always @(posedge clk_20M) begin
+    number <= pc_data[7:0];
+end
+
 endmodule

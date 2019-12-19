@@ -76,8 +76,10 @@ initial begin
     end
     // 模拟PC通过串口发�?�字�???
     cpld.pc_send_byte(8'h32);
+    $display("receive: 1");
     #10000;
     cpld.pc_send_byte(8'h33);
+    $display("receive: 2");
 end
 
 /*initial begin
@@ -274,50 +276,50 @@ rgmii_model rgmii(
     .rgmii_tx_ctl(eth_rgmii_tx_ctl)
 );
 
-wire mem_read_en, out_en;
-wire [31:0] mem_read_data, mem_read_addr, out_data;
-cpu_interface_model cpu_itf (
-    .clk_cpu(clk_50M),
-    // .cpu_rx_qword_tdata(cpu_rx_qword_tdata),
-    // .cpu_rx_qword_tlast(cpu_rx_qword_tlast),
-    // .cpu_rx_qword_tvalid(cpu_rx_qword_tvalid),
-    // .cpu_rx_qword_tready(cpu_rx_qword_tready),
-    // .cpu_tx_qword_tdata(cpu_tx_qword_tdata),
-    // .cpu_tx_qword_tlast(cpu_tx_qword_tlast),
-    // .cpu_tx_qword_tvalid(cpu_tx_qword_tvalid),
-    // .cpu_tx_qword_tready(cpu_tx_qword_tready)
-    .out_en(out_en),
-    .out_data(out_data),
-    .mem_read_en(mem_read_en),
-    .mem_read_addr(mem_read_addr),
-    .mem_read_data(mem_read_data)
-);
+// wire mem_read_en, out_en;
+// wire [31:0] mem_read_data, mem_read_addr, out_data;
+// cpu_interface_model cpu_itf (
+//     .clk_cpu(clk_50M),
+//     // .cpu_rx_qword_tdata(cpu_rx_qword_tdata),
+//     // .cpu_rx_qword_tlast(cpu_rx_qword_tlast),
+//     // .cpu_rx_qword_tvalid(cpu_rx_qword_tvalid),
+//     // .cpu_rx_qword_tready(cpu_rx_qword_tready),
+//     // .cpu_tx_qword_tdata(cpu_tx_qword_tdata),
+//     // .cpu_tx_qword_tlast(cpu_tx_qword_tlast),
+//     // .cpu_tx_qword_tvalid(cpu_tx_qword_tvalid),
+//     // .cpu_tx_qword_tready(cpu_tx_qword_tready)
+//     .out_en(out_en),
+//     .out_data(out_data),
+//     .mem_read_en(mem_read_en),
+//     .mem_read_addr(mem_read_addr),
+//     .mem_read_data(mem_read_data)
+// );
 
-logic bus_stall, bus_stall_reg;
-initial begin
-    bus_stall = 0;
-end
-always bus_stall = #123 ~bus_stall;
-always_ff @ (posedge clk_50M) begin
-    bus_stall_reg <= bus_stall;
-end
-router_controller_out router_controller_out_inst
-(
-    .clk(clk_50M),
-    .rst(reset_btn),
-    .bus_stall(bus_stall_reg),
-    // .out_state(out_state),
-    .out_en(out_en),
-    .out_data(out_data),
-    .mem_read_en(mem_read_en),
-    .mem_read_addr(mem_read_addr),
-    .mem_read_data(mem_read_data),
-    .cpu_tx_qword_tdata(cpu_tx_qword_tdata),
-    .cpu_tx_qword_tlast(cpu_tx_qword_tlast),
-    .cpu_tx_qword_tready(cpu_tx_qword_tready),
-    .cpu_tx_qword_tvalid(cpu_tx_qword_tvalid)
-);
-assign cpu_tx_qword_tready = cpu_tx_qword_tvalid;
+// logic bus_stall, bus_stall_reg;
+// initial begin
+//     bus_stall = 0;
+// end
+// always bus_stall = #123 ~bus_stall;
+// always_ff @ (posedge clk_50M) begin
+//     bus_stall_reg <= bus_stall;
+// end
+// router_controller_out router_controller_out_inst
+// (
+//     .clk(clk_50M),
+//     .rst(reset_btn),
+//     .bus_stall(bus_stall_reg),
+//     // .out_state(out_state),
+//     .out_en(out_en),
+//     .out_data(out_data),
+//     .mem_read_en(mem_read_en),
+//     .mem_read_addr(mem_read_addr),
+//     .mem_read_data(mem_read_data),
+//     .cpu_tx_qword_tdata(cpu_tx_qword_tdata),
+//     .cpu_tx_qword_tlast(cpu_tx_qword_tlast),
+//     .cpu_tx_qword_tready(cpu_tx_qword_tready),
+//     .cpu_tx_qword_tvalid(cpu_tx_qword_tvalid)
+// );
+// assign cpu_tx_qword_tready = cpu_tx_qword_tvalid;
 
 // Lookup Table Test
 reg lookup_in_ready;
@@ -350,25 +352,25 @@ initial begin
     lookup_in_ready = 1'b0;
 end
 
-wire lookup_succ;
-lookup_test ltt_inst(
-    .lku_clk(clk_125M),
-    .succ(lookup_succ)
-);
+// wire lookup_succ;
+// lookup_test ltt_inst(
+//     .lku_clk(clk_125M),
+//     .succ(lookup_succ)
+// );
 
-reg [5:0] bj_cpu_req = 0, bj_rt_write_req = 0, bj_rt_read_req = 0;
+// reg [5:0] bj_cpu_req = 0, bj_rt_write_req = 0, bj_rt_read_req = 0;
 
-always_ff @ (posedge clk_50M) bj_rt_read_req = bj_rt_read_req < 12 ? bj_rt_read_req + 1 : 0;
-always_ff @ (posedge clk_50M) bj_rt_write_req = bj_rt_write_req < 14 ? bj_rt_write_req + 1 : 0;
-always_ff @ (posedge clk_50M) bj_cpu_req = bj_cpu_req < 16 ? bj_cpu_req + 1 : 0;
+// always_ff @ (posedge clk_50M) bj_rt_read_req = bj_rt_read_req < 12 ? bj_rt_read_req + 1 : 0;
+// always_ff @ (posedge clk_50M) bj_rt_write_req = bj_rt_write_req < 14 ? bj_rt_write_req + 1 : 0;
+// always_ff @ (posedge clk_50M) bj_cpu_req = bj_cpu_req < 16 ? bj_cpu_req + 1 : 0;
 
-// bus judger test
-bus_judger bus_judger_inst(
-    .clk(clk_50M),
-    .rst(0),
-    .cpu_mem_req(bj_cpu_req < 6),
-    .router_write_req(bj_rt_write_req < 7),
-    .router_read_req(bj_rt_read_req < 8)
-);
+// // bus judger test
+// bus_judger bus_judger_inst(
+//     .clk(clk_50M),
+//     .rst(0),
+//     .cpu_mem_req(bj_cpu_req < 6),
+//     .router_write_req(bj_rt_write_req < 7),
+//     .router_read_req(bj_rt_read_req < 8)
+// );
 
 endmodule
