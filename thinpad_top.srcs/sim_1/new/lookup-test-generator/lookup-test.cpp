@@ -174,7 +174,7 @@ struct Trie {
                 }
                 case INS_SET: {
                     entry_to_write = entry_read;
-                    if (entry_to_write.maskLen < len-1) {
+                    if (entry_read.valid == 0 || entry_to_write.maskLen <= len-1) {
                         entry_to_write.maskLen = len-1;
                         entry_to_write.nextHop = nexthop;
                         entry_to_write.nextPort = nextPort;
@@ -286,16 +286,16 @@ int main() {
     printf("%d\n", n);
     int m = n >> 1;
     RoutingTableEntry* entry = new RoutingTableEntry[n]; 
-    for (int i=0; i<m; i++) {
+    for (int i=0; i<n; i+=2) {
         entry[i].addr = rd();
         entry[i].len = rd() % 33;
         entry[i].nexthop = rd();
         entry[i].nextPort = rd() % 4;
-        entry[i+m] = entry[i];
+        entry[i+1] = entry[i];
         entry[i].ty = 0;
-        entry[i+m].ty = 1;
+        entry[i+1].ty = 1;
     }
-    random_shuffle(entry, entry+n);
+    // random_shuffle(entry, entry+n);
     init();
     for (int i=0; i<n; i++)
         if (entry[i].ty == 0) {

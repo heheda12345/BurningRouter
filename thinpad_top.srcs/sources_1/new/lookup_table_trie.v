@@ -35,7 +35,7 @@ parameter ENTRY_ADDR_MAX = (1<<ENTRY_ADDR_WIDTH);
 
 //one trie node
 parameter CHILD_BEGIN = 0;
-parameter CHILD_END = (ENTRY_ADDR_WIDTH << 4)-1;
+parameter CHILD_END = (ENTRY_ADDR_WIDTH << 2)-1;
 parameter NXT_HOP_BEGIN = CHILD_END + 1;
 parameter NXT_HOP_END   = CHILD_END + 32;
 parameter NXT_PORT_BEGIN = CHILD_END + 33;
@@ -48,41 +48,41 @@ parameter ENTRY_WIDTH = VALID_POS + 1;
 reg[ENTRY_ADDR_WIDTH-1: 0] write_addr, read_addr, new_read_addr;
 reg[ENTRY_WIDTH-1: 0] entry, entry_to_write, entry_read;
 
-wire[ENTRY_ADDR_WIDTH-1: 0] entry_child[15:0];
+wire[ENTRY_ADDR_WIDTH-1: 0] entry_child[3:0];
 assign entry_child[0] = entry[ENTRY_ADDR_WIDTH-1: 0];
 assign entry_child[1] = entry[ENTRY_ADDR_WIDTH*2-1: ENTRY_ADDR_WIDTH];
 assign entry_child[2] = entry[ENTRY_ADDR_WIDTH*3-1: ENTRY_ADDR_WIDTH*2];
 assign entry_child[3] = entry[ENTRY_ADDR_WIDTH*4-1: ENTRY_ADDR_WIDTH*3];
-assign entry_child[4] = entry[ENTRY_ADDR_WIDTH*5-1: ENTRY_ADDR_WIDTH*4];
-assign entry_child[5] = entry[ENTRY_ADDR_WIDTH*6-1: ENTRY_ADDR_WIDTH*5];
-assign entry_child[6] = entry[ENTRY_ADDR_WIDTH*7-1: ENTRY_ADDR_WIDTH*6];
-assign entry_child[7] = entry[ENTRY_ADDR_WIDTH*8-1: ENTRY_ADDR_WIDTH*7];
-assign entry_child[8] = entry[ENTRY_ADDR_WIDTH*9-1: ENTRY_ADDR_WIDTH*8];
-assign entry_child[9] = entry[ENTRY_ADDR_WIDTH*10-1: ENTRY_ADDR_WIDTH*9];
-assign entry_child[10] = entry[ENTRY_ADDR_WIDTH*11-1: ENTRY_ADDR_WIDTH*10];
-assign entry_child[11] = entry[ENTRY_ADDR_WIDTH*12-1: ENTRY_ADDR_WIDTH*11];
-assign entry_child[12] = entry[ENTRY_ADDR_WIDTH*13-1: ENTRY_ADDR_WIDTH*12];
-assign entry_child[13] = entry[ENTRY_ADDR_WIDTH*14-1: ENTRY_ADDR_WIDTH*13];
-assign entry_child[14] = entry[ENTRY_ADDR_WIDTH*15-1: ENTRY_ADDR_WIDTH*14];
-assign entry_child[15] = entry[ENTRY_ADDR_WIDTH*16-1: ENTRY_ADDR_WIDTH*15];
+// assign entry_child[4] = entry[ENTRY_ADDR_WIDTH*5-1: ENTRY_ADDR_WIDTH*4];
+// assign entry_child[5] = entry[ENTRY_ADDR_WIDTH*6-1: ENTRY_ADDR_WIDTH*5];
+// assign entry_child[6] = entry[ENTRY_ADDR_WIDTH*7-1: ENTRY_ADDR_WIDTH*6];
+// assign entry_child[7] = entry[ENTRY_ADDR_WIDTH*8-1: ENTRY_ADDR_WIDTH*7];
+// assign entry_child[8] = entry[ENTRY_ADDR_WIDTH*9-1: ENTRY_ADDR_WIDTH*8];
+// assign entry_child[9] = entry[ENTRY_ADDR_WIDTH*10-1: ENTRY_ADDR_WIDTH*9];
+// assign entry_child[10] = entry[ENTRY_ADDR_WIDTH*11-1: ENTRY_ADDR_WIDTH*10];
+// assign entry_child[11] = entry[ENTRY_ADDR_WIDTH*12-1: ENTRY_ADDR_WIDTH*11];
+// assign entry_child[12] = entry[ENTRY_ADDR_WIDTH*13-1: ENTRY_ADDR_WIDTH*12];
+// assign entry_child[13] = entry[ENTRY_ADDR_WIDTH*14-1: ENTRY_ADDR_WIDTH*13];
+// assign entry_child[14] = entry[ENTRY_ADDR_WIDTH*15-1: ENTRY_ADDR_WIDTH*14];
+// assign entry_child[15] = entry[ENTRY_ADDR_WIDTH*16-1: ENTRY_ADDR_WIDTH*15];
 
-wire[ENTRY_ADDR_WIDTH-1: 0] entry_read_child[15:0];
+wire[ENTRY_ADDR_WIDTH-1: 0] entry_read_child[3:0];
 assign entry_read_child[0] = entry_read[ENTRY_ADDR_WIDTH-1: 0];
 assign entry_read_child[1] = entry_read[ENTRY_ADDR_WIDTH*2-1: ENTRY_ADDR_WIDTH];
 assign entry_read_child[2] = entry_read[ENTRY_ADDR_WIDTH*3-1: ENTRY_ADDR_WIDTH*2];
 assign entry_read_child[3] = entry_read[ENTRY_ADDR_WIDTH*4-1: ENTRY_ADDR_WIDTH*3];
-assign entry_read_child[4] = entry_read[ENTRY_ADDR_WIDTH*5-1: ENTRY_ADDR_WIDTH*4];
-assign entry_read_child[5] = entry_read[ENTRY_ADDR_WIDTH*6-1: ENTRY_ADDR_WIDTH*5];
-assign entry_read_child[6] = entry_read[ENTRY_ADDR_WIDTH*7-1: ENTRY_ADDR_WIDTH*6];
-assign entry_read_child[7] = entry_read[ENTRY_ADDR_WIDTH*8-1: ENTRY_ADDR_WIDTH*7];
-assign entry_read_child[8] = entry_read[ENTRY_ADDR_WIDTH*9-1: ENTRY_ADDR_WIDTH*8];
-assign entry_read_child[9] = entry_read[ENTRY_ADDR_WIDTH*10-1: ENTRY_ADDR_WIDTH*9];
-assign entry_read_child[10] = entry_read[ENTRY_ADDR_WIDTH*11-1: ENTRY_ADDR_WIDTH*10];
-assign entry_read_child[11] = entry_read[ENTRY_ADDR_WIDTH*12-1: ENTRY_ADDR_WIDTH*11];
-assign entry_read_child[12] = entry_read[ENTRY_ADDR_WIDTH*13-1: ENTRY_ADDR_WIDTH*12];
-assign entry_read_child[13] = entry_read[ENTRY_ADDR_WIDTH*14-1: ENTRY_ADDR_WIDTH*13];
-assign entry_read_child[14] = entry_read[ENTRY_ADDR_WIDTH*15-1: ENTRY_ADDR_WIDTH*14];
-assign entry_read_child[15] = entry_read[ENTRY_ADDR_WIDTH*16-1: ENTRY_ADDR_WIDTH*15];
+// assign entry_read_child[4] = entry_read[ENTRY_ADDR_WIDTH*5-1: ENTRY_ADDR_WIDTH*4];
+// assign entry_read_child[5] = entry_read[ENTRY_ADDR_WIDTH*6-1: ENTRY_ADDR_WIDTH*5];
+// assign entry_read_child[6] = entry_read[ENTRY_ADDR_WIDTH*7-1: ENTRY_ADDR_WIDTH*6];
+// assign entry_read_child[7] = entry_read[ENTRY_ADDR_WIDTH*8-1: ENTRY_ADDR_WIDTH*7];
+// assign entry_read_child[8] = entry_read[ENTRY_ADDR_WIDTH*9-1: ENTRY_ADDR_WIDTH*8];
+// assign entry_read_child[9] = entry_read[ENTRY_ADDR_WIDTH*10-1: ENTRY_ADDR_WIDTH*9];
+// assign entry_read_child[10] = entry_read[ENTRY_ADDR_WIDTH*11-1: ENTRY_ADDR_WIDTH*10];
+// assign entry_read_child[11] = entry_read[ENTRY_ADDR_WIDTH*12-1: ENTRY_ADDR_WIDTH*11];
+// assign entry_read_child[12] = entry_read[ENTRY_ADDR_WIDTH*13-1: ENTRY_ADDR_WIDTH*12];
+// assign entry_read_child[13] = entry_read[ENTRY_ADDR_WIDTH*14-1: ENTRY_ADDR_WIDTH*13];
+// assign entry_read_child[14] = entry_read[ENTRY_ADDR_WIDTH*15-1: ENTRY_ADDR_WIDTH*14];
+// assign entry_read_child[15] = entry_read[ENTRY_ADDR_WIDTH*16-1: ENTRY_ADDR_WIDTH*15];
 
 wire[ENTRY_WIDTH-1: 0] bram_entry_read;
 reg read_enable = 0, write_enable = 0, new_read_enable;
@@ -93,14 +93,14 @@ reg[31:0] lookup_nexthop;
 reg[6:0] len, dep;
 reg[ENTRY_ADDR_WIDTH-1:0] cur, node_cnt;
 
-reg[3:0] upd_child, upd_last;
-wire[3:0] cur_child, cur_mask_child;
+reg[1:0] upd_child, upd_last;
+wire[1:0] cur_child, cur_mask_child;
 
-reg[3:0] upd_mask[3:0];
-reg[3:0] upd_extend[3:0];
+reg[1:0] upd_mask[1:0];
+reg[1:0] upd_extend[1:0];
 
-assign cur_child = lookup_addr >> dep & 15;
-assign cur_mask_child = lookup_addr >> dep & upd_mask[(len-1)&3];
+assign cur_child = lookup_addr >> dep & 3;
+assign cur_mask_child = lookup_addr >> dep & upd_mask[(len-1)&1];
 
 xpm_memory_sdpram #(
     .ADDR_WIDTH_A(ENTRY_ADDR_WIDTH),
@@ -124,14 +124,14 @@ xpm_memory_sdpram #(
 
 initial begin
     node_cnt <= 1;
-    upd_mask[0] <= 8;
-    upd_mask[1] <= 12;
-    upd_mask[2] <= 14;
-    upd_mask[3] <= 15;
-    upd_extend[0] <= 7;
-    upd_extend[1] <= 3;
-    upd_extend[2] <= 1;
-    upd_extend[3] <= 0;
+    upd_mask[0] <= 2;
+    upd_mask[1] <= 3;
+    // upd_mask[2] <= 14;
+    // upd_mask[3] <= 15;
+    upd_extend[0] <= 1;
+    upd_extend[1] <= 0;
+    // upd_extend[2] <= 1;
+    // upd_extend[3] <= 0;
     full <= 0;
 end
 
@@ -153,7 +153,7 @@ always @(posedge lku_clk) begin
                 // $display("state: pause modify %d query %d full %d", modify_in_ready, query_in_ready, full);
                 if (modify_in_ready && !full) begin
                     $display("[lookup] modify begin %h->%h", modify_in_addr, modify_in_nexthop);
-                    dep <= 28;
+                    dep <= 30;
                     lookup_addr <= modify_in_addr;
                     lookup_port <= modify_in_nextport;
                     lookup_nexthop <= modify_in_nexthop;
@@ -168,7 +168,7 @@ always @(posedge lku_clk) begin
                     write_enable <= 0;
                 end else if (query_in_ready) begin
                     $display("[lookup] query begin %h", query_in_addr);
-                    dep <= 28;
+                    dep <= 30;
                     next_state <= STATE_QUE_READ;
                     lookup_addr <= query_in_addr;
                     query_out_nexthop <= 0;
@@ -188,7 +188,7 @@ always @(posedge lku_clk) begin
             end
         STATE_INS_READ: begin
                 // $display("state: insert-read len %d", len);
-                if (len <= 4) begin
+                if (len <= 2) begin
                     upd_child <= cur_mask_child;
                     upd_last <= cur_mask_child | upd_extend[len-1];
                     cur <= read_addr;
@@ -205,8 +205,8 @@ always @(posedge lku_clk) begin
                 end else begin
                     upd_child <= cur_child;
                     entry <= entry_read;
-                    len <= len-4;
-                    dep <= dep-4;
+                    len <= len-2;
+                    dep <= dep-2;
                     // $display("check child: %d %d", cur_child, entry_read_child[cur_child]);
                     if (entry_read_child[cur_child] == 0) begin
                         entry_to_write <= entry_read | ((node_cnt+1) << (cur_child * ENTRY_ADDR_WIDTH));
@@ -221,11 +221,8 @@ always @(posedge lku_clk) begin
             end
         STATE_INS_SET: begin
                 // $display("state ins-set [valid %d len %d] len-cur %d", entry_read[VALID_POS], entry_read[LEN_END: LEN_BEGIN], len);
-                // $display("upd-child %d node_cnt %d me %d next %d nxtnxt %d", upd_child, node_cnt, 
-                    // entry_child[upd_child],
-                    // entry_child[upd_child+1],
-                    // entry_child[upd_child+2]);
-                if (entry_read[LEN_END:LEN_BEGIN] < len-1)
+                // $display("upd-child %d node_cnt %d me %d next %d", upd_child, node_cnt, entry_child[upd_child], entry_child[upd_child+1]);
+                if (entry_read[VALID_POS] == 0 || entry_read[LEN_END:LEN_BEGIN] <= len-1)
                     entry_to_write <= {1'b1, (len[1:0]-2'b01), lookup_port, lookup_nexthop, entry_read[CHILD_END: CHILD_BEGIN]};
                 else
                     entry_to_write <= entry_read;
@@ -263,7 +260,7 @@ always @(posedge lku_clk) begin
             write_enable <= 0;
             if (entry_read_child[cur_child] > 0) begin
                 next_state <= STATE_QUE_READ;
-                dep <= dep-4;
+                dep <= dep-2;
             end else begin
                 next_state <= STATE_PAUSE;
             end
@@ -291,7 +288,7 @@ always @(*) begin
             end
         STATE_INS_READ: begin
                 // $display("state: insert-read len %d", len);
-                if (len <= 4) begin
+                if (len <= 2) begin
                     if (entry_read_child[cur_mask_child] == 0) begin
                         new_read_addr <= node_cnt + 1;
                         new_read_enable <= 0;
