@@ -221,7 +221,7 @@ always @ (*) begin
         end
         WRITE_CHECKSUM : begin
             next_write_state <= write_counter == 2 ? (
-                dst_ip == MY_IPV4_ADDRESS ? (buf_ready ? WRITE_PUSH : WRITE_BLOCKED_TOCPU) : WRITE_WAIT
+                to_cpu ? (buf_ready ? WRITE_PUSH : WRITE_BLOCKED_TOCPU) : WRITE_WAIT
             ) : WRITE_CHECKSUM;
         end
         WRITE_WAIT: begin

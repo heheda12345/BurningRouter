@@ -438,8 +438,8 @@ always @(cpu_out) begin
 end
 
 wire [63:0] timing_mils;
-timer #(.FREQ(50000)) timer_inst (
-    .clk(clk_50M),
+timer #(.FREQ(20000)) timer_inst (
+    .clk(clk_20M),
     .rst(reset_of_clk20M),
     .out(timing_mils)
 );
