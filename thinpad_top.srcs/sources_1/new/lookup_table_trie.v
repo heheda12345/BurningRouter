@@ -47,6 +47,43 @@ parameter VALID_POS = CHILD_END + 37;
 parameter ENTRY_WIDTH = VALID_POS + 1;
 reg[ENTRY_ADDR_WIDTH-1: 0] write_addr, read_addr, new_read_addr;
 reg[ENTRY_WIDTH-1: 0] entry, entry_to_write, entry_read;
+
+wire[ENTRY_ADDR_WIDTH-1: 0] entry_child[15:0];
+assign entry_child[0] = entry[ENTRY_ADDR_WIDTH-1: 0];
+assign entry_child[1] = entry[ENTRY_ADDR_WIDTH*2-1: ENTRY_ADDR_WIDTH];
+assign entry_child[2] = entry[ENTRY_ADDR_WIDTH*3-1: ENTRY_ADDR_WIDTH*2];
+assign entry_child[3] = entry[ENTRY_ADDR_WIDTH*4-1: ENTRY_ADDR_WIDTH*3];
+assign entry_child[4] = entry[ENTRY_ADDR_WIDTH*5-1: ENTRY_ADDR_WIDTH*4];
+assign entry_child[5] = entry[ENTRY_ADDR_WIDTH*6-1: ENTRY_ADDR_WIDTH*5];
+assign entry_child[6] = entry[ENTRY_ADDR_WIDTH*7-1: ENTRY_ADDR_WIDTH*6];
+assign entry_child[7] = entry[ENTRY_ADDR_WIDTH*8-1: ENTRY_ADDR_WIDTH*7];
+assign entry_child[8] = entry[ENTRY_ADDR_WIDTH*9-1: ENTRY_ADDR_WIDTH*8];
+assign entry_child[9] = entry[ENTRY_ADDR_WIDTH*10-1: ENTRY_ADDR_WIDTH*9];
+assign entry_child[10] = entry[ENTRY_ADDR_WIDTH*11-1: ENTRY_ADDR_WIDTH*10];
+assign entry_child[11] = entry[ENTRY_ADDR_WIDTH*12-1: ENTRY_ADDR_WIDTH*11];
+assign entry_child[12] = entry[ENTRY_ADDR_WIDTH*13-1: ENTRY_ADDR_WIDTH*12];
+assign entry_child[13] = entry[ENTRY_ADDR_WIDTH*14-1: ENTRY_ADDR_WIDTH*13];
+assign entry_child[14] = entry[ENTRY_ADDR_WIDTH*15-1: ENTRY_ADDR_WIDTH*14];
+assign entry_child[15] = entry[ENTRY_ADDR_WIDTH*16-1: ENTRY_ADDR_WIDTH*15];
+
+wire[ENTRY_ADDR_WIDTH-1: 0] entry_read_child[15:0];
+assign entry_read_child[0] = entry_read[ENTRY_ADDR_WIDTH-1: 0];
+assign entry_read_child[1] = entry_read[ENTRY_ADDR_WIDTH*2-1: ENTRY_ADDR_WIDTH];
+assign entry_read_child[2] = entry_read[ENTRY_ADDR_WIDTH*3-1: ENTRY_ADDR_WIDTH*2];
+assign entry_read_child[3] = entry_read[ENTRY_ADDR_WIDTH*4-1: ENTRY_ADDR_WIDTH*3];
+assign entry_read_child[4] = entry_read[ENTRY_ADDR_WIDTH*5-1: ENTRY_ADDR_WIDTH*4];
+assign entry_read_child[5] = entry_read[ENTRY_ADDR_WIDTH*6-1: ENTRY_ADDR_WIDTH*5];
+assign entry_read_child[6] = entry_read[ENTRY_ADDR_WIDTH*7-1: ENTRY_ADDR_WIDTH*6];
+assign entry_read_child[7] = entry_read[ENTRY_ADDR_WIDTH*8-1: ENTRY_ADDR_WIDTH*7];
+assign entry_read_child[8] = entry_read[ENTRY_ADDR_WIDTH*9-1: ENTRY_ADDR_WIDTH*8];
+assign entry_read_child[9] = entry_read[ENTRY_ADDR_WIDTH*10-1: ENTRY_ADDR_WIDTH*9];
+assign entry_read_child[10] = entry_read[ENTRY_ADDR_WIDTH*11-1: ENTRY_ADDR_WIDTH*10];
+assign entry_read_child[11] = entry_read[ENTRY_ADDR_WIDTH*12-1: ENTRY_ADDR_WIDTH*11];
+assign entry_read_child[12] = entry_read[ENTRY_ADDR_WIDTH*13-1: ENTRY_ADDR_WIDTH*12];
+assign entry_read_child[13] = entry_read[ENTRY_ADDR_WIDTH*14-1: ENTRY_ADDR_WIDTH*13];
+assign entry_read_child[14] = entry_read[ENTRY_ADDR_WIDTH*15-1: ENTRY_ADDR_WIDTH*14];
+assign entry_read_child[15] = entry_read[ENTRY_ADDR_WIDTH*16-1: ENTRY_ADDR_WIDTH*15];
+
 wire[ENTRY_WIDTH-1: 0] bram_entry_read;
 reg read_enable = 0, write_enable = 0, new_read_enable;
 reg[2:0] state = STATE_PAUSE, next_state = STATE_PAUSE;
@@ -101,7 +138,7 @@ end
 always @(posedge lku_clk) begin
     state <= next_state;
     // if (read_enable)
-    //     $display("read from %d: [%d %d] hop-%h port-%d len-%d vaild-%d", read_addr, bram_entry_read[9:0], bram_entry_read[19:10], bram_entry_read[NXT_HOP_END:NXT_HOP_BEGIN], bram_entry_read[NXT_PORT_END: NXT_PORT_BEGIN], bram_entry_read[LEN_END:LEN_BEGIN], bram_entry_read[VALID_POS]);
+    //     $display("read from %d: [%d %d]/[%d %d]/[%d %d] hop-%h port-%d len-%d vaild-%d", read_addr, bram_entry_read[9:0], bram_entry_read[19:10], entry_read[9:0], entry_read[19:10], entry_read_child[0], entry_read_child[1], bram_entry_read[NXT_HOP_END:NXT_HOP_BEGIN], bram_entry_read[NXT_PORT_END: NXT_PORT_BEGIN], bram_entry_read[LEN_END:LEN_BEGIN], bram_entry_read[VALID_POS]);
     // if (write_enable)
     //     $display("write to %d: [%d %d] hop-%h port-%d len-%d valid-%d", write_addr, entry_to_write[9:0], entry_to_write[19:10], entry_to_write[NXT_HOP_END:NXT_HOP_BEGIN], entry_to_write[NXT_PORT_END: NXT_PORT_BEGIN],  entry_to_write[LEN_END:LEN_BEGIN], entry_to_write[VALID_POS]);
     // $display("state: %d-%d", state, next_state);
@@ -113,7 +150,7 @@ end
 always @(posedge lku_clk) begin
     case (next_state)
         STATE_PAUSE: begin
-                //$display("state: pause modify %d query %d full %d", modify_in_ready, query_in_ready, full);
+                // $display("state: pause modify %d query %d full %d", modify_in_ready, query_in_ready, full);
                 if (modify_in_ready && !full) begin
                     $display("[lookup] modify begin %h->%h", modify_in_addr, modify_in_nexthop);
                     dep <= 28;
@@ -156,7 +193,7 @@ always @(posedge lku_clk) begin
                     upd_last <= cur_mask_child | upd_extend[len-1];
                     cur <= read_addr;
                     // $display("modify range %d %d", cur_mask_child, cur_mask_child | upd_extend[len-1]);
-                    if (entry_read[(cur_mask_child+1)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH] == 0) begin
+                    if (entry_read_child[cur_mask_child] == 0) begin
                         node_cnt <= node_cnt + 1;
                         entry <= entry_read | ((node_cnt+1) << (cur_mask_child * ENTRY_ADDR_WIDTH));
                         write_enable <= 0;
@@ -170,8 +207,8 @@ always @(posedge lku_clk) begin
                     entry <= entry_read;
                     len <= len-4;
                     dep <= dep-4;
-                    // $display("check child: %d %d", cur_child, entry_read[(cur_child<<4)+15-: 16]);
-                    if (entry_read[(cur_child+1)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH] == 0) begin
+                    // $display("check child: %d %d", cur_child, entry_read_child[cur_child]);
+                    if (entry_read_child[cur_child] == 0) begin
                         entry_to_write <= entry_read | ((node_cnt+1) << (cur_child * ENTRY_ADDR_WIDTH));
                         write_addr <= read_addr;
                         write_enable <= 1;
@@ -185,9 +222,9 @@ always @(posedge lku_clk) begin
         STATE_INS_SET: begin
                 // $display("state ins-set [valid %d len %d] len-cur %d", entry_read[VALID_POS], entry_read[LEN_END: LEN_BEGIN], len);
                 // $display("upd-child %d node_cnt %d me %d next %d nxtnxt %d", upd_child, node_cnt, 
-                    // entry[(upd_child+1)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH],
-                    // entry[(upd_child+2)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH],
-                    // entry[(upd_child+3)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH]);
+                    // entry_child[upd_child],
+                    // entry_child[upd_child+1],
+                    // entry_child[upd_child+2]);
                 if (entry_read[LEN_END:LEN_BEGIN] < len-1)
                     entry_to_write <= {1'b1, (len[1:0]-2'b01), lookup_port, lookup_nexthop, entry_read[CHILD_END: CHILD_BEGIN]};
                 else
@@ -195,7 +232,7 @@ always @(posedge lku_clk) begin
                 write_enable <= 1;
                 write_addr <= read_addr;
                 if (upd_child != upd_last) begin
-                    if (entry[(upd_child+2)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH] == 0) begin
+                    if (entry_child[upd_child+1] == 0) begin
                         entry[(upd_child+2)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH] <= node_cnt + 1;
                         node_cnt <= node_cnt + 1;
                     end
@@ -218,13 +255,13 @@ always @(posedge lku_clk) begin
                 write_enable <= 0;
             end
         STATE_QUE_READ: begin
-            // $display("state query-read addr %d valid %d ans %h", read_addr, entry_read[VALID_POS], entry_read[NXT_HOP_END: NXT_HOP_BEGIN]);
+            // $display("state query-read addr %d valid %d ans %h cur %d nxt %d", read_addr, entry_read[VALID_POS], entry_read[NXT_HOP_END: NXT_HOP_BEGIN], cur_child, entry_read_child[cur_child]);
             if (entry_read[VALID_POS] == 1) begin
                 query_out_nexthop <= entry_read[NXT_HOP_END: NXT_HOP_BEGIN];
                 query_out_nextport <= entry_read[NXT_PORT_END: NXT_PORT_BEGIN];
             end
             write_enable <= 0;
-            if (entry_read[(cur_child+1)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH] > 0) begin
+            if (entry_read_child[cur_child] > 0) begin
                 next_state <= STATE_QUE_READ;
                 dep <= dep-4;
             end else begin
@@ -255,30 +292,30 @@ always @(*) begin
         STATE_INS_READ: begin
                 // $display("state: insert-read len %d", len);
                 if (len <= 4) begin
-                    if (entry_read[(cur_mask_child+1)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH] == 0) begin
+                    if (entry_read_child[cur_mask_child] == 0) begin
                         new_read_addr <= node_cnt + 1;
                         new_read_enable <= 0;
                     end else begin
-                        new_read_addr <= entry_read[(cur_mask_child+1)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH];
+                        new_read_addr <= entry_read_child[cur_mask_child];
                         new_read_enable <= 1;
                     end
                 end else begin
-                    if (entry_read[(cur_child+1)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH] == 0) begin
+                    if (entry_read_child[cur_child] == 0) begin
                         new_read_enable <= 0;
                         new_read_addr <= node_cnt + 1;
                     end else begin
-                        new_read_addr <= entry_read[(cur_child+1)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH];
+                        new_read_addr <= entry_read_child[cur_child];
                         new_read_enable <= 1;
                     end
                 end
             end
         STATE_INS_SET: begin
                 if (upd_child != upd_last) begin
-                    if (entry[(upd_child+2)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH] == 0) begin
+                    if (entry_child[upd_child+1] == 0) begin
                         new_read_addr <= node_cnt + 1;
                         new_read_enable <= 0;
-                    end else if (entry[(upd_child+2)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH] != node_cnt + 1)begin
-                        new_read_addr <= entry[(upd_child+2)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH];
+                    end else if (entry_child[upd_child+1] != node_cnt + 1)begin
+                        new_read_addr <= entry_child[upd_child+1];
                         new_read_enable <= 1;
                     end
                 end else begin
@@ -292,8 +329,8 @@ always @(*) begin
                 new_read_enable <= 0;
             end
         STATE_QUE_READ: begin
-            if (entry_read[(cur_child+1)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH] > 0) begin
-                new_read_addr <= entry_read[(cur_child+1)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH];
+            if (entry_read_child[cur_child] > 0) begin
+                new_read_addr <= entry_read_child[cur_child];
                 new_read_enable <= 1;
             end else begin
                 new_read_enable <= 0;
