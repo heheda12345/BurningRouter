@@ -350,6 +350,9 @@ always @(*) begin
                             next_inst_in_delayslot_o <= 1;
                         end
                     end
+                    default: begin
+                        $display("[id.v] regimm %h not support", ins_rt);
+                    end
                 endcase
             end
             `EXE_JUMP: begin

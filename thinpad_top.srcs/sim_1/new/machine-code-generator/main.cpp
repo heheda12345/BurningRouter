@@ -2,6 +2,6 @@
 #include "bootloader.h"
 
 int main() {
-    puts("HW");
+    puts("hello world!");
     return 0;
 }
