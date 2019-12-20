@@ -92,3 +92,11 @@ unsigned min(unsigned x, unsigned y)
 {
     return x > y ? y : x;
 }
+
+char hextoch(int x)
+{
+    if (x < 10)
+        return '0' + x;
+    else
+        return 'a' + x - 10;
+}

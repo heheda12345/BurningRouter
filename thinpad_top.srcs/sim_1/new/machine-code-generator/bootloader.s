@@ -3,7 +3,6 @@
     .global __start
     .set noat
     .set noreorder
-    .abicalls
 __start:
     li $sp, 0x80800000
     bal bootloader

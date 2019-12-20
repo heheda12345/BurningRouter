@@ -1,10 +1,10 @@
 // Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2018.3 (win64) Build 2405991 Thu Dec  6 23:38:27 MST 2018
-// Date        : Thu Dec 19 01:55:56 2019
-// Host        : DESKTOP-9FUVL9G running 64-bit major release  (build 9200)
+// Date        : Fri Dec 20 00:48:23 2019
+// Host        : DESKTOP-8QNULD6 running 64-bit major release  (build 9200)
 // Command     : write_verilog -force -mode synth_stub
-//               D:/codes/hw-2019autumn/org-net/cod19grp2/thinpad_top.srcs/sources_1/ip/eth_mac/eth_mac_stub.v
+//               C:/Users/namas/Documents/Course/2019Autumn/OrganizationNetworkExperiment/cod19grp2/thinpad_top.srcs/sources_1/ip/eth_mac/eth_mac_stub.v
 // Design      : eth_mac
 // Purpose     : Stub declaration of top-level module interface
 // Device      : xc7a100tfgg676-2L
