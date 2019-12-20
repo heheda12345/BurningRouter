@@ -2,7 +2,7 @@
 #include "bootloader.h"
 #include "ta_hal.h"
 
-uint8_t packet[2048];
+// uint8_t packet[2048];
 
 int main()
 {
@@ -13,6 +13,7 @@ int main()
         macaddr_t dst_mac;
         int if_index;
 
+        uint8_t *packet;
         int res = ReceiveIPPacket(buffer_header, packet, src_mac, dst_mac, 1000, &if_index);
 
         if (res == HAL_ERR_EOF)
@@ -32,17 +33,6 @@ int main()
         {
             // packet is truncated, ignore it
             continue;
-        }
-
-        for (int i = 0; i < res; ++i)
-        {
-            if (i % 16 == 0)
-            {
-                putc('\n');
-            }
-            putc(hextoch(packet[i] & 0xff));
-            putc(hextoch(packet[i] & 0xff00));
-            putc(' ');
         }
 
         in_addr_t src_addr = *(uint32_t *)(packet + 12), dst_addr = *(uint32_t *)(packet + 16);
