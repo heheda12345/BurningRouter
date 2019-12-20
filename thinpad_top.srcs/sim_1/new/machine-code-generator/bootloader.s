@@ -3,15 +3,15 @@
     .global __start
     .set noat
     .set noreorder
-    .abicalls
 __start:
     li $sp, 0x80800000
     bal bootloader
     nop
 
 boot:
-    li $s5, 0x80000000
-    jr $s5
+    bal main
+    nop
+    j end
     nop
 
     .org 0x380
