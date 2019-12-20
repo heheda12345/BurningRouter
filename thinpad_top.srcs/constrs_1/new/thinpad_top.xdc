@@ -322,6 +322,7 @@ set_max_delay -datapath_only -from [get_cells -hierarchical *cdom_buffer*] -to [
 set_max_delay -datapath_only -from [get_cells -hierarchical *cdom_pulse_toggle_in_reg*] -to [get_cells -hierarchical {*cdom_pulse_sync_reg[0]*}] 10.000
 
 
+
 create_debug_core u_ila_0 ila
 set_property ALL_PROBE_SAME_MU true [get_debug_cores u_ila_0]
 set_property ALL_PROBE_SAME_MU_CNT 1 [get_debug_cores u_ila_0]
@@ -334,40 +335,48 @@ set_property C_TRIGOUT_EN false [get_debug_cores u_ila_0]
 set_property port_width 1 [get_debug_ports u_ila_0/clk]
 connect_debug_port u_ila_0/clk [get_nets [list eth_mac_inst/inst/tri_mode_ethernet_mac_i/rgmii_interface/CLK]]
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe0]
-set_property port_width 8 [get_debug_ports u_ila_0/probe0]
-connect_debug_port u_ila_0/probe0 [get_nets [list {router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tdata[0]} {router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tdata[1]} {router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tdata[2]} {router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tdata[3]} {router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tdata[4]} {router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tdata[5]} {router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tdata[6]} {router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tdata[7]}]]
+set_property port_width 4 [get_debug_ports u_ila_0/probe0]
+connect_debug_port u_ila_0/probe0 [get_nets [list {router_inst/router_core_i/arp_module_inst/arp_write_state[0]} {router_inst/router_core_i/arp_module_inst/arp_write_state[1]} {router_inst/router_core_i/arp_module_inst/arp_write_state[2]} {router_inst/router_core_i/arp_module_inst/arp_write_state[3]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe1]
-set_property port_width 8 [get_debug_ports u_ila_0/probe1]
-connect_debug_port u_ila_0/probe1 [get_nets [list {router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tdata[0]} {router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tdata[1]} {router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tdata[2]} {router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tdata[3]} {router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tdata[4]} {router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tdata[5]} {router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tdata[6]} {router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tdata[7]}]]
+set_property port_width 4 [get_debug_ports u_ila_0/probe1]
+connect_debug_port u_ila_0/probe1 [get_nets [list {router_inst/router_core_i/arp_module_inst/arp_read_state[0]} {router_inst/router_core_i/arp_module_inst/arp_read_state[1]} {router_inst/router_core_i/arp_module_inst/arp_read_state[2]} {router_inst/router_core_i/arp_module_inst/arp_read_state[3]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe2]
-set_property port_width 1 [get_debug_ports u_ila_0/probe2]
-connect_debug_port u_ila_0/probe2 [get_nets [list router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tlast]]
+set_property port_width 8 [get_debug_ports u_ila_0/probe2]
+connect_debug_port u_ila_0/probe2 [get_nets [list {router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tdata[0]} {router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tdata[1]} {router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tdata[2]} {router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tdata[3]} {router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tdata[4]} {router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tdata[5]} {router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tdata[6]} {router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tdata[7]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe3]
-set_property port_width 1 [get_debug_ports u_ila_0/probe3]
-connect_debug_port u_ila_0/probe3 [get_nets [list router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tready]]
+set_property port_width 8 [get_debug_ports u_ila_0/probe3]
+connect_debug_port u_ila_0/probe3 [get_nets [list {router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tdata[0]} {router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tdata[1]} {router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tdata[2]} {router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tdata[3]} {router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tdata[4]} {router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tdata[5]} {router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tdata[6]} {router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tdata[7]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe4]
 set_property port_width 1 [get_debug_ports u_ila_0/probe4]
-connect_debug_port u_ila_0/probe4 [get_nets [list router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tvalid]]
+connect_debug_port u_ila_0/probe4 [get_nets [list router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tlast]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe5]
 set_property port_width 1 [get_debug_ports u_ila_0/probe5]
-connect_debug_port u_ila_0/probe5 [get_nets [list router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tlast]]
+connect_debug_port u_ila_0/probe5 [get_nets [list router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tready]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe6]
 set_property port_width 1 [get_debug_ports u_ila_0/probe6]
-connect_debug_port u_ila_0/probe6 [get_nets [list router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tready]]
+connect_debug_port u_ila_0/probe6 [get_nets [list router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tvalid]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe7]
 set_property port_width 1 [get_debug_ports u_ila_0/probe7]
-connect_debug_port u_ila_0/probe7 [get_nets [list router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tvalid]]
+connect_debug_port u_ila_0/probe7 [get_nets [list router_inst/router_core_i/to_cpu]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe8]
 set_property port_width 1 [get_debug_ports u_ila_0/probe8]
-connect_debug_port u_ila_0/probe8 [get_nets [list router_inst/router_core_i/to_cpu]]
+connect_debug_port u_ila_0/probe8 [get_nets [list router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tlast]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe9]
+set_property port_width 1 [get_debug_ports u_ila_0/probe9]
+connect_debug_port u_ila_0/probe9 [get_nets [list router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tready]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe10]
+set_property port_width 1 [get_debug_ports u_ila_0/probe10]
+connect_debug_port u_ila_0/probe10 [get_nets [list router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tvalid]]
 set_property C_CLK_INPUT_FREQ_HZ 300000000 [get_debug_cores dbg_hub]
 set_property C_ENABLE_CLK_DIVIDER false [get_debug_cores dbg_hub]
 set_property C_USER_SCAN_CHAIN 1 [get_debug_cores dbg_hub]
