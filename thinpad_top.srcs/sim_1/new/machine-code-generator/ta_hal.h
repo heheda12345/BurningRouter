@@ -49,7 +49,7 @@ uint64_t GetTicks();
  * @param if_index OUT，实际接收到的报文来源的接口号，不能为空指针。范围是0~3
  * @return int >0 表示实际接收的报文长度，=0 表示超时返回，<0 表示发生错误
  */
-int ReceiveIPPacket(int sys_index, uint8_t *buffer,
+int ReceiveIPPacket(int sys_index, uint8_t* &buffer,
                     macaddr_t src_mac, macaddr_t dst_mac, int64_t timeout,
                     int *if_index);
 

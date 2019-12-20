@@ -53,6 +53,14 @@ always @(*) begin
                 $display("exception %h not support", excepttype_i);
             end
         endcase
+    end else if (mem_req == 1'b1) begin
+        pc_stall <= 1;
+        if_stall <= 1;
+        id_stall <= 1;
+        ex_stall <= 1;
+        mem_stall <= 1;
+        wb_stall <= 0;
+        flush <= 0;
     end else if (id_req == 1'b1) begin
         pc_stall <= 1;
         if_stall <= 1;
@@ -67,14 +75,6 @@ always @(*) begin
         id_stall <= 1;
         ex_stall <= 0;
         mem_stall <= 0;
-        wb_stall <= 0;
-        flush <= 0;
-    end else if (mem_req == 1'b1) begin
-        pc_stall <= 1;
-        if_stall <= 1;
-        id_stall <= 1;
-        ex_stall <= 1;
-        mem_stall <= 1;
         wb_stall <= 0;
         flush <= 0;
     end else begin

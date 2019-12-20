@@ -16,7 +16,7 @@ uint64_t GetTicks()
     return 0; // To be implemented
 }
 
-int ReceiveIPPacket(int sys_index, uint8_t *buffer,
+int ReceiveIPPacket(int sys_index, uint8_t * &buffer,
                     macaddr_t src_mac, macaddr_t dst_mac, int64_t timeout,
                     int *if_index)
 {
@@ -41,7 +41,7 @@ int ReceiveIPPacket(int sys_index, uint8_t *buffer,
     *(uint32_t *)dst_mac = *(uint32_t *)(buffer + 6);
     *(uint16_t *)(dst_mac + 4) = *(uint16_t *)(buffer + 10);
     *(int *)if_index = *(uint8_t *)(buffer + 15) - 1;
-    return *(int *)(buffer);
+    return *(int *)(buffer-4);
 }
 
 int SendIPPacket(int if_index, uint8_t *buffer, size_t length,
