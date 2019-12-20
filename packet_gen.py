@@ -40,4 +40,7 @@ def Case1():
 def Case2():
     print(genCPU(ping('10.0.0.12', 'ff:ff:ff:ff:ff:ff', '10.0.0.1', '02:02:03:03:00:00', 2)))
 
-Case1()
+
+# Case1()
+
+print(gen(arp_request('10.0.1.1', '10.0.1.11', 'ac:e2:d3:6b:e0:ef', 1)))
