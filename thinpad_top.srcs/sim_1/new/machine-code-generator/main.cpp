@@ -1,8 +1,3 @@
-// #include "bootloader.h"
-// int main() {
-//     puts("Hello the cruel world.");
-// }
-
 #include "utility.h"
 #include "bootloader.h"
 #include "ta_hal.h"
@@ -18,11 +13,7 @@ int main()
         macaddr_t dst_mac;
         int if_index;
 
-        puts("Before a receive.");
-
         int res = ReceiveIPPacket(buffer_header, packet, src_mac, dst_mac, 1000, &if_index);
-
-        puts("After a receive.");
 
         if (res == HAL_ERR_EOF)
         {
@@ -53,5 +44,10 @@ int main()
             putc(hextoch(packet[i] & 0xff00));
             putc(' ');
         }
+
+        in_addr_t src_addr = *(uint32_t *)(packet + 12), dst_addr = *(uint32_t *)(packet + 16);
+        *(uint32_t *)(packet + 12) = src_addr, *(uint32_t *)(packet + 16) = dst_addr;
+
+        SendIPPacket(if_index, packet, res, src_mac);
     }
 }
