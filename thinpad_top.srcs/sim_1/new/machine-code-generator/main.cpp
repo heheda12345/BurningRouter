@@ -1,3 +1,8 @@
+// #include "bootloader.h"
+// int main() {
+//     puts("Hello the cruel world.");
+// }
+
 #include "utility.h"
 #include "bootloader.h"
 #include "ta_hal.h"
@@ -12,7 +17,12 @@ int main()
         macaddr_t src_mac;
         macaddr_t dst_mac;
         int if_index;
+
+        puts("Before a receive.");
+
         int res = ReceiveIPPacket(buffer_header, packet, src_mac, dst_mac, 1000, &if_index);
+
+        puts("After a receive.");
 
         if (res == HAL_ERR_EOF)
         {
