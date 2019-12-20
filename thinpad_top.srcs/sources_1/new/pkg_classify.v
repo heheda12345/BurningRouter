@@ -53,7 +53,7 @@ localparam  IPV4 = 2'b01,
 wire axi_treset;
 assign axi_treset = !axi_tresetn;
 
-reg [2:0] read_state = IDLE, next_read_state = IDLE;
+(*mark_debug="true"*)reg [2:0] read_state = IDLE, next_read_state = IDLE;
 reg [2:0] dst_counter, src_counter;
 reg type_counter, vlan_port_counter, vlan_type_counter;
 

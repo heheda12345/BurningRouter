@@ -94,8 +94,8 @@ eth_mac_wrapper eth_mac_wraper_i(
     .tx_axis_fifo_tready(eth_tx_axis_fifo_tready)
 );
 
-wire is_ipv4, is_arp, ipv4_ready, arp_ready, ipv4_complete, arp_complete;
-wire [7:0] vlan_port;
+(*MARK_DEBUG="TRUE"*) wire is_ipv4, is_arp, ipv4_ready, arp_ready, ipv4_complete, arp_complete;
+(*MARK_DEBUG="TRUE"*) wire [7:0] vlan_port;
 
 (*MARK_DEBUG="TRUE"*)wire [11:0] mem_read_addr, mem_write_addr;
 (*MARK_DEBUG="TRUE"*)wire [7:0] mem_read_data, mem_write_data;
