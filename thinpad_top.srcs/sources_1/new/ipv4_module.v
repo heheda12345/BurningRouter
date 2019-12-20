@@ -110,6 +110,8 @@ wire [5:0] arp_request_counter;
 wire arp_request_last;
 reg arp_table_query_out_ready;
 wire [31:0] MY_IPV4_ADDRESS_NEW;
+reg to_read_over, to_read_dest;
+wire next_busy_writing;
 
 wire body_start;
 wire is_writing;
@@ -118,6 +120,8 @@ always @ (posedge clk) begin
     ipv4_read_state <= next_read_state;
 end
 always @ (*) begin
+    to_read_over <= 0;
+    to_read_dest <= 0;
     if (rst) begin
         next_read_state <= IDLE;
     end
@@ -152,9 +156,13 @@ always @ (*) begin
             next_read_state <= rx_axis_fifo_tvalid && header_counter == 12? SRC : CHECKSUM;
         end
         SRC: begin
-            next_read_state <= rx_axis_fifo_tvalid && header_counter == 16? DEST : SRC;
+            if (rx_axis_fifo_tvalid && header_counter == 16) begin
+                next_read_state <= DEST;
+                to_read_dest <= 1;
+            end else  next_read_state <= SRC;
         end
         DEST: begin
+            // to_read_dest <= 1;
             if (rx_axis_fifo_tvalid && header_counter == 20) begin
                 if (header_counter[5:2] == header_length) begin
                     // it is possible that this number overflows. Why do we not check it?
@@ -167,7 +175,7 @@ always @ (*) begin
                         next_read_state <= BODY;
                     end else next_read_state <= DISCARD;
                 end else next_read_state <= VARIANT;
-            end else next_read_state <= DEST;
+            end else  begin next_read_state <= DEST; to_read_dest <= 1; end
         end
         VARIANT: begin
             if (rx_axis_fifo_tvalid && header_counter[5:2] == header_length) begin
@@ -179,23 +187,34 @@ always @ (*) begin
         BODY: begin
             if (!to_cpu && arp_table_query_out_ready && !arp_table_query_exist) next_read_state <= DISCARD;
             else begin
-                if (rx_last) next_read_state <= is_writing ? WAIT : OVER;
+                if (rx_last) begin 
+                    next_read_state <= is_writing ? WAIT : OVER; 
+                    if (!is_writing) to_read_over <= 1;
+                end
                 else next_read_state <= rx_axis_fifo_tvalid && total_counter == total_length ? TAIL : BODY;
             end
         end
         TAIL: begin
             next_read_state <= rx_last ? (is_writing ? WAIT : OVER) : TAIL;
+            if (rx_last && !is_writing) to_read_over <= 1;
         end
         DISCARD: begin
             next_read_state <= rx_axis_fifo_tvalid && rx_axis_fifo_tlast ? (
                 is_writing ? WAIT : OVER
             ) : DISCARD;
+            if (rx_axis_fifo_tvalid && rx_axis_fifo_tlast && !is_writing) to_read_over <= 1;
         end
         // pipeline, so ... no waiting?
         WAIT: begin
-            next_read_state <= is_writing ? WAIT : OVER;
+            if (is_writing) next_read_state <= WAIT;
+            else begin
+                next_read_state <= OVER;
+                to_read_over <= 1;
+            end
+            // next_read_state <= is_writing ? WAIT : OVER;
         end
         OVER: begin
+            // to_read_over <= 1;
             next_read_state <= IDLE;
         end
         default:begin
@@ -373,7 +392,7 @@ always @ (posedge clk) begin
 end*/
 //assign mem_read_ena = ipv4_write_state == WRITE_PUSH;
 assign buf_start = next_write_state == WRITE_PUSH || next_write_state == WRITE_TOCPU;
-assign buf_last = next_read_state == OVER;
+assign buf_last = to_read_over;
 assign buf_end_addr = buf_start_addr + mem_write_counter + 1; // mark the farthest point the writer pointer reaches
 always @(posedge clk) begin
     if (ipv4_read_state == IDLE) to_cpu <= 0;
@@ -421,7 +440,7 @@ async_setter # (.LEN(4), .ADDR_WIDTH(2)) src_ip_setter (
 async_setter # (.LEN(4), .ADDR_WIDTH(2)) dst_ip_setter (
     .value(dst_ip),
     .clk(clk), 
-    .enable(next_read_state == DEST),
+    .enable(to_read_dest),
     .data_input(rx_axis_fifo_tdata),
     .index(header_counter[1:0])
 );

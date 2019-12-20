@@ -41,7 +41,7 @@ module router_core(
 wire [47:0] MY_MAC_ADDR;
 reg [32*4-1:0] MY_IPV4_ADDR = {32'h0a000101, 32'h0a000001, 32'h0a000201, 32'h0a000301};
 assign MY_MAC_ADDR = 48'h020203030000;
-wire [31:0] MY_IPV4_ADDR_PORT;
+reg [31:0] MY_IPV4_ADDR_PORT;
 
 wire eth_rx_axis_fifo_tvalid, rx_axis_fifo_tvalid;
 wire [7:0] eth_rx_axis_fifo_tdata, rx_axis_fifo_tdata;
@@ -392,12 +392,14 @@ end
 //     end
 // end
 
-ip_address_port_access ip_address_port_access_inst (
-    .ip_addresses(MY_IPV4_ADDR),
-    .vlan_port(vlan_port), 
-    .ip_address(MY_IPV4_ADDR_PORT)
-);
-
+always @(posedge axi_tclk or posedge axi_treset) begin
+    if (axi_treset)  MY_IPV4_ADDR_PORT = 0;
+    else if (vlan_port == 4) MY_IPV4_ADDR_PORT = MY_IPV4_ADDR[31:0];
+    else if (vlan_port == 3) MY_IPV4_ADDR_PORT = MY_IPV4_ADDR[63:32];
+    else if (vlan_port == 2) MY_IPV4_ADDR_PORT = MY_IPV4_ADDR[95:64];
+    else if (vlan_port == 1) MY_IPV4_ADDR_PORT = MY_IPV4_ADDR[127:96];
+    else MY_IPV4_ADDR_PORT = 0;
+end
 
 endmodule // router_core
 
