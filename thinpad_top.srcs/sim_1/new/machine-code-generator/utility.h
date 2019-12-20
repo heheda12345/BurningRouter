@@ -35,4 +35,7 @@ void memcpy(void *dst, void *src, size_t len);
 
 unsigned min(unsigned x, unsigned y);
 
+// parameter [x] is required to be in [0, 16)
+char hextoch(int x);
+
 #endif
