@@ -118,7 +118,7 @@ wire body_start;
 wire is_writing;
 
 always @ (posedge clk) begin
-    ipv4_read_state <= next_read_state;
+    ipv4_read_state <= rst ? IDLE : next_read_state;
 end
 always @ (*) begin
     to_read_over <= 0;
@@ -229,7 +229,7 @@ assign body_start = (ipv4_read_state == DEST || ipv4_read_state == VARIANT) && r
 assign is_writing = ipv4_write_state != IDLE && ipv4_write_state != OVER;
 
 always @ (posedge clk) begin
-    ipv4_write_state <= next_write_state;
+    ipv4_write_state <= rst ? IDLE : next_write_state;
 end
 always @ (*) begin
     case (ipv4_write_state)
