@@ -5,6 +5,7 @@ const uint32_t SEND_CONTROL_ADDRESS = 0xBFD00408;
 const uint32_t SEND_STATE_ADDRESS = 0xBFD00404;
 const uint32_t BUFFER_BASE_ADDRESS = 0x80600000;
 const uint32_t ROUTER_TABLE_BASE = 0xBFD00410;
+const uint32_t TIMER_POS = 0xBFD00440;
 
 int Init(in_addr_t if_addrs[N_IFACE_ON_BOARD])
 {
@@ -13,7 +14,9 @@ int Init(in_addr_t if_addrs[N_IFACE_ON_BOARD])
 
 uint64_t GetTicks()
 {
-    return 0; // To be implemented
+    volatile uint64_t time1 = *(uint32_t*)(TIMER_POS);
+    volatile uint64_t time2 = *(uint32_t*)(TIMER_POS + 1);
+    return time2 << 32 | time1;
 }
 
 int ReceiveIPPacket(int sys_index, uint8_t *&buffer,
@@ -46,13 +49,14 @@ int ReceiveIPPacket(int sys_index, uint8_t *&buffer,
     int res = *(int *)(buffer - 4);
     for (int i = 0; i < res; ++i)
     {
-        if (i % 16 == 0)
-        {
-            putc('\n');
-        }
+        // if (i % 16 == 0)
+        // {
+        //     putc('\n');
+        // }
         putc(buffer[i]);
-        putc(' ');
+        // putc(' ');
     }
+    puts("recv");
 
     return res;
 }
@@ -75,11 +79,12 @@ int SendIPPacket(int if_index, uint8_t *buffer, size_t length,
 
     for (int i = 0; i < length; ++i)
     {
-        if (i % 16 == 0)
-        {
-            putc('\n');
-        }
+        // if (i % 16 == 0)
+        // {
+        //     putc('\n');
+        // }
         putc(buffer[i]);
-        putc(' ');
+        // putc(' ');
     }
+    puts("send");
 }
