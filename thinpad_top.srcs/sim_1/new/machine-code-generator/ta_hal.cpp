@@ -40,9 +40,11 @@ int ReceiveIPPacket(int sys_index, uint8_t *&buffer,
     buffer = (uint8_t *)(BUFFER_BASE_ADDRESS + ((sys_index++) << 11)) + 4;
     // Note: the Ethernet header the cpu receives is different from that of a standard one.
     // In our implementation, src mac is ahead of dst mac.
-    *(uint32_t *)src_mac = *(uint32_t *)(buffer); // Big-Endian
+    *(uint16_t *)src_mac = *(uint16_t *)(buffer); // Big-Endian
+    *(uint16_t *)(src_mac + 2) = *(uint16_t *)(buffer + 2);
     *(uint16_t *)(src_mac + 4) = *(uint16_t *)(buffer + 4);
-    *(uint32_t *)dst_mac = *(uint32_t *)(buffer + 6);
+    *(uint16_t *)dst_mac = *(uint16_t *)(buffer + 6);
+    *(uint16_t *)(dst_mac + 2) = *(uint16_t *)(buffer + 8);
     *(uint16_t *)(dst_mac + 4) = *(uint16_t *)(buffer + 10);
     *(int *)if_index = *(uint8_t *)(buffer + 15) - 1;
 
@@ -70,7 +72,8 @@ int ReceiveIPPacket(int sys_index, uint8_t *&buffer,
 int SendIPPacket(int if_index, uint8_t *buffer, size_t length,
                  macaddr_t my_mac)
 {
-    *(uint32_t *)(buffer) = *(uint32_t *)(buffer + 6) = *(uint32_t *)(my_mac);
+    *(uint16_t *)(buffer) = *(uint16_t *)(buffer + 6) = *(uint16_t *)(my_mac);
+    *(uint16_t *)(buffer + 2) = *(uint16_t *)(buffer + 8) = *(uint16_t *)(my_mac + 2);
     *(uint16_t *)(buffer + 4) = *(uint16_t *)(buffer + 10) = *(uint16_t *)(my_mac + 4);
     *(uint8_t *)(buffer + 15) = (*(int *)if_index) + 1;
     buffer -= 4;
