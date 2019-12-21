@@ -84,9 +84,9 @@ module router_controller_in
     input wire bus_stall,
     // router -> cpu
     output wire [BUFFER_IND-1:0] in_index,
-    output reg restart,
+    (*mark_debug="true"*)output reg restart,
     input wire clear_restart,
-    output reg mem_write_en,
+    (*mark_debug="true"*)output reg mem_write_en,
     output reg [31:0] mem_write_addr,
     output reg [31:0] mem_write_data,
     
@@ -104,7 +104,7 @@ localparam  IDLE = 2'h0,
             WRITE_LEN = 2'h2;
 reg [1:0] state;
 reg [10:0] mem_addr_offset, total_len;
-reg [BUFFER_IND-1:0] cur_index; // index of the currently writing package
+(*mark_debug="true"*)reg [BUFFER_IND-1:0] cur_index; // index of the currently writing package
 reg is_end;
 
 assign in_index = cur_index;
@@ -172,7 +172,7 @@ module router_controller_out(
     input wire rst,
 
     input  wire bus_stall,
-    output reg out_state = 1'b0, 
+    (*mark_debug="true"*)output reg out_state = 1'b0, 
     input  wire out_en, 
     input  wire [31:0] out_data, // addr
     output reg  mem_read_en,

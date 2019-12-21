@@ -2,17 +2,17 @@ module router_core(
     // MAC-side AxiStream interface
     input            eth_rx_mac_aclk,
     input            eth_rx_mac_resetn,
-    (*MARK_DEBUG="TRUE"*) input [7:0]      eth_rx_axis_mac_tdata,
-    (*MARK_DEBUG="TRUE"*) input            eth_rx_axis_mac_tvalid,
-    (*MARK_DEBUG="TRUE"*) input            eth_rx_axis_mac_tlast,
+    input [7:0]      eth_rx_axis_mac_tdata,
+    input            eth_rx_axis_mac_tvalid,
+    input            eth_rx_axis_mac_tlast,
     input            eth_rx_axis_mac_tuser,
 
     input            eth_tx_mac_aclk,
     input            eth_tx_mac_resetn,
-    (*MARK_DEBUG="TRUE"*) output [7:0]     eth_tx_axis_mac_tdata,
-    (*MARK_DEBUG="TRUE"*) output           eth_tx_axis_mac_tvalid,
-    (*MARK_DEBUG="TRUE"*) output           eth_tx_axis_mac_tlast,
-    (*MARK_DEBUG="TRUE"*) input            eth_tx_axis_mac_tready,
+    output [7:0]     eth_tx_axis_mac_tdata,
+    output           eth_tx_axis_mac_tvalid,
+    output           eth_tx_axis_mac_tlast,
+    input            eth_tx_axis_mac_tready,
     output           eth_tx_axis_mac_tuser,
 
     // CPU-side AxiStream interface (use eth_rx_mac clock)
@@ -52,7 +52,7 @@ wire eth_tx_axis_fifo_tvalid;
 wire [7:0] eth_tx_axis_fifo_tdata;
 wire eth_tx_axis_fifo_tlast;
 wire eth_tx_axis_fifo_tready;
-(*MARK_DEBUG="TRUE"*) wire from_cpu, to_cpu;
+wire from_cpu, to_cpu;
 
 always @(posedge eth_rx_mac_aclk or negedge eth_rx_mac_resetn) begin
     if (!eth_rx_mac_resetn) begin
@@ -94,12 +94,12 @@ eth_mac_wrapper eth_mac_wraper_i(
     .tx_axis_fifo_tready(eth_tx_axis_fifo_tready)
 );
 
-(*MARK_DEBUG="TRUE"*) wire is_ipv4, is_arp, ipv4_ready, arp_ready, ipv4_complete, arp_complete;
-(*MARK_DEBUG="TRUE"*) wire [7:0] vlan_port;
+wire is_ipv4, is_arp, ipv4_ready, arp_ready, ipv4_complete, arp_complete;
+wire [7:0] vlan_port;
 
-(*MARK_DEBUG="TRUE"*)wire [11:0] mem_read_addr, mem_write_addr;
-(*MARK_DEBUG="TRUE"*)wire [7:0] mem_read_data, mem_write_data;
-(*MARK_DEBUG="TRUE"*)wire mem_read_ena, mem_write_ena;
+wire [11:0] mem_read_addr, mem_write_addr;
+wire [7:0] mem_read_data, mem_write_data;
+wire mem_read_ena, mem_write_ena;
 // support read & write by this module
 wire top_mem_write_ena;
 wire [11:0] top_mem_write_addr;

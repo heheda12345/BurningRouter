@@ -38,16 +38,16 @@ module router(
 
 wire eth_sync_rst = ~eth_sync_rst_n;
 
-wire [7:0] cpu_rx_axis_tdata, cpu_tx_axis_tdata;
-wire cpu_rx_axis_tlast, cpu_rx_axis_tready, cpu_rx_axis_tvalid;
-wire cpu_tx_axis_tlast, cpu_tx_axis_tready, cpu_tx_axis_tvalid;
+(*mark_debug="true"*)wire [7:0] cpu_rx_axis_tdata, cpu_tx_axis_tdata;
+(*mark_debug="true"*)wire cpu_rx_axis_tlast, cpu_rx_axis_tready, cpu_rx_axis_tvalid;
+(*mark_debug="true"*)wire cpu_tx_axis_tlast, cpu_tx_axis_tready, cpu_tx_axis_tvalid;
 
-wire [31:0] lookup_modify_in_addr_router, lookup_modify_in_nexthop_router;
-wire lookup_modify_in_ready_router;
+(*mark_debug="true"*)wire [31:0] lookup_modify_in_addr_router, lookup_modify_in_nexthop_router;
+(*mark_debug="true"*)wire lookup_modify_in_ready_router;
 wire [1:0] lookup_modify_in_nextport_router;
 wire [6:0] lookup_modify_in_len_router;
 wire lookup_modify_finish_router;
-wire ip_modify_req_router;
+(*mark_debug="true"*)wire ip_modify_req_router;
 
 router_core router_core_i(
     .eth_rx_mac_aclk(eth_rx_mac_aclk),

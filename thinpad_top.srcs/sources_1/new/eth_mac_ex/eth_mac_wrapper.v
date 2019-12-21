@@ -6,18 +6,18 @@ module eth_mac_wrapper (
     // MAC-side (write-side) AxiStream interface
     input            rx_mac_aclk,
     input            rx_mac_resetn,
-    (*MARK_DEBUG="TRUE"*) input [7:0]      rx_axis_mac_tdata,
-    (*MARK_DEBUG="TRUE"*) input            rx_axis_mac_tvalid,
-    (*MARK_DEBUG="TRUE"*) input            rx_axis_mac_tlast,
+    input [7:0]      rx_axis_mac_tdata,
+    input            rx_axis_mac_tvalid,
+    input            rx_axis_mac_tlast,
     input            rx_axis_mac_tuser,
 
     // MAC-side (read-side) AxiStream interface
     input            tx_mac_aclk,
     input            tx_mac_resetn,
-    (*MARK_DEBUG="TRUE"*) output [7:0]     tx_axis_mac_tdata,
-    (*MARK_DEBUG="TRUE"*) output           tx_axis_mac_tvalid,
-    (*MARK_DEBUG="TRUE"*) output           tx_axis_mac_tlast,
-    (*MARK_DEBUG="TRUE"*) input            tx_axis_mac_tready,
+    output [7:0]     tx_axis_mac_tdata,
+    output           tx_axis_mac_tvalid,
+    output           tx_axis_mac_tlast,
+    input            tx_axis_mac_tready,
     output           tx_axis_mac_tuser,
 
     (*MARK_DEBUG="TRUE"*)output rx_axis_fifo_tvalid,
