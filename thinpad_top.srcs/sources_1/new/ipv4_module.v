@@ -396,7 +396,7 @@ assign buf_last = to_read_over;
 assign buf_end_addr = buf_start_addr + mem_write_counter + 1; // mark the farthest point the writer pointer reaches
 always @(posedge clk) begin
     if (ipv4_read_state == IDLE) to_cpu <= 0;
-    else if (header_counter == 20) to_cpu <= dst_ip == MY_IPV4_ADDRESS;
+    else if (header_counter == 20) to_cpu <= dst_ip == MY_IPV4_ADDRESS || dst_ip[31:8] == 24'he00000;
 end
 
 assign complete = ipv4_read_state == OVER;
