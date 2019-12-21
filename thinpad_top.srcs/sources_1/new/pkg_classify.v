@@ -30,8 +30,8 @@ module pkg_classify(
     output is_arp,
     output ipv4_ready, 
     output arp_ready,
-    output ipv4_complete,
-    output arp_complete,
+    input ipv4_complete,
+    input arp_complete,
     output reg [7:0] vlan_port,
     input [47:0] MY_MAC_ADDRESS
 );
@@ -67,7 +67,7 @@ reg [1:0] sub_procedure_type = 2'b00;
 assign debug[2:0] = read_state;
 assign debug[5:4] = sub_procedure_type;
 
-always @ (posedge axi_tclk or posedge axi_tresetn)
+always @ (posedge axi_tclk)
 begin
     read_state <= axi_tresetn ? next_read_state : IDLE;
 end

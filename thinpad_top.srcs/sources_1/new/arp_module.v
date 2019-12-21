@@ -109,9 +109,7 @@ always @ (posedge clk or posedge rst) begin
     arp_write_state <= !rst ? next_write_state : IDLE;
 end
 always @ (*) begin
-    if (rst) 
-        next_read_state <= IDLE;
-    else case (arp_read_state)
+    case (arp_read_state)
         IDLE: begin
             next_read_state <= start ? START : IDLE;
         end
@@ -167,9 +165,7 @@ wire write_start;
 assign write_start = rx_axis_fifo_tvalid && target_ip_counter == 4 && opCode == 8'h02 && MY_IPV4_ADDRESS == target_ip;
 
 always @ (*) begin
-    if (rst) 
-        next_write_state <= IDLE;
-    else case (arp_write_state)
+    case (arp_write_state)
         IDLE: begin
             if (general_read_counter == WRITE_TOTAL && arp_read_state == READ_NO_MODIFY) begin
                 next_write_state <= WRITE_PUSHING;
