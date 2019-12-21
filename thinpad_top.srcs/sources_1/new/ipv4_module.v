@@ -456,7 +456,7 @@ always @(posedge clk) begin
     if (lookup_query_out_ready) begin
         if (lookup_query_out_nexthop == 0) begin
             dest_ipv4_address_r <= dst_ip;
-            dest_vlan_port_r <= vlan_port;
+            dest_vlan_port_r <= dest_vlan_port;
         end else begin
             dest_vlan_port_r <= dest_vlan_port;
             dest_ipv4_address_r <= lookup_query_out_nexthop;

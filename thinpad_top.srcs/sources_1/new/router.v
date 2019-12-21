@@ -97,22 +97,22 @@ wire fifo_router2cpu_empty, fifo_router2cpu_full;
 assign cpu_rx_qword_tvalid = ~fifo_router2cpu_empty; // non-empty, CPU read is ok
 assign cpu_tx_qword_tready = cpu_tx_qword_tvalid && ~fifo_cpu2router_full; // CPU ready to send
 assign fifo_cpu2router_din = { 
-    cpu_tx_qword_tdata[31:24], cpu_tx_qword_tlast[3], 
-    cpu_tx_qword_tdata[23:16], cpu_tx_qword_tlast[2], 
+    cpu_tx_qword_tdata[7:0], cpu_tx_qword_tlast[0],
     cpu_tx_qword_tdata[15:8], cpu_tx_qword_tlast[1], 
-    cpu_tx_qword_tdata[7:0], cpu_tx_qword_tlast[0]
+    cpu_tx_qword_tdata[23:16], cpu_tx_qword_tlast[2], 
+    cpu_tx_qword_tdata[31:24], cpu_tx_qword_tlast[3]
 };
 assign cpu_rx_qword_tdata = {
-    fifo_router2cpu_dout[35:28],
-    fifo_router2cpu_dout[26:19],
+    fifo_router2cpu_dout[8:1],
     fifo_router2cpu_dout[17:10],
-    fifo_router2cpu_dout[8:1]
+    fifo_router2cpu_dout[26:19],
+    fifo_router2cpu_dout[35:28]
 };
 assign cpu_rx_qword_tlast = {
-    fifo_router2cpu_dout[27],
-    fifo_router2cpu_dout[18],
+    fifo_router2cpu_dout[0],
     fifo_router2cpu_dout[9],
-    fifo_router2cpu_dout[0]
+    fifo_router2cpu_dout[18],
+    fifo_router2cpu_dout[27]
 };
 
 
