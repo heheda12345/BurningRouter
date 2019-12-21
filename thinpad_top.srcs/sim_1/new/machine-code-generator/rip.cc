@@ -1,10 +1,6 @@
 #include "rip.h"
 #include "router.h"
-
-#ifdef D
-#include "router_hal.h"
-
-// #include "ta_hal.h"
+#include "ta_hal.h"
 #include "utility.h"
 
 extern bool validateIPChecksum(uint8_t *packet, size_t len);
@@ -17,7 +13,6 @@ extern uint32_t assemble(const RipPacket *rip, uint8_t *buffer);
 extern RipPacket routingTable(uint32_t if_index);
 extern void outputTable();
 
-uint8_t packet[2048];
 uint8_t output[2048];
 // 0: 10.0.0.1
 // 1: 10.0.1.1
@@ -62,12 +57,17 @@ int main(int argc, char *argv[])
         printf("%u, ", (in_addr){addrs[i]}.s_addr);
     printf("]\n");
 
-    // 0a.
+// 0a.
+#ifdef ROUTER_BACKEND_LINUX
     int res = HAL_Init(1, addrs);
     if (res < 0)
     {
         return res;
     }
+#endif
+#ifdef ROUTER_BACKEND_MIPS
+    Init(addrs);
+#endif
 
     // 0b. Add direct routes
     // For example:
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
     // 10.0.1.0/24 if 1
     // 10.0.2.0/24 if 2
     // 10.0.3.0/24 if 3
-    for (uint32_t i = 2; i < N_IFACE_ON_BOARD; i++)
+    for (uint32_t i = 0; i < N_IFACE_ON_BOARD; i++)
     {
         RoutingTableEntry entry = RoutingTableEntry(
             addrs[i] & 0x00FFFFFF, // big endian
@@ -85,18 +85,13 @@ int main(int argc, char *argv[])
             0x01000000             // big endian
         );
 
-        printf("entry = ");
-        entry.print();
-        printf("\n");
-
         update(true, entry);
     }
 
     uint64_t last_time = 0;
-    int buffer_header = 0;
     while (1)
     {
-        uint64_t time = HAL_GetTicks();
+        uint64_t time = GetTicks();
         if (time > last_time + 30 * 1000)
         { // 30s for standard
             printf("Regular RIP Broadcasting every 30s.\n");
@@ -111,21 +106,18 @@ int main(int argc, char *argv[])
             for (uint32_t i = 0; i < N_IFACE_ON_BOARD; ++i)
             {
                 size_t len = packetAssemble(routingTable(i), addrs[i], multicastingIP);
-                HAL_SendIPPacket(i, output, len, multicastingMAC);
+
+                SendIPPacaket(i, output, len);
             }
             last_time = time;
         }
 
         int mask = (1 << N_IFACE_ON_BOARD) - 1;
-        macaddr_t src_mac;
-        macaddr_t dst_mac;
         int if_index;
-        res = HAL_ReceiveIPPacket(buffer_header, packet, src_mac, dst_mac, 1000, &if_index);
-        if (res == HAL_ERR_EOF)
-        {
-            break;
-        }
-        else if (res < 0)
+
+        ReceiveIPPacket(packet, 1000, &if_index);
+
+        if (res < 0)
         {
             return res;
         }
@@ -146,9 +138,10 @@ int main(int argc, char *argv[])
             printf("Invalid IP Checksum\n");
             continue;
         }
-        // DONE: extract src_addr and dst_addr from packet
+
         // big endian
-        in_addr_t src_addr = *(uint32_t *)(packet + 12), dst_addr = *(uint32_t *)(packet + 16);
+        in_addr_t src_addr = read_addr(packet + IP_OFFSET + 12);
+        in_addr_t dst_addr = read_addr(packet + IP_OFFSET + 16);
 
         // 2. check whether dst is me
         bool dst_is_me = false;

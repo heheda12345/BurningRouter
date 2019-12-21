@@ -2,8 +2,6 @@
 #include "bootloader.h"
 #include "ta_hal.h"
 
-#define IP_OFFSET 18
-
 // 0: 10.0.1.1
 // 1: 10.0.0.1
 // 2: 10.0.2.1
@@ -23,7 +21,7 @@ int main()
         int if_index;
 
         uint8_t *packet;
-        int res = ReceiveEthernetFrame(packet, src_mac, dst_mac, 1000, &if_index);
+        int res = ReceiveEthernetFrame(packet, 1000, &if_index);
 
         if (res < 0)
         {
