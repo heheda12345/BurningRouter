@@ -3,6 +3,8 @@
 
 #include "bootloader.h"
 
+typedef uint8_t macaddr_t[6];
+typedef uint32_t in_addr_t;
 typedef unsigned long size_t;
 
 struct in_addr

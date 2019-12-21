@@ -1,8 +1,6 @@
 #pragma once
 
 #include "utility.h"
-typedef uint8_t macaddr_t[6];
-typedef uint32_t in_addr_t;
 #define N_IFACE_ON_BOARD 4 // Default
 
 enum HAL_ERROR_NUMBER

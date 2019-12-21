@@ -2,6 +2,8 @@
 #include "bootloader.h"
 #include "ta_hal.h"
 
+#define IP_OFFSET 18
+
 int main()
 {
     int buffer_header = 0;
@@ -12,13 +14,9 @@ int main()
         int if_index;
 
         uint8_t *packet;
-        int res = ReceiveIPPacket(buffer_header, packet, src_mac, dst_mac, 1000, &if_index);
+        int res = ReceiveEthernetFrame(buffer_header, packet, src_mac, dst_mac, 1000, &if_index);
 
-        if (res == HAL_ERR_EOF)
-        {
-            break;
-        }
-        else if (res < 0)
+        if (res < 0)
         {
             return res;
         }
@@ -27,12 +25,15 @@ int main()
             // Timeout
             continue;
         }
-        else if (res > sizeof(packet))
+        else if (res > 2047)
         {
             // packet is truncated, ignore it
             continue;
         }
 
-        SendIPPacket(if_index, packet, res, src_mac);
+        in_addr_t src_addr = *(uint32_t *)(packet + IP_OFFSET + 12), dst_addr = *(uint32_t *)(packet + IP_OFFSET + 16);
+        *(uint32_t *)(packet + IP_OFFSET + 12) = dst_addr, src_addr = *(uint32_t *)(packet + IP_OFFSET + 16);
+
+        SendEthernetFrame(if_index, packet, res);
     }
 }

@@ -1,5 +1,7 @@
 #include "ta_hal.h"
 
+#define N_IFACE_ON_BOARD 4
+
 const uint32_t BUFFER_TAIL_ADDRESS = 0xBFD00400;
 const uint32_t SEND_CONTROL_ADDRESS = 0xBFD00408;
 const uint32_t SEND_STATE_ADDRESS = 0xBFD00404;
@@ -40,12 +42,12 @@ int ReceiveEthernetFrame(int sys_index, uint8_t *&buffer,
     buffer = (uint8_t *)(BUFFER_BASE_ADDRESS + ((sys_index++) << 11)) + 4;
     // Note: the Ethernet header the cpu receives is different from that of a standard one.
     // In our implementation, src mac is ahead of dst mac.
-    *(uint16_t *)src_mac = *(uint16_t *)(buffer); // Big-Endian
-    *(uint16_t *)(src_mac + 2) = *(uint16_t *)(buffer + 2);
-    *(uint16_t *)(src_mac + 4) = *(uint16_t *)(buffer + 4);
-    *(uint16_t *)dst_mac = *(uint16_t *)(buffer + 6);
-    *(uint16_t *)(dst_mac + 2) = *(uint16_t *)(buffer + 8);
-    *(uint16_t *)(dst_mac + 4) = *(uint16_t *)(buffer + 10);
+    for (int i = 0; i < 6; ++i)
+    {
+        *(uint8_t *)(src_mac + i) = *(uint8_t *)(buffer + i);
+        *(uint8_t *)(dst_mac + i) = *(uint8_t *)(buffer + 8 + i);
+    }
+
     *(int *)if_index = *(uint8_t *)(buffer + 15) - 1;
 
     int res = *(int *)(buffer - 4);
