@@ -47,6 +47,7 @@ module ipv4_module(
     input from_cpu, 
     output reg to_cpu,
     
+    input [7:0] vlan_port,
     input [31:0] MY_IPV4_ADDRESS, 
     input [127:0] MY_IPV4_ADDRESSES, 
     input [47:0] MY_MAC_ADDRESS
@@ -453,8 +454,13 @@ async_getter # (.LEN(6)) dst_mac_getter (
 assign dest_vlan_port = lookup_query_out_ready ? lookup_query_out_nextport + 1 : 0;
 always @(posedge clk) begin
     if (lookup_query_out_ready) begin
-        dest_vlan_port_r <= dest_vlan_port;
-        dest_ipv4_address_r <= lookup_query_out_nexthop;
+        if (lookup_query_out_nexthop == 0) begin
+            dest_ipv4_address_r <= dst_ip;
+            dest_vlan_port_r <= vlan_port;
+        end else begin
+            dest_vlan_port_r <= dest_vlan_port;
+            dest_ipv4_address_r <= lookup_query_out_nexthop;
+        end
     end
 end
 always @(arp_table_query_out_ready or arp_table_output_mac_addr) begin
