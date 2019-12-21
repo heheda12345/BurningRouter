@@ -5,6 +5,7 @@ const uint32_t SEND_CONTROL_ADDRESS = 0xBFD00408;
 const uint32_t SEND_STATE_ADDRESS = 0xBFD00404;
 const uint32_t BUFFER_BASE_ADDRESS = 0x80600000;
 const uint32_t ROUTER_TABLE_BASE = 0xBFD00410;
+const uint32_t TIMER_POS = 0xBFD00440;
 
 int Init(in_addr_t if_addrs[N_IFACE_ON_BOARD])
 {
@@ -13,10 +14,12 @@ int Init(in_addr_t if_addrs[N_IFACE_ON_BOARD])
 
 uint64_t GetTicks()
 {
-    return 0; // To be implemented
+    volatile uint64_t time1 = *(uint32_t*)(TIMER_POS);
+    volatile uint64_t time2 = *(uint32_t*)(TIMER_POS + 1);
+    return time2 << 32 | time1;
 }
 
-int ReceiveIPPacket(int sys_index, uint8_t *buffer,
+int ReceiveIPPacket(int sys_index, uint8_t *&buffer,
                     macaddr_t src_mac, macaddr_t dst_mac, int64_t timeout,
                     int *if_index)
 {
@@ -33,6 +36,7 @@ int ReceiveIPPacket(int sys_index, uint8_t *buffer,
         if (*BufferIndexPtr != sys_index)
             break;
     }
+
     buffer = (uint8_t *)(BUFFER_BASE_ADDRESS + ((sys_index++) << 11)) + 4;
     // Note: the Ethernet header the cpu receives is different from that of a standard one.
     // In our implementation, src mac is ahead of dst mac.
@@ -41,7 +45,20 @@ int ReceiveIPPacket(int sys_index, uint8_t *buffer,
     *(uint32_t *)dst_mac = *(uint32_t *)(buffer + 6);
     *(uint16_t *)(dst_mac + 4) = *(uint16_t *)(buffer + 10);
     *(int *)if_index = *(uint8_t *)(buffer + 15) - 1;
-    return *(int *)(buffer);
+
+    int res = *(int *)(buffer - 4);
+    for (int i = 0; i < res; ++i)
+    {
+        // if (i % 16 == 0)
+        // {
+        //     putc('\n');
+        // }
+        putc(buffer[i]);
+        // putc(' ');
+    }
+    puts("recv");
+
+    return res;
 }
 
 int SendIPPacket(int if_index, uint8_t *buffer, size_t length,
@@ -59,4 +76,15 @@ int SendIPPacket(int if_index, uint8_t *buffer, size_t length,
             break;
     }
     *(uint32_t *)SEND_CONTROL_ADDRESS = (uint32_t)buffer;
+
+    for (int i = 0; i < length; ++i)
+    {
+        // if (i % 16 == 0)
+        // {
+        //     putc('\n');
+        // }
+        putc(buffer[i]);
+        // putc(' ');
+    }
+    puts("send");
 }
