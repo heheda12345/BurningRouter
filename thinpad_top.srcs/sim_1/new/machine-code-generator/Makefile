@@ -1,3 +1,7 @@
+########### Makefile of MIPS
+
+BACKEND=MIPS
+
 # disable builtin rules
 MAKEFLAGS += --no-builtin-rules
 
@@ -11,7 +15,7 @@ HEADERS=$(wildcard *.h)
 OBJECTS=$(SOURCES:%.cpp=%.cpp.o)
 DUMPS=$(SOURCES:%.cpp=%.d)
 COMP_FLGAS= -msingle-float -nostdlib -ffunction-sections -fdata-sections -ffreestanding -mxgot -fno-builtin -fno-PIC -fno-PIE -mno-abicalls -g -EL -mhard-float -mips32
-CXXFLAGS=$(COMP_FLGAS) -std=c++11
+CXXFLAGS=$(COMP_FLGAS) -std=c++11 -DROUTER_BACKEND_$(BACKEND)
 CFLAGS=$(COMP_FLGAS) -Wno-implicit-function-declaration
 LDFLAGS= -static -EL -nostdlib --nmagic
 

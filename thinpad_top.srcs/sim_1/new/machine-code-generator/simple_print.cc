@@ -10,8 +10,8 @@ int main()
         macaddr_t src_mac;
         macaddr_t dst_mac;
         int if_index;
-        uint8_t *packet;
-        int res = ReceiveEthernetFrame(packet, src_mac, dst_mac, 1000, &if_index);
+        uint8_t* packet;
+        int res = ReceiveIPPacket(buffer_header, packet, src_mac, dst_mac, 1000, &if_index);
 
         if (res == HAL_ERR_EOF)
         {
@@ -36,10 +36,8 @@ int main()
         for (int i = 0; i < res; i += 4)
         {
             // putc(buffer[i]);
-            for (int j = 3; j >= 0; j--)
-            {
-                if (i + j < res)
-                {
+            for (int j = 3; j >= 0; j--) {
+                if (i + j < res) {
                     putc(hextoch(packet[i + j] >> 4 & 0xf));
                     putc(hextoch(packet[i + j] & 0xf));
                     putc(' ');

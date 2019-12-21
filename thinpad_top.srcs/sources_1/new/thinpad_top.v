@@ -438,6 +438,7 @@ always @(cpu_out) begin
 end
 
 wire [63:0] timing_mils;
+// Needs to be turned down to little in simulation
 timer #(.FREQ(20000)) timer_inst (
     .clk(clk_20M),
     .rst(reset_of_clk20M),

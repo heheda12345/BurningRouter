@@ -72,7 +72,11 @@ uint16_t ntohs(uint16_t ns)
 
 void putchar(char c) {}
 
-void printf(const char *st) {}
+void printf(const char *s)
+{
+    while (*s)
+        putc(*s++);
+}
 
 void memset(void *s, char c, size_t len)
 {
