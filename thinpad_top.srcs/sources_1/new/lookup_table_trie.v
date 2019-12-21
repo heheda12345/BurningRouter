@@ -30,7 +30,7 @@ parameter STATE_INS_UPD_ROOT = 3'b100;
 parameter STATE_QUE_READ = 3'b101;
 parameter STATE_WAIT_END = 3'b110;
 
-parameter ENTRY_ADDR_WIDTH = 5;
+parameter ENTRY_ADDR_WIDTH = 10;
 parameter ENTRY_ADDR_MAX = (1<<ENTRY_ADDR_WIDTH);
 
 //one trie node
@@ -124,148 +124,163 @@ xpm_memory_sdpram #(
 
 initial begin
     node_cnt <= 1;
-    upd_mask[0] <= 2;
-    upd_mask[1] <= 3;
-    // upd_mask[2] <= 14;
-    // upd_mask[3] <= 15;
-    upd_extend[0] <= 1;
-    upd_extend[1] <= 0;
-    // upd_extend[2] <= 1;
-    // upd_extend[3] <= 0;
-    full <= 0;
 end
 
 always @(posedge lku_clk) begin
-    state <= next_state;
-    // if (read_enable)
-    //     $display("read from %d: [%d %d]/[%d %d]/[%d %d] hop-%h port-%d len-%d vaild-%d", read_addr, bram_entry_read[9:0], bram_entry_read[19:10], entry_read[9:0], entry_read[19:10], entry_read_child[0], entry_read_child[1], bram_entry_read[NXT_HOP_END:NXT_HOP_BEGIN], bram_entry_read[NXT_PORT_END: NXT_PORT_BEGIN], bram_entry_read[LEN_END:LEN_BEGIN], bram_entry_read[VALID_POS]);
-    // if (write_enable)
-    //     $display("write to %d: [%d %d] hop-%h port-%d len-%d valid-%d", write_addr, entry_to_write[9:0], entry_to_write[19:10], entry_to_write[NXT_HOP_END:NXT_HOP_BEGIN], entry_to_write[NXT_PORT_END: NXT_PORT_BEGIN],  entry_to_write[LEN_END:LEN_BEGIN], entry_to_write[VALID_POS]);
-    // $display("state: %d-%d", state, next_state);
-    read_addr <= new_read_addr;
-    read_enable <= new_read_enable;
+    if (lku_rst == 1'b1) begin
+        state  <= STATE_PAUSE;
+        read_addr <= 0;
+        read_enable <= 0;
+        node_cnt <= 1;
+        upd_mask[0] <= 2;
+        upd_mask[1] <= 3;
+        // upd_mask[2] <= 14;
+        // upd_mask[3] <= 15;
+        upd_extend[0] <= 1;
+        upd_extend[1] <= 0;
+        // upd_extend[2] <= 1;
+        // upd_extend[3] <= 0;
+    end else begin
+        state <= next_state;
+        read_addr <= new_read_addr;
+        read_enable <= new_read_enable;
+    end
+    if (read_enable)
+        $display("read from %d: [%d %d]/[%d %d]/[%d %d] hop-%h port-%d len-%d vaild-%d", read_addr, bram_entry_read[9:0], bram_entry_read[19:10], entry_read[9:0], entry_read[19:10], entry_read_child[0], entry_read_child[1], bram_entry_read[NXT_HOP_END:NXT_HOP_BEGIN], bram_entry_read[NXT_PORT_END: NXT_PORT_BEGIN], bram_entry_read[LEN_END:LEN_BEGIN], bram_entry_read[VALID_POS]);
+    if (write_enable)
+        $display("write to %d: [%d %d] hop-%h port-%d len-%d valid-%d", write_addr, entry_to_write[9:0], entry_to_write[19:10], entry_to_write[NXT_HOP_END:NXT_HOP_BEGIN], entry_to_write[NXT_PORT_END: NXT_PORT_BEGIN],  entry_to_write[LEN_END:LEN_BEGIN], entry_to_write[VALID_POS]);
+    $display("state: %d-%d", state, next_state);
 end
 
 // state machine
 always @(posedge lku_clk) begin
-    case (next_state)
-        STATE_PAUSE: begin
-                // $display("state: pause modify %d query %d full %d", modify_in_ready, query_in_ready, full);
-                if (modify_in_ready && !full) begin
-                    // $display("[lookup] modify begin %h->%h", modify_in_addr, modify_in_nexthop);
-                    dep <= 30;
-                    lookup_addr <= modify_in_addr;
-                    lookup_port <= modify_in_nextport;
-                    lookup_nexthop <= modify_in_nexthop;
-                    len <= modify_in_len;
-                    if (modify_in_len == 0) begin
-                        // $display("modify_in_len = 0");
-                        next_state <= STATE_INS_UPD_ROOT;
+    if (lku_rst == 1'b1) begin
+        if (node_cnt != 1) begin
+            write_enable <= 1;
+            write_addr <= node_cnt - 1; // entry[cnt] is always zero
+            entry_to_write <= 0;
+            node_cnt <= node_cnt - 1;
+        end
+    end else begin
+        case (next_state)
+            STATE_PAUSE: begin
+                    // $display("state: pause modify %d query %d full %d", modify_in_ready, query_in_ready, full);
+                    if (modify_in_ready && !full) begin
+                        // $display("[lookup] modify begin %h->%h", modify_in_addr, modify_in_nexthop);
+                        dep <= 30;
+                        lookup_addr <= modify_in_addr;
+                        lookup_port <= modify_in_nextport;
+                        lookup_nexthop <= modify_in_nexthop;
+                        len <= modify_in_len;
+                        if (modify_in_len == 0) begin
+                            // $display("modify_in_len = 0");
+                            next_state <= STATE_INS_UPD_ROOT;
+                        end else begin
+                            // $display("modify_in_len %d", modify_in_len);
+                            next_state <= STATE_INS_READ;
+                        end
+                        write_enable <= 0;
+                    end else if (query_in_ready) begin
+                        // $display("[lookup] query begin %h", query_in_addr);
+                        dep <= 30;
+                        next_state <= STATE_QUE_READ;
+                        lookup_addr <= query_in_addr;
+                        query_out_nexthop <= 0;
+                        query_out_nextport <= 0;
+                        write_enable <= 0;
                     end else begin
-                        // $display("modify_in_len %d", modify_in_len);
+                        next_state <= STATE_PAUSE;
+                        write_enable <= 0;
+                    end
+                end
+            STATE_INS_UPD_ROOT: begin
+                    // $display("state: insert-upd-root");
+                    entry_to_write <= {1'b1, 2'b00, lookup_port, lookup_nexthop, entry_read[CHILD_END:CHILD_BEGIN]};
+                    write_addr <= 1;
+                    write_enable <= 1;
+                    next_state <= STATE_WAIT_END;
+                end
+            STATE_INS_READ: begin
+                    // $display("state: insert-read len %d", len);
+                    if (len <= 2) begin
+                        upd_child <= cur_mask_child;
+                        upd_last <= cur_mask_child | upd_extend[len-1];
+                        cur <= read_addr;
+                        // $display("modify range %d %d", cur_mask_child, cur_mask_child | upd_extend[len-1]);
+                        if (entry_read_child[cur_mask_child] == 0) begin
+                            node_cnt <= node_cnt + 1;
+                            entry <= entry_read | ((node_cnt+1) << (cur_mask_child * ENTRY_ADDR_WIDTH));
+                            write_enable <= 0;
+                        end else begin
+                            write_enable <= 0;
+                            entry <= entry_read;
+                        end
+                        next_state <= STATE_INS_SET;
+                    end else begin
+                        upd_child <= cur_child;
+                        entry <= entry_read;
+                        len <= len-2;
+                        dep <= dep-2;
+                        // $display("check child: %d %d", cur_child, entry_read_child[cur_child]);
+                        if (entry_read_child[cur_child] == 0) begin
+                            entry_to_write <= entry_read | ((node_cnt+1) << (cur_child * ENTRY_ADDR_WIDTH));
+                            write_addr <= read_addr;
+                            write_enable <= 1;
+                            node_cnt <= node_cnt + 1;
+                        end else begin
+                            write_enable <= 0;
+                        end
                         next_state <= STATE_INS_READ;
                     end
-                    write_enable <= 0;
-                end else if (query_in_ready) begin
-                    // $display("[lookup] query begin %h", query_in_addr);
-                    dep <= 30;
-                    next_state <= STATE_QUE_READ;
-                    lookup_addr <= query_in_addr;
-                    query_out_nexthop <= 0;
-                    query_out_nextport <= 0;
-                    write_enable <= 0;
-                end else begin
+                end
+            STATE_INS_SET: begin
+                    // $display("state ins-set [valid %d len %d] len-cur %d", entry_read[VALID_POS], entry_read[LEN_END: LEN_BEGIN], len);
+                    // $display("upd-child %d node_cnt %d me %d next %d", upd_child, node_cnt, entry_child[upd_child], entry_child[upd_child+1]);
+                    if (entry_read[VALID_POS] == 0 || entry_read[LEN_END:LEN_BEGIN] <= len-1)
+                        entry_to_write <= {1'b1, (len[1:0]-2'b01), lookup_port, lookup_nexthop, entry_read[CHILD_END: CHILD_BEGIN]};
+                    else
+                        entry_to_write <= entry_read;
+                    write_enable <= 1;
+                    write_addr <= read_addr;
+                    if (upd_child != upd_last) begin
+                        if (entry_child[upd_child+1] == 0) begin
+                            entry[(upd_child+2)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH] <= node_cnt + 1;
+                            node_cnt <= node_cnt + 1;
+                        end
+                        upd_child <= upd_child + 1;
+                        next_state <= STATE_INS_SET;
+                    end else begin
+                        next_state <= STATE_INS_UPD_SELF;
+                    end
+                end
+            STATE_INS_UPD_SELF: begin
+                    // $display("state: insert upd-self");
+                    entry_to_write <= entry;
+                    write_addr <= cur;
+                    write_enable <= 1;
+                    next_state <= STATE_WAIT_END;
+                end
+            STATE_WAIT_END: begin
+                    // $display("state: wait for end");
                     next_state <= STATE_PAUSE;
                     write_enable <= 0;
                 end
-            end
-        STATE_INS_UPD_ROOT: begin
-                // $display("state: insert-upd-root");
-                entry_to_write <= {1'b1, 2'b00, lookup_port, lookup_nexthop, entry_read[CHILD_END:CHILD_BEGIN]};
-                write_addr <= 1;
-                write_enable <= 1;
-                next_state <= STATE_WAIT_END;
-            end
-        STATE_INS_READ: begin
-                // $display("state: insert-read len %d", len);
-                if (len <= 2) begin
-                    upd_child <= cur_mask_child;
-                    upd_last <= cur_mask_child | upd_extend[len-1];
-                    cur <= read_addr;
-                    // $display("modify range %d %d", cur_mask_child, cur_mask_child | upd_extend[len-1]);
-                    if (entry_read_child[cur_mask_child] == 0) begin
-                        node_cnt <= node_cnt + 1;
-                        entry <= entry_read | ((node_cnt+1) << (cur_mask_child * ENTRY_ADDR_WIDTH));
-                        write_enable <= 0;
-                    end else begin
-                        write_enable <= 0;
-                        entry <= entry_read;
-                    end
-                    next_state <= STATE_INS_SET;
-                end else begin
-                    upd_child <= cur_child;
-                    entry <= entry_read;
-                    len <= len-2;
-                    dep <= dep-2;
-                    // $display("check child: %d %d", cur_child, entry_read_child[cur_child]);
-                    if (entry_read_child[cur_child] == 0) begin
-                        entry_to_write <= entry_read | ((node_cnt+1) << (cur_child * ENTRY_ADDR_WIDTH));
-                        write_addr <= read_addr;
-                        write_enable <= 1;
-                        node_cnt <= node_cnt + 1;
-                    end else begin
-                        write_enable <= 0;
-                    end
-                    next_state <= STATE_INS_READ;
+            STATE_QUE_READ: begin
+                // $display("state query-read addr %d valid %d ans %h cur %d nxt %d", read_addr, entry_read[VALID_POS], entry_read[NXT_HOP_END: NXT_HOP_BEGIN], cur_child, entry_read_child[cur_child]);
+                if (entry_read[VALID_POS] == 1) begin
+                    query_out_nexthop <= entry_read[NXT_HOP_END: NXT_HOP_BEGIN];
+                    query_out_nextport <= entry_read[NXT_PORT_END: NXT_PORT_BEGIN];
                 end
-            end
-        STATE_INS_SET: begin
-                // $display("state ins-set [valid %d len %d] len-cur %d", entry_read[VALID_POS], entry_read[LEN_END: LEN_BEGIN], len);
-                // $display("upd-child %d node_cnt %d me %d next %d", upd_child, node_cnt, entry_child[upd_child], entry_child[upd_child+1]);
-                if (entry_read[VALID_POS] == 0 || entry_read[LEN_END:LEN_BEGIN] <= len-1)
-                    entry_to_write <= {1'b1, (len[1:0]-2'b01), lookup_port, lookup_nexthop, entry_read[CHILD_END: CHILD_BEGIN]};
-                else
-                    entry_to_write <= entry_read;
-                write_enable <= 1;
-                write_addr <= read_addr;
-                if (upd_child != upd_last) begin
-                    if (entry_child[upd_child+1] == 0) begin
-                        entry[(upd_child+2)*ENTRY_ADDR_WIDTH-1-: ENTRY_ADDR_WIDTH] <= node_cnt + 1;
-                        node_cnt <= node_cnt + 1;
-                    end
-                    upd_child <= upd_child + 1;
-                    next_state <= STATE_INS_SET;
-                end else begin
-                    next_state <= STATE_INS_UPD_SELF;
-                end
-            end
-        STATE_INS_UPD_SELF: begin
-                // $display("state: insert upd-self");
-                entry_to_write <= entry;
-                write_addr <= cur;
-                write_enable <= 1;
-                next_state <= STATE_WAIT_END;
-            end
-        STATE_WAIT_END: begin
-                // $display("state: wait for end");
-                next_state <= STATE_PAUSE;
                 write_enable <= 0;
+                if (entry_read_child[cur_child] > 0) begin
+                    next_state <= STATE_QUE_READ;
+                    dep <= dep-2;
+                end else begin
+                    next_state <= STATE_PAUSE;
+                end
             end
-        STATE_QUE_READ: begin
-            // $display("state query-read addr %d valid %d ans %h cur %d nxt %d", read_addr, entry_read[VALID_POS], entry_read[NXT_HOP_END: NXT_HOP_BEGIN], cur_child, entry_read_child[cur_child]);
-            if (entry_read[VALID_POS] == 1) begin
-                query_out_nexthop <= entry_read[NXT_HOP_END: NXT_HOP_BEGIN];
-                query_out_nextport <= entry_read[NXT_PORT_END: NXT_PORT_BEGIN];
-            end
-            write_enable <= 0;
-            if (entry_read_child[cur_child] > 0) begin
-                next_state <= STATE_QUE_READ;
-                dep <= dep-2;
-            end else begin
-                next_state <= STATE_PAUSE;
-            end
-        end
-    endcase
+        endcase
+    end
 end
 
 always @(*) begin
@@ -364,6 +379,8 @@ end
 always @(node_cnt) begin
     if (node_cnt + 20 > ENTRY_ADDR_MAX) begin
         full <= 1;
+    end else begin
+        full <= 0;
     end
 end
 

@@ -47,18 +47,12 @@ void puthex(uint32_t num)
     for (i = 7; i >= 0; i--)
     {
         temp = (num >> (i * 4)) & 0xF;
-        if (temp <= 10)
+        if (temp < 10)
         {
             putc('0' + temp);
         }
-        else if (temp < 16)
-        {
-            putc('A' + temp - 10);
-        }
         else
-        {
-            putc('.');
-        }
+            putc('A' + temp - 10);
     }
 }
 
