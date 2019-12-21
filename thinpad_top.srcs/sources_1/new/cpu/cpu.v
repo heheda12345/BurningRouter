@@ -89,6 +89,7 @@ wire [31:0] mem_cp0_reg_data_o;
 wire[31:0] mem_excepttype_o;
 wire mem_is_in_delayslot_o;
 wire[31:0] mem_current_inst_address_o;
+wire mem_not_align_o;
 
 // mem-wb -> writeback
 (*mark_debug="true"*)wire wb_wreg_i;
@@ -156,7 +157,11 @@ wire flush;
 wire[31:0] new_pc;
 wire[31:0] latest_epc;
 wire[31:0] mem_syscall_bias;
-assign leds[15:0] = cp0_epc[15:0];
+
+wire not_align;
+
+assign leds[15:1] = 15'b0000000000000000;
+assign leds[0] = not_align;
 
 pc_reg PC_REG(
     .clk(clk),
@@ -414,7 +419,8 @@ mem MEM(
 	.cp0_epc_o(latest_epc),
 	.is_in_delay_slot_o(mem_is_in_delayslot_o),
 	.current_inst_address_o(mem_current_inst_address_o),
-    .syscall_bias(mem_syscall_bias)
+    .syscall_bias(mem_syscall_bias),
+    .not_align(mem_not_align_o)
 );
 
 mem_wb MEM_WB(
@@ -427,7 +433,8 @@ mem_wb MEM_WB(
     .mem_wdata(mem_wdata_o),
     .mem_cp0_reg_we(mem_cp0_reg_we_o),
 	.mem_cp0_reg_write_addr(mem_cp0_reg_write_addr_o),
-	.mem_cp0_reg_data(mem_cp0_reg_data_o),	
+	.mem_cp0_reg_data(mem_cp0_reg_data_o),
+    .mem_not_align_in(mem_not_align_o),
 
     .mem_stall(mem_stall_i),
     .wb_stall(wb_stall_i),
@@ -437,7 +444,8 @@ mem_wb MEM_WB(
     .wb_wdata(wb_wdata_i),
     .wb_cp0_reg_we(wb_cp0_reg_we_i),
     .wb_cp0_reg_write_addr(wb_cp0_reg_write_addr_i),
-    .wb_cp0_reg_data(wb_cp0_reg_data_i)
+    .wb_cp0_reg_data(wb_cp0_reg_data_i),
+    .not_align_out(not_align)
 );
 
 ctrl CTRL(

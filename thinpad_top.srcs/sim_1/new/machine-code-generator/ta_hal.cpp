@@ -15,7 +15,7 @@ int Init(in_addr_t if_addrs[N_IFACE_ON_BOARD])
 uint64_t GetTicks()
 {
     volatile uint64_t time1 = *(uint32_t*)(TIMER_POS);
-    volatile uint64_t time2 = *(uint32_t*)(TIMER_POS + 1);
+    volatile uint64_t time2 = *(uint32_t*)(TIMER_POS + 4);
     return time2 << 32 | time1;
 }
 

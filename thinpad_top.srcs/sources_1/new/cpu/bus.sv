@@ -249,7 +249,7 @@ always_comb begin
             mem_data_reg = lookup_modify_in_state;
         else if (mem_addr_i == CLOCK_MIL_SECONDS)
             mem_data_reg = timing_mil_secs[31:0];
-        else if (mem_addr_i == CLOCK_MIL_SECONDS + 1)
+        else if (mem_addr_i == CLOCK_MIL_SECONDS + 4)
             mem_data_reg = timing_mil_secs[63:32];
         else
             mem_data_reg = 32'b0;
