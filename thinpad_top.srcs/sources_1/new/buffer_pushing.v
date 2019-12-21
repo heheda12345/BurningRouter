@@ -30,7 +30,7 @@ localparam  IDLE = 3'd0,
             PUSHING = 3'd1,
             WAITING = 3'd2,
             OVER = 3'd3;
-reg [2:0] state = IDLE, next_state;
+(*mark_debug="true"*)reg [2:0] state = IDLE, next_state;
 reg [ADDR_WIDTH-1:0] job_cur_mem_addr = 0, job_end_mem_addr_r = 0;
 wire [ADDR_WIDTH - 1:0 ] job_end_mem_addr;
 reg is_last = 0;
@@ -52,7 +52,7 @@ always @(posedge clk) begin
     if (!is_last) job_end_mem_addr_r <= end_addr;
 end
 
-assign job_end_mem_addr = !is_last ? end_addr : job_end_mem_addr;
+assign job_end_mem_addr = !is_last ? end_addr : job_end_mem_addr_r;
 
 always @(posedge clk) begin
     state <= next_state;
