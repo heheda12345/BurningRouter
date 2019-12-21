@@ -122,6 +122,10 @@ xpm_memory_sdpram #(
     .doutb(bram_entry_read)
 );
 
+initial begin
+    node_cnt <= 1;
+end
+
 always @(posedge lku_clk) begin
     if (lku_rst == 1'b1) begin
         state  <= STATE_PAUSE;
