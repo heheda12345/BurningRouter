@@ -303,6 +303,7 @@ ipv4_module ipv4_module_inst(
     .to_cpu(to_cpu),
     .from_cpu(from_cpu),
 
+    .vlan_port(vlan_port),
     .MY_MAC_ADDRESS(MY_MAC_ADDR),
     .MY_IPV4_ADDRESS(MY_IPV4_ADDR_PORT),
     .MY_IPV4_ADDRESSES(MY_IPV4_ADDR)

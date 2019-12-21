@@ -58,7 +58,7 @@ reg [2:0] dst_counter, src_counter;
 reg type_counter, vlan_port_counter, vlan_type_counter;
 
 reg [7:0] protocol_type_1 = 0;
-reg [1:0] dst_mac_addr_match = 0;
+reg [2:0] dst_mac_addr_match = 0;
 
 wire sub_procedure_ready; // '1' when last type char is available
 wire sub_procedure_complete;
@@ -89,7 +89,7 @@ begin
                 if (dst_counter <= 5) begin
                     next_read_state <= READ_DEST;
                 end
-                else if (dst_mac_addr_match != 2'b00) begin
+                else if (dst_mac_addr_match != 3'b000) begin
                     next_read_state <= READ_SRC;
                 end
                 else begin
@@ -126,11 +126,18 @@ end
 
 always @ (posedge axi_tclk) begin
     if (next_read_state != READ_DEST) begin
-        dst_mac_addr_match <= 2'b11;
+        dst_mac_addr_match <= 3'b111;
     end
     else begin 
         if (rx_axis_fifo_tvalid) begin
             dst_mac_addr_match[0] <= dst_mac_addr_match[0] & (rx_axis_fifo_tdata == 8'hff);
+            case (dst_counter)
+                0: dst_mac_addr_match[2] <= rx_axis_fifo_tdata == 8'h01;
+                1: dst_mac_addr_match[2] <= dst_mac_addr_match[2] & rx_axis_fifo_tdata == 8'h00;
+                2: dst_mac_addr_match[2] <= dst_mac_addr_match[2] & rx_axis_fifo_tdata == 8'h5e;
+                3, 4, 5: dst_mac_addr_match[2] <= dst_mac_addr_match[2];
+                default: dst_mac_addr_match[2] <= 0;
+            endcase
             case (dst_counter)
                 0: dst_mac_addr_match[1] <= rx_axis_fifo_tdata == MY_MAC_ADDRESS[47:40];
                 1: dst_mac_addr_match[1] <= dst_mac_addr_match[1] & (rx_axis_fifo_tdata == MY_MAC_ADDRESS[39:32]);

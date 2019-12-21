@@ -30,7 +30,7 @@ parameter STATE_INS_UPD_ROOT = 3'b100;
 parameter STATE_QUE_READ = 3'b101;
 parameter STATE_WAIT_END = 3'b110;
 
-parameter ENTRY_ADDR_WIDTH = 10;
+parameter ENTRY_ADDR_WIDTH = 8;
 parameter ENTRY_ADDR_MAX = (1<<ENTRY_ADDR_WIDTH);
 
 //one trie node
@@ -121,6 +121,10 @@ xpm_memory_sdpram #(
     .enb(new_read_enable),
     .doutb(bram_entry_read)
 );
+
+initial begin
+    node_cnt <= 1;
+end
 
 always @(posedge lku_clk) begin
     if (lku_rst == 1'b1) begin

@@ -43,4 +43,5 @@ def Case2():
 
 # Case1()
 
-print(gen(arp_request('10.0.1.1', '10.0.1.11', 'ac:e2:d3:6b:e0:ef', 1)))
+# print(gen(arp_request('10.0.1.1', '10.0.1.11', 'ac:e2:d3:6b:e0:ef', 1)))
+print(gen(ping('10.0.3.10', '01:00:5e:00:00:09', '10.0.0.1', 'ac:e2:d3:6b:e0:ef', 1)))
