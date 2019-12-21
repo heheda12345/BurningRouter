@@ -2,14 +2,12 @@
 #include "bootloader.h"
 #include "ta_hal.h"
 
-#define IP_OFFSET 18
-
 // 0: 10.0.1.1
 // 1: 10.0.0.1
 // 2: 10.0.2.1
 // 3: 10.0.3.1
 // 子网地址
-// 端序是小端序
+// 你可以按需进行修改，注意端序是大端序
 uint32_t addrs[N_IFACE_ON_BOARD] = {0x0a000101, 0x0a000001, 0x0a000201, 0x0a000301};
 
 int main()
