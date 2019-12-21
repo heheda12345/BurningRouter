@@ -39,7 +39,8 @@ module mem(
     output wire[31:0] cp0_epc_o,
     output wire is_in_delay_slot_o,
     output wire[31:0] current_inst_address_o,
-    output reg[31:0] syscall_bias
+    output reg[31:0] syscall_bias,
+    output reg not_align
 );
 
 reg[31:0] data_to_write;
@@ -76,6 +77,7 @@ always @(*) begin
         ram_we <= 0;
         ram_oe_o <= 0;
         data_to_write <= 0;
+        not_align <= 0;
         case (alu_op_i)
             `EXE_LB_OP: begin
                 ram_addr_o <= ram_addr_i;
@@ -127,6 +129,7 @@ always @(*) begin
                 ram_addr_o <= ram_addr_i;
                 ram_we <= 0;
                 ram_oe_o <= 1;
+                not_align <= ram_addr_i[0];
                 case (ram_addr_i[1])
                     1'b0: begin
                         ram_be_o <= 4'b1111;
@@ -142,6 +145,7 @@ always @(*) begin
                 ram_addr_o <= ram_addr_i;
                 ram_we <= 0;
                 ram_oe_o <= 1;
+                not_align <= ram_addr_i[0];
                 case (ram_addr_i[1])
                     1'b0: begin
                         ram_be_o <= 4'b1111;
@@ -159,6 +163,7 @@ always @(*) begin
                 ram_oe_o <= 1;
                 ram_be_o <= 4'b1111;
                 wdata_o <= ram_data_i;
+                not_align <= ram_addr_i[1] | ram_addr_i[0];
             end
             `EXE_SB_OP: begin
                 ram_addr_o <= ram_addr_i;
@@ -189,7 +194,8 @@ always @(*) begin
                 ram_we <= 1;
                 ram_oe_o <= 0;
                 data_to_write <= 0;
-                case (ram_addr_i[1:0])
+                not_align <= ram_addr_i[0];
+                case (ram_addr_i[1])
                     1'b1: begin
                         ram_be_o <= 4'b1100;
                         data_to_write[31:16] <= wdata_i[15:0];
@@ -206,6 +212,7 @@ always @(*) begin
                 ram_oe_o <= 0;
                 ram_be_o <= 4'b1111;
                 data_to_write <= wdata_i;
+                not_align <= ram_addr_i[0] | ram_data_i[1];
             end
         endcase
     end

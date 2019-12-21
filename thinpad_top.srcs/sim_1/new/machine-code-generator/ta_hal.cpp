@@ -15,7 +15,7 @@ int Init(in_addr_t if_addrs[N_IFACE_ON_BOARD])
 uint64_t GetTicks()
 {
     volatile uint64_t time1 = *(uint32_t *)(TIMER_POS);
-    volatile uint64_t time2 = *(uint32_t *)(TIMER_POS + 1);
+    volatile uint64_t time2 = *(uint32_t *)(TIMER_POS + 4);
     return time2 << 32 | time1;
 }
 
@@ -61,7 +61,7 @@ int ReceiveEthernetFrame(int sys_index, uint8_t *&buffer,
     return res;
 }
 
-int SendEthernetFrame(int if_index, uint8_t *buffer, size_t length)
+void SendEthernetFrame(int if_index, uint8_t *buffer, size_t length)
 {
     *(uint8_t *)(buffer + 0) = 0x02;
     *(uint8_t *)(buffer + 1) = 0x02;
