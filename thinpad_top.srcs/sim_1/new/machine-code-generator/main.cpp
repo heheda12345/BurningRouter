@@ -1,38 +1,55 @@
-#include "rip.h"
 #include "utility.h"
 #include "bootloader.h"
 #include "ta_hal.h"
-#include "router.h"
-
-extern bool update(bool insert, RoutingTableEntry entry);
-
-uint8_t output[2048];
-
-// 0: 10.0.0.1
-// 1: 10.0.1.1
-// 2: 10.0.2.1
-// 3: 10.0.3.1
-// 子网地址
-// 你可以按需进行修改，注意端序是大端序
-uint32_t addrs[N_IFACE_ON_BOARD] = {0x203a8c0, 0x104a8c0, 0x102000a, 0x103000a};
 
 int main()
 {
-    // Add direct routes
-    // For example:
-    // 10.0.0.0/24 if 0
-    // 10.0.1.0/24 if 1
-    // 10.0.2.0/24 if 2
-    // 10.0.3.0/24 if 3
-    for (uint32_t i = 0; i < N_IFACE_ON_BOARD; i++)
+    int buffer_header = 0;
+    while (1)
     {
-        RoutingTableEntry entry = RoutingTableEntry(
-            addrs[i] & 0x00FFFFFF, // big endian
-            24,                    // small endian
-            i,                     // small endian
-            0,                     // big endian, means direct
-            0x01000000             // big endian
-        );
-        update(true, entry);
+        macaddr_t src_mac;
+        macaddr_t dst_mac;
+        int if_index;
+        uint8_t *packet;
+        int res = ReceiveEthernetFrame(packet, src_mac, dst_mac, 1000, &if_index);
+
+        if (res == HAL_ERR_EOF)
+        {
+            break;
+        }
+        else if (res < 0)
+        {
+            return res;
+        }
+        else if (res == 0)
+        {
+            // Timeout
+            continue;
+        }
+        else if (res > 2047)
+        {
+            // packet is truncated, ignore it
+            continue;
+        }
+
+        puts("[main]");
+        for (int i = 0; i < res; i += 4)
+        {
+            // putc(buffer[i]);
+            for (int j = 3; j >= 0; j--)
+            {
+                if (i + j < res)
+                {
+                    putc(hextoch(packet[i + j] >> 4 & 0xf));
+                    putc(hextoch(packet[i + j] & 0xf));
+                    putc(' ');
+                }
+            }
+            if (i % 16 == 8)
+            {
+                putc('\n');
+            }
+        }
+        puts("");
     }
 }

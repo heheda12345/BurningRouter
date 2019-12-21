@@ -9,9 +9,22 @@ const uint32_t BUFFER_BASE_ADDRESS = 0x80600000;
 const uint32_t ROUTER_TABLE_BASE = 0xBFD00410;
 const uint32_t TIMER_POS = 0xBFD00440;
 
+const int BUFFER_SIZE = 1 << 7;
+
+int sys_index;
+int overrun;
+
 int Init(in_addr_t if_addrs[N_IFACE_ON_BOARD])
 {
-    return 0; // No IP binding routine now
+    sys_index = 0;
+    overrun = 0;
+    for (int i = 0; i < 4; i++)
+    {
+        *(uint32_t *)(ROUTER_TABLE_BASE) = if_addrs[i];
+        *(uint32_t *)(ROUTER_TABLE_BASE + 12) = i;
+        *(uint32_t *)(ROUTER_TABLE_BASE + 16) = 2; // send flag
+    }
+    return 0;
 }
 
 uint64_t GetTicks()
@@ -21,7 +34,7 @@ uint64_t GetTicks()
     return time2 << 32 | time1;
 }
 
-int ReceiveEthernetFrame(int sys_index, uint8_t *&buffer,
+int ReceiveEthernetFrame(uint8_t *&buffer,
                          macaddr_t src_mac, macaddr_t dst_mac, int64_t timeout,
                          int *if_index)
 {
@@ -31,14 +44,26 @@ int ReceiveEthernetFrame(int sys_index, uint8_t *&buffer,
     // 2^18 ms = 2^15 s \approx 2^9 days
     if (timeout == -1)
         timeout = ((uint64_t)timeout) >> 1;
+    // 'tail': buffer queue tail - which is the position that the router is ready to write
+    int tail;
     while (1)
     {
+        tail = *BufferIndexPtr;
+        // time out?
         if (GetTicks() - startTime >= timeout)
             return 0;
-        if (*BufferIndexPtr != sys_index)
+        // packet available?
+        if (tail != sys_index)
             break;
     }
+    // overrun: the tail counter had already restarted
+    overrun = tail < sys_index;
 
+    // cyclic queue
+    if (sys_index == BUFFER_SIZE)
+        sys_index = 0;
+
+    // packet address
     buffer = (uint8_t *)(BUFFER_BASE_ADDRESS + ((sys_index++) << 11)) + 4;
     // Note: the Ethernet header the cpu receives is different from that of a standard one.
     // In our implementation, src mac is ahead of dst mac.
@@ -51,7 +76,16 @@ int ReceiveEthernetFrame(int sys_index, uint8_t *&buffer,
     *(int *)if_index = *(uint8_t *)(buffer + 15) - 1;
 
     int res = *(int *)(buffer - 4);
+
     puts("[recv]");
+
+    printf("sys_index = ");
+    puthex(sys_index);
+    puts("");
+    printf("tail = ");
+    puthex(tail);
+    puts("");
+
     for (int i = 0; i < res; i += 4)
     {
         // putc(buffer[i]);

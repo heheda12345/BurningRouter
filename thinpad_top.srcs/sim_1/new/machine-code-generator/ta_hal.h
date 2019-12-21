@@ -50,7 +50,7 @@ extern "C"
  * 
  * @note IP包从(buffer + 16)开始
  */
-    int ReceiveEthernetFrame(int sys_index, uint8_t *&buffer,
+    int ReceiveEthernetFrame(uint8_t *&buffer,
                              macaddr_t src_mac, macaddr_t dst_mac, int64_t timeout,
                              int *if_index);
 

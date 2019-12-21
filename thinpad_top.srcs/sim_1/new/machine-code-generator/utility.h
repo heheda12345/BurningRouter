@@ -24,7 +24,7 @@ uint16_t htons(uint16_t hs);
 uint16_t ntohs(uint16_t ns);
 
 void putchar(char c);
-void printf(const char *st);
+void printf(const char *s);
 template <typename T1>
 void printf(const char *st, T1 a) {}
 template <typename T1, typename T2>
