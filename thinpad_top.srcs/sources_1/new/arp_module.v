@@ -104,7 +104,7 @@ assign debug[3:0] = arp_read_state;
 assign debug[7:4] = arp_write_state;
 //assign debug[15:8] = mem_write_addr[7:0];
 
-always @ (posedge clk or posedge rst) begin
+always @ (posedge clk) begin
     arp_read_state <= !rst ? next_read_state : IDLE;
     arp_write_state <= !rst ? next_write_state : IDLE;
 end
