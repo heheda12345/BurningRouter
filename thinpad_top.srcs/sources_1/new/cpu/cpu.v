@@ -2,7 +2,7 @@ module cpu(
     input wire clk,
     input wire rst,
 
-    input wire[31:0] pc_data_i,
+    (*mark_debug="true"*)input wire[31:0] pc_data_i,
     output wire[31:0] pc_addr_o,
     input wire if_stall_req, 
     input wire [5:0] int_i,
@@ -158,7 +158,7 @@ wire[31:0] new_pc;
 wire[31:0] latest_epc;
 wire[31:0] mem_syscall_bias;
 
-wire not_align;
+(*mark_debug="true"*)wire not_align;
 
 assign leds[15:1] = 15'b0000000000000000;
 assign leds[0] = not_align;
