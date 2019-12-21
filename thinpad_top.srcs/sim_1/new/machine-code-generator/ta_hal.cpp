@@ -14,14 +14,14 @@ int Init(in_addr_t if_addrs[N_IFACE_ON_BOARD])
 
 uint64_t GetTicks()
 {
-    volatile uint64_t time1 = *(uint32_t*)(TIMER_POS);
-    volatile uint64_t time2 = *(uint32_t*)(TIMER_POS + 1);
+    volatile uint64_t time1 = *(uint32_t *)(TIMER_POS);
+    volatile uint64_t time2 = *(uint32_t *)(TIMER_POS + 1);
     return time2 << 32 | time1;
 }
 
-int ReceiveIPPacket(int sys_index, uint8_t *&buffer,
-                    macaddr_t src_mac, macaddr_t dst_mac, int64_t timeout,
-                    int *if_index)
+int ReceiveEthernetFrame(int sys_index, uint8_t *&buffer,
+                         macaddr_t src_mac, macaddr_t dst_mac, int64_t timeout,
+                         int *if_index)
 {
     // volatile = could be changed by sb. outside this cpp program
     volatile uint32_t *BufferIndexPtr = (uint32_t *)BUFFER_TAIL_ADDRESS;
@@ -61,18 +61,22 @@ int ReceiveIPPacket(int sys_index, uint8_t *&buffer,
     return res;
 }
 
-int SendIPPacket(int if_index, uint8_t *buffer, size_t length,
-                 macaddr_t my_mac)
+int SendEthernetFrame(int if_index, uint8_t *buffer, size_t length)
 {
-    *(uint32_t *)(buffer) = *(uint32_t *)(buffer + 6) = *(uint32_t *)(my_mac);
-    *(uint16_t *)(buffer + 4) = *(uint16_t *)(buffer + 10) = *(uint16_t *)(my_mac + 4);
-    *(uint8_t *)(buffer + 15) = (*(int *)if_index) + 1;
+    *(uint8_t *)(buffer + 0) = 0x02;
+    *(uint8_t *)(buffer + 1) = 0x02;
+    *(uint8_t *)(buffer + 2) = 0x03;
+    *(uint8_t *)(buffer + 3) = 0x03;
+    *(uint8_t *)(buffer + 4) = 0x03;
+    *(uint8_t *)(buffer + 5) = 0x03;
+
+    *(uint8_t *)(buffer + 15) = if_index + 1;
     buffer -= 4;
     *(int *)(buffer) = length;
     volatile uint32_t *SendStatePtr = (uint32_t *)SEND_STATE_ADDRESS;
     while (1)
     {
-        if ((*(uint32_t *)(SEND_STATE_ADDRESS)&1) == 0)
+        if (((*(uint32_t *)SendStatePtr) & 1) == 0)
             break;
     }
     *(uint32_t *)SEND_CONTROL_ADDRESS = (uint32_t)buffer;

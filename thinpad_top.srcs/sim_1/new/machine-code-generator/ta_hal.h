@@ -49,10 +49,12 @@ extern "C"
  * @param timeout IN，设置接收超时时间（毫秒），传入-1 表示无限等待
  * @param if_index OUT，实际接收到的报文来源的接口号，不能为空指针。范围是0~3
  * @return int >0 表示实际接收的报文长度，=0 表示超时返回，<0 表示发生错误
+ * 
+ * @note IP包从(buffer + 16)开始
  */
-    int ReceiveIPPacket(int sys_index, uint8_t *&buffer,
-                        macaddr_t src_mac, macaddr_t dst_mac, int64_t timeout,
-                        int *if_index);
+    int ReceiveEthernetFrame(int sys_index, uint8_t *&buffer,
+                             macaddr_t src_mac, macaddr_t dst_mac, int64_t timeout,
+                             int *if_index);
 
     /**
  * @brief 发送一个 IP 报文，它的源 MAC 地址就是对应接口的 MAC 地址
@@ -62,11 +64,9 @@ extern "C"
  * @param if_index IN，接口索引号，[0, N_IFACE_ON_BOARD-1]
  * @param buffer IN，发送缓冲区。缓冲区前要留有4字节的空间。
  * @param length IN，待发送报文的长度
- * @param dst_mac IN，IPv4 报文下层的目的 MAC 地址
  * @return int 0 表示成功，非 0 为失败
  */
-    int SendIPPacket(int if_index, uint8_t *buffer, size_t length,
-                     macaddr_t dst_mac);
+    void SendEthernetFrame(int if_index, uint8_t *buffer, size_t length);
 
 #ifdef __cplusplus
 }
