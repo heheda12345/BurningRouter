@@ -2,6 +2,11 @@
 module cpu_interface_model (
     input clk_cpu,
     
+    output logic [7:0] cpu_rx_axis_tdata,
+    output logic cpu_rx_axis_tlast,
+    output logic cpu_rx_axis_tvalid = 0,
+    input cpu_rx_axis_tready,
+    
     input [31:0] cpu_rx_qword_tdata,
     input [3:0] cpu_rx_qword_tlast,
     input cpu_rx_qword_tvalid,
@@ -29,7 +34,7 @@ module cpu_interface_model (
     logic [3:0] out2;
     logic [7:0] frame_data [FRAME_COUNT-1:0][BUFFER_SIZE-1:0];
     logic [8*BUFFER_SIZE-1:0] buffer;
-    logic [15:0] count;
+    logic [15:0] count, count2 = 0;
     logic [15:0] frame_size [FRAME_COUNT-1:0];
     integer fd, fout, index, res, frame_count;
 
@@ -141,6 +146,19 @@ module cpu_interface_model (
             end else begin
                 receiving <= 1;
             end
+        end
+    end
+    always_ff @ (posedge clk_cpu) begin
+        cpu_rx_axis_tvalid <= ~cpu_rx_axis_tvalid;
+        if (cpu_rx_axis_tready) count2 <= count2 + 1;
+    end
+    always_comb begin
+        if (count2 < frame_size[frame_index] - 1) begin
+            cpu_rx_axis_tdata <= frame_data[frame_index][count2];
+            cpu_rx_axis_tlast <= count2 + 1 == frame_size[frame_index] - 1;
+        end else begin
+            cpu_rx_axis_tdata <= 0;
+            cpu_rx_axis_tlast <= 0;
         end
     end
 

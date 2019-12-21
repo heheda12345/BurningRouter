@@ -278,22 +278,29 @@ rgmii_model rgmii(
 
 // wire mem_read_en, out_en;
 // wire [31:0] mem_read_data, mem_read_addr, out_data;
-// cpu_interface_model cpu_itf (
-//     .clk_cpu(clk_50M),
-//     // .cpu_rx_qword_tdata(cpu_rx_qword_tdata),
-//     // .cpu_rx_qword_tlast(cpu_rx_qword_tlast),
-//     // .cpu_rx_qword_tvalid(cpu_rx_qword_tvalid),
-//     // .cpu_rx_qword_tready(cpu_rx_qword_tready),
-//     // .cpu_tx_qword_tdata(cpu_tx_qword_tdata),
-//     // .cpu_tx_qword_tlast(cpu_tx_qword_tlast),
-//     // .cpu_tx_qword_tvalid(cpu_tx_qword_tvalid),
-//     // .cpu_tx_qword_tready(cpu_tx_qword_tready)
-//     .out_en(out_en),
-//     .out_data(out_data),
-//     .mem_read_en(mem_read_en),
-//     .mem_read_addr(mem_read_addr),
-//     .mem_read_data(mem_read_data)
-// );
+wire [7:0] cpu_rx_axis_tdata;
+wire cpu_rx_axis_tvalid, cpu_rx_axis_tlast;
+wire cpu_rx_axis_tready;
+cpu_interface_model cpu_itf (
+    .clk_cpu(clk_125M),
+    .cpu_rx_axis_tdata(cpu_rx_axis_tdata),
+    .cpu_rx_axis_tlast(cpu_rx_axis_tlast),
+    .cpu_rx_axis_tready(cpu_rx_axis_tready),
+    .cpu_rx_axis_tvalid(cpu_rx_axis_tvalid)
+    // .cpu_rx_qword_tdata(cpu_rx_qword_tdata),
+    // .cpu_rx_qword_tlast(cpu_rx_qword_tlast),
+    // .cpu_rx_qword_tvalid(cpu_rx_qword_tvalid),
+    // .cpu_rx_qword_tready(cpu_rx_qword_tready),
+    // .cpu_tx_qword_tdata(cpu_tx_qword_tdata),
+    // .cpu_tx_qword_tlast(cpu_tx_qword_tlast),
+    // .cpu_tx_qword_tvalid(cpu_tx_qword_tvalid),
+    // .cpu_tx_qword_tready(cpu_tx_qword_tready)
+    // .out_en(out_en),
+    // .out_data(out_data),
+    // .mem_read_en(mem_read_en),
+    // .mem_read_addr(mem_read_addr),
+    // .mem_read_data(mem_read_data)
+);
 
 // logic bus_stall, bus_stall_reg;
 // initial begin
@@ -320,6 +327,18 @@ rgmii_model rgmii(
 //     .cpu_tx_qword_tvalid(cpu_tx_qword_tvalid)
 // );
 // assign cpu_tx_qword_tready = cpu_tx_qword_tvalid;
+
+pkg_classify pkg_inst(
+    .axi_tclk(clk_125M), // i 
+    .axi_tresetn(1), // i
+    //.enable_address_swap(1'b1), // i
+    .MY_MAC_ADDRESS(48'h020203030000),
+
+    .rx_axis_fifo_tdata(cpu_rx_axis_tdata), // i
+    .rx_axis_fifo_tvalid(cpu_rx_axis_tvalid), // i
+    .rx_axis_fifo_tlast(cpu_rx_axis_tlast), // i
+    .rx_axis_fifo_tready(cpu_rx_axis_tready) // o
+);
 
 // Lookup Table Test
 reg lookup_in_ready;

@@ -109,19 +109,26 @@ begin
             default:
                 next_read_state <= read_state;
         endcase 
+    end else begin
+        if (read_state == WAIT) next_read_state <= sub_procedure_complete ? IDLE : WAIT;
+        else next_read_state <= read_state;
     end
-    else if (read_state == WAIT) begin 
-        next_read_state <= sub_procedure_complete ? IDLE : WAIT;
-    end
-    else next_read_state <= IDLE;
 end
 
 always @ (posedge axi_tclk) begin
-    dst_counter <= rx_axis_fifo_tvalid && next_read_state == READ_DEST ? dst_counter + 1 : 0;
-    src_counter <= rx_axis_fifo_tvalid && next_read_state == READ_SRC ? src_counter + 1 : 0;
-    type_counter <= rx_axis_fifo_tvalid && next_read_state == READ_TYPE ? ~type_counter : 0;
-    vlan_type_counter <= rx_axis_fifo_tvalid && next_read_state == READ_VLAN_TYPE ? ~vlan_type_counter : 0;
-    vlan_port_counter <= rx_axis_fifo_tvalid && next_read_state == READ_VLAN_PORT ? ~vlan_port_counter : 0;
+    if (axi_treset) begin
+        dst_counter <= 0;
+        src_counter <= 0;
+        type_counter <= 0;
+        vlan_type_counter <= 0;
+        vlan_port_counter <= 0;
+    end else if (rx_axis_fifo_tvalid) begin
+        dst_counter <= next_read_state == READ_DEST ? dst_counter + 1 : 0;
+        src_counter <= next_read_state == READ_SRC ? src_counter + 1 : 0;
+        type_counter <= next_read_state == READ_TYPE ? ~type_counter : 0;
+        vlan_type_counter <= next_read_state == READ_VLAN_TYPE ? ~vlan_type_counter : 0;
+        vlan_port_counter <= next_read_state == READ_VLAN_PORT ? ~vlan_port_counter : 0;
+    end
 end
 
 always @ (posedge axi_tclk) begin
@@ -171,10 +178,10 @@ assign arp_ready = sub_procedure_ready && protocol_type_1 == 8'h08 && rx_axis_fi
 assign sub_procedure_complete = arp_complete || ipv4_complete;
 
 always @ (posedge axi_tclk) begin
-    if (next_read_state == READ_VLAN_TYPE) begin
+    if (next_read_state == READ_VLAN_TYPE && vlan_type_counter == 1) begin
         sub_procedure_type <= arp_ready ? ARP : (ipv4_ready ? IPV4 : 0);
     end
-    else if (next_read_state == WAIT || read_state == WAIT)
+    else if (next_read_state == WAIT || read_state == WAIT || !rx_axis_fifo_tvalid)
         sub_procedure_type <= sub_procedure_type;
     else
         sub_procedure_type <= 0;
@@ -203,5 +210,10 @@ end
 
 assign is_arp = sub_procedure_type == ARP && read_state == WAIT;
 assign is_ipv4 = sub_procedure_type == IPV4 && read_state == WAIT;
+
+// for simulation
+initial begin
+    dst_counter <= 0;
+end
 
 endmodule // pkg_classify
