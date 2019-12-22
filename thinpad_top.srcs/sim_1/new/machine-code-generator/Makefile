@@ -11,6 +11,8 @@ PYTHON = python3
 PROGRAM = boilerplate
 
 SOURCES=$(wildcard *.cpp)
+# SOURCES = main.cpp bootloader.cpp utility.cpp ta_hal.cpp
+# SOURCES = main.cpp bootloader.cpp
 HEADERS=$(wildcard *.h)
 OBJECTS=$(SOURCES:%.cpp=%.cpp.o)
 DUMPS=$(SOURCES:%.cpp=%.d)

@@ -7,9 +7,9 @@ volatile uint32_t *UART_STAT = (uint32_t *)0xBFD003FC;
 
 void putc(char ch)
 {
-    while (!(*UART_STAT & 0x1))
-        ;
-    *UART_TX = ch;
+    // while (!(*UART_STAT & 0x1))
+    //     ;
+    // *UART_TX = ch;
 }
 
 uint8_t getc()
@@ -32,11 +32,11 @@ uint32_t getlen()
     return len;
 }
 
-void puts(const char *s)
+void puts(const char *s, int len)
 {
-    while (*s)
+    for (int i = 0; i < len; ++i)
     {
-        putc(*s++);
+        putc(*(s + i));
     }
     putc('\n');
 }
@@ -68,11 +68,11 @@ void bootloader()
     //     *MEM = getc();
     //     MEM++;
     //   }
-    puts("BT");
+    puts("BT", 2);
 }
 
 void halt(uint32_t epc)
 {
-    puts("AL ");
+    // puts("AL ", 3);
     puthex(epc);
 }

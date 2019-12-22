@@ -23,11 +23,7 @@ int main()
         uint8_t *packet;
         int res = ReceiveEthernetFrame(packet, 1000, &if_index);
 
-        if (res < 0)
-        {
-            return res;
-        }
-        else if (res == 0)
+        if (res == 0)
         {
             // Timeout
             continue;
