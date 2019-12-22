@@ -378,7 +378,7 @@ always @(bram_entry_read or read_enable) begin
 end
 
 always @(node_cnt) begin
-    if (node_cnt + 20 > ENTRY_ADDR_MAX) begin
+    if (node_cnt + 30 > ENTRY_ADDR_MAX) begin
         full <= 1;
     end else begin
         full <= 0;

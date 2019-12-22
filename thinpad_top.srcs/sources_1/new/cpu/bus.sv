@@ -57,6 +57,7 @@ module bus(
     output reg [1:0]  lookup_modify_in_nextport,
     output reg [6:0]  lookup_modify_in_len,
     input wire lookup_modify_finish,
+    input wire lookup_full,
     
     input wire uart_dataready,
     input wire uart_tsre,
@@ -246,7 +247,7 @@ always_comb begin
         else if (mem_rtss)
             mem_data_reg = {router_in_restart, router_out_state};
         else if (mem_addr_i == ROUTER_LOOKUP_CTRL)
-            mem_data_reg = lookup_modify_in_state;
+            mem_data_reg = {lookup_full, lookup_modify_in_state};
         else if (mem_addr_i == CLOCK_MIL_SECONDS)
             mem_data_reg = timing_mil_secs[31:0];
         else if (mem_addr_i == CLOCK_MIL_SECONDS + 4)

@@ -34,7 +34,8 @@ module router_core(
     input         lookup_modify_in_ready,
     input  [1:0]  lookup_modify_in_nextport,
     input  [6:0]  lookup_modify_in_len,
-    output  wire  lookup_modify_finish
+    output  wire  lookup_modify_finish,
+    output  wire  lookup_full
 );
 
 
@@ -118,7 +119,6 @@ wire [31:0] arp_table_input_ipv4_addr, arp_table_query_ipv4_addr;
 
 wire [31:0] lookup_query_in_addr, lookup_query_out_nexthop;
 wire lookup_query_in_ready, lookup_query_out_ready;
-wire lookup_full;
 wire [1:0] lookup_query_out_nextport;
 
 wire [11:0] buf_end_addr, buf_start_addr;

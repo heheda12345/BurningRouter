@@ -380,7 +380,7 @@ wire [31:0] lookup_modify_in_addr, lookup_modify_in_nexthop;
 wire lookup_modify_in_ready;
 wire [1:0] lookup_modify_in_nextport;
 wire [6:0] lookup_modify_in_len;
-wire lookup_modify_finish;
+wire lookup_modify_finish, lookup_full;
 wire ip_modify_req;
 
 router router_inst(
@@ -418,7 +418,8 @@ router router_inst(
     .lookup_modify_in_ready(lookup_modify_in_ready),
     .lookup_modify_in_nextport(lookup_modify_in_nextport),
     .lookup_modify_in_len(lookup_modify_in_len),
-    .lookup_modify_finish(lookup_modify_finish)
+    .lookup_modify_finish(lookup_modify_finish),
+    .lookup_full(lookup_full)
 );
 
 
@@ -477,6 +478,7 @@ bus bus_inst(
     .lookup_modify_in_nextport(lookup_modify_in_nextport),
     .lookup_modify_in_len(lookup_modify_in_len),
     .lookup_modify_finish(lookup_modify_finish),
+    .lookup_full(lookup_full),
 
     .timing_mil_secs(timing_mils),
     .router_in_restart(router_in_restart),
