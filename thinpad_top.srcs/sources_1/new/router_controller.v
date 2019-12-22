@@ -103,7 +103,7 @@ localparam  IDLE = 2'h0,
             WRITE_DATA = 2'h1,
             WRITE_LEN = 2'h2;
 reg [1:0] state;
-reg [10:0] mem_addr_offset, total_len;
+reg [10:0] mem_addr_offset;
 (*mark_debug="true"*)reg [BUFFER_IND-1:0] cur_index; // index of the currently writing package
 reg is_end;
 
@@ -112,7 +112,6 @@ assign in_index = cur_index;
 always @(posedge clk or posedge rst) begin
     if (rst == 1'b1) begin
         cur_index <= 0;
-        total_len <= 0;
         mem_addr_offset <= 0;
         state <= IDLE;
         is_end <= 0;
@@ -132,8 +131,6 @@ always @(posedge clk or posedge rst) begin
         if (state == WRITE_LEN) begin
             cur_index <= cur_index + 1;
         end
-        if (state == WRITE_DATA)
-            total_len <= mem_addr_offset;
     end
 end
 

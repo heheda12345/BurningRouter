@@ -118,7 +118,6 @@ wire [31:0] arp_table_input_ipv4_addr, arp_table_query_ipv4_addr;
 
 wire [31:0] lookup_query_in_addr, lookup_query_out_nexthop;
 wire lookup_query_in_ready, lookup_query_out_ready;
-wire lookup_modify_finish;
 wire lookup_full;
 wire [1:0] lookup_query_out_nextport;
 
@@ -350,12 +349,12 @@ blk_mem_gen_0 blk_mem_inst (
 
 // initialize forward table
 
-reg[31:0] counter = 0;
+// reg[31:0] counter = 0;
 
-always @(posedge axi_tclk) begin
-    if (counter < 10000)
-        counter <= counter + 1;
-end
+// always @(posedge axi_tclk) begin
+//     if (counter < 10000)
+//         counter <= counter + 1;
+// end
 
 // always @(posedge axi_tclk) begin
 //     if (counter == 100) begin

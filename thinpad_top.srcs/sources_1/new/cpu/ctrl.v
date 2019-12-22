@@ -1,17 +1,17 @@
 module ctrl(
     input wire rst,
 
-    input wire id_req,
-    input wire if_req,
-    input wire mem_req, 
+    (*mark_debug="true"*)input wire id_req,
+    (*mark_debug="true"*)input wire if_req,
+    (*mark_debug="true"*)input wire mem_req, 
     input wire[31:0] syscall_bias,
 
-    output reg pc_stall,
-    output reg if_stall,
-    output reg id_stall,
-    output reg ex_stall,
-    output reg mem_stall,
-    output reg wb_stall,
+    (*mark_debug="true"*)output reg pc_stall,
+    (*mark_debug="true"*)output reg if_stall,
+    (*mark_debug="true"*)output reg id_stall,
+    (*mark_debug="true"*)output reg ex_stall,
+    (*mark_debug="true"*)output reg mem_stall,
+    (*mark_debug="true"*)output reg wb_stall,
 
     input wire[31:0] excepttype_i,
     input wire[31:0] cp0_epc_i,

@@ -238,7 +238,7 @@ always_comb begin
             mem_data_reg = {24'b000000000000000000000000, pcram_data[7:0]};
         else if (mem_dtram) begin
             mem_data_reg = dtram_data_o;
-            mem_stall <= mem_extram_stall;
+            mem_stall = mem_extram_stall;
         end else if (mem_sstat)
             mem_data_reg = {30'b000000000000000000000000000000, uart_dataready, uart_tsre};
         else if (mem_rtrbi)
