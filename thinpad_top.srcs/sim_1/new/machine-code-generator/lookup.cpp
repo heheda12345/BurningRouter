@@ -22,7 +22,7 @@
   你可以在全局变量中把路由表以一定的数据结构格式保存下来。
 */
 
-Trie router_table;
+Trie root;
 
 /**
  * @brief 插入/删除一条路由表表项
@@ -40,13 +40,21 @@ bool update(bool insert, RoutingTableEntry entry)
 {
     if (insert)
     {
-        if (router_table.insert(ntohl(entry.addr), entry.len, ntohl(entry.nexthop), entry.if_index, ntohl(entry.metric)))
+        uint32_t nexthop, metric, if_index;
+        if (!root.query(entry.addr, &nexthop, &metric, &if_index))
         {
-            InsertHardwareTable(ntohl(entry.addr), ntohl(entry.nexthop), entry.len, entry.if_index);
-            return true;
+            return false; // Query not found
         }
-        else
-            return false;
+        if (ntohl(metric) <= ntohl(entry.metric))
+        {
+            return false; // There's a closer solution, update is not needed.
+        }
+        if (!InsertHardwareTable(ntohl(entry.addr), ntohl(entry.nexthop), entry.len, entry.if_index))
+        {
+            return false; // Cannot insert more entries into the hardware router table.
+        }
+        root.insert(entry);
+        return true;
     }
     else
         return false;
@@ -55,32 +63,20 @@ bool update(bool insert, RoutingTableEntry entry)
 /**
  * @brief 进行一次路由表的查询，按照最长前缀匹配原则
  * @param addr 需要查询的目标地址，大端序
- * @param nexthop 如果查询到目标，把表项的 nexthop 写入
- * @param if_index 如果查询到目标，把表项的 if_index 写入
+ * @param nexthop 如果查询到目标，把表项的 nexthop 写入，大端序
+ * @param metric 大端序
+ * @param if_index 如果查询到目标，把表项的 if_index 写入，小端序
  * @return 查到则返回 true ，没查到则返回 false
  */
-bool query(uint32_t addr, uint32_t *nexthop, uint32_t *if_index)
+bool query(uint32_t addr, uint32_t *nexthop, uint32_t *metric, uint32_t *if_index)
 {
-    bool ans = router_table.query(ntohl(addr), nexthop, if_index);
-    *nexthop = ntohl(*nexthop);
+    bool ans = root.query(addr, nexthop, metric, if_index);
     return ans;
 }
 
-int getEntries(RoutingTableEntry *entries, int if_index)
+int getEntries(RoutingTableEntry **entries, int if_index)
 {
-    return router_table.getEntries(entries, if_index);
+    return root.getEntries(entries, if_index);
 }
 
-void outputTable()
-{
-    // printf("====== Start to output routing table. ======\n");
-    // for (auto it = table.begin(); it != table.end(); ++it) {
-    //     printf("RoutingTableEntry {addr = %s, len = %" PRIu32 ", if_index = %" PRIu32,
-    //         inet_ntoa(in_addr{it->first.first}),
-    //         it->first.second,
-    //         get<0>(it->second));
-    //     printf(", nexthop = %s", inet_ntoa(in_addr{get<1>(it->second)}));
-    //     printf(", metric = %s}\n", inet_ntoa(in_addr{get<2>(it->second)}));
-    // }
-    // printf("====== Routing table is all output. ========\n");
-}
+void outputTable() {}

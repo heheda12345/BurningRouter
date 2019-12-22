@@ -5,7 +5,7 @@
 
 extern bool validateIPChecksum(uint8_t *packet, size_t len);
 extern bool update(bool insert, RoutingTableEntry entry);
-extern bool query(uint32_t addr, uint32_t *nexthop, uint32_t *if_index);
+extern bool query(uint32_t addr, uint32_t *nexthop, uint32_t *metric, uint32_t *if_index);
 extern bool forward(uint8_t *packet, size_t len);
 extern bool disassemble(const uint8_t *packet, uint32_t len, RipPacket *output);
 extern uint32_t assemble(const RipPacket *rip, uint8_t *buffer);
@@ -19,8 +19,8 @@ uint8_t output[1522];
 // 2: 10.0.2.1
 // 3: 10.0.3.1
 // 子网地址
-// 你可以按需进行修改，注意端序是大端序
-uint32_t addrs[N_IFACE_ON_BOARD] = {0x0a000101, 0x0a000001, 0x0a000201, 0x0a000301};
+// 小端序
+uint32_t addrs[N_IFACE_ON_BOARD] = {0x0a000001, 0x0a000101, 0x0a000201, 0x0a000301};
 
 uint32_t packetAssemble(RipPacket rip, uint32_t srcIP, uint32_t dstIP)
 {

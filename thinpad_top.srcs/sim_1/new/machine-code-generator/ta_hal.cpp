@@ -68,14 +68,14 @@ int ReceiveEthernetFrame(uint8_t *&buffer, int64_t timeout, int *if_index)
 
     int res = *(int *)(buffer - 4);
 
-    // puts("[recv]", 6);
+    puts("[recv]", 6);
 
     // printf("sys_index = ", 11);
-    puthex(sys_index);
-    putc('\n');
+    // puthex(sys_index);
+    // putc('\n');
     // printf("tail = ", 7);
-    puthex(tail);
-    putc('\n');
+    // puthex(tail);
+    // putc('\n');
 
     for (int i = 0; i < res; ++i)
     {

@@ -2,95 +2,111 @@
 #include "router_table.h"
 #include "router.h"
 
-Trie::Trie() : entry(nullptr), lc(nullptr), rc(nullptr) {}
+RoutingTableEntry entries[MAX_ENTRY_NUM];
+int entryTot;
 
-// 这里所有的参数均为小端序
-void Trie::insert(unsigned addr, unsigned len, unsigned nexthop, unsigned if_index, unsigned metric)
+Trie tries[32 * MAX_ENTRY_NUM];
+int trieTot;
+
+void Trie_Init()
 {
+    entryTot = trieTot = 0;
 }
 
-bool Trie::query(unsigned addr, unsigned *nexthop, unsigned *if_index)
+Trie::Trie() : entry(nullptr), lc(nullptr), rc(nullptr) {}
+
+void Trie::insert(RoutingTableEntry entry)
 {
-    // printf("query %x\n", addr);
-    State state;
-    bool read_enable = 0;
-    //init end
-    int dep;
-    int read_addr;
-    int upd_child;
-    TrieEntry entry, entry_read;
+    uint32_t addr = ntohl(entry.addr);
+
+    Trie *node = this;
+    for (int i = 31, d; i >= 32 - entry.len; --i)
     {
-        // PAUSE
-        dep = 30;
-        read_addr = 1;
-        read_enable = 1;
-        state = QUE_READ;
+        if (~addr >> i & 1)
+        {
+            if (node->lc == nullptr)
+            {
+                node->lc = tries + trieTot++;
+            }
+            node = node->lc;
+        }
+        else
+        {
+            if (node->rc == nullptr)
+            {
+                node->rc = tries + trieTot++;
+            }
+            node = node->rc;
+        }
     }
+
+    if (node->entry == nullptr || node->entry->metric > entry.metric)
+    {
+        node->entry = entries + entryTot;
+        entries[entryTot++] = entry;
+    }
+}
+
+/**
+ * @param addr: big endiness
+ * @return: if there's an entry being queried
+ */
+bool Trie::query(uint32_t addr, uint32_t *nexthop, uint32_t *metric, uint32_t *if_index)
+{
+    addr = ntohl(addr);
 
     bool found = false;
 
-    while (state != PAUSE)
+    Trie *node = this;
+    for (int i = 32; i--;)
     {
-        // print_state(state);
-        //syn
-        if (read_enable)
+        if (node->entry)
         {
-            entry_read = tr[read_addr];
+            *nexthop = node->entry->nexthop;
+            *if_index = node->entry->if_index;
+            *metric = node->entry->metric;
+
+            found = true;
         }
-        read_enable = 0;
-        // state machine
-        switch (state)
+
+        if (~addr >> i & 1)
         {
-        case QUE_READ:
-            if (entry_read.valid)
+            if (node->lc == nullptr)
             {
-                *nexthop = entry_read.nextHop;
-                *if_index = entry_read.if_index;
-                found = true;
+                break;
             }
-            upd_child = addr >> dep & 3;
-            if (entry_read.child[upd_child] > 0)
+            node = node->lc;
+        }
+        else
+        {
+            if (node->rc == nullptr)
             {
-                read_addr = entry_read.child[upd_child];
-                read_enable = true;
-                state = QUE_READ;
-                dep -= 2;
+                break;
             }
-            else
-            {
-                state = PAUSE;
-            }
-            break;
+            node = node->rc;
         }
     }
+
     return found;
 }
 
-int Trie::getEntries(RoutingTableEntry *entries, int if_index)
+int Trie::getEntries(RoutingTableEntry **entries, int if_index)
 {
-    int root_cnt = 0;
-    if (tr[1].valid)
+    int tot = 0;
+    if (entry && entry->if_index != if_index)
     {
-        root_cnt = 1;
-        entries[1] = tr[1].toRoutingTableEntry(0);
+        *++entries = entry;
+        ++tot;
     }
-    return root_cnt + getEntriesRec(0, 0, 31, entries + root_cnt, if_index);
-}
-
-int Trie::getEntriesRec(int node, uint32_t addr, RoutingTableEntry *entries, int if_index)
-{
-    int tot = 0, chtot;
-    for (int i = 0; i < 4; ++i)
-        if (tr[node].child[i])
-        {
-            if (tr[tr[node].child[i]].valid && tr[tr[node].child[i]].if_index != if_index && (i == 0 || tr[tr[node].child[i]] != tr[tr[node].child[i - 1]]))
-            {
-                entries[tot++] = tr[i].toRoutingTableEntry(addr);
-            }
-            chtot = getEntriesRec(tr[node].child[i], entries + tot, if_index);
-            tot += chtot;
-        }
+    if (lc)
+    {
+        int lcnt = getEntries(entries, if_index);
+        tot += lcnt;
+        entries += lcnt;
+    }
+    if (rc)
+    {
+        tot += getEntries(entries, if_index);
+    }
     return tot;
 }
-
-void Trie::output() {}

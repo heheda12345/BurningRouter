@@ -3,21 +3,22 @@
 #include "bootloader.h"
 #include "ta_hal.h"
 #include "router.h"
+#include "ta_table.h"
 
 extern bool update(bool insert, RoutingTableEntry entry);
 
 uint8_t output[2048];
 
-// 0: 10.0.0.1
-// 1: 10.0.1.1
-// 2: 10.0.2.1
-// 3: 10.0.3.1
-// 子网地址
-// 端序是小端序
-uint32_t addrs[N_IFACE_ON_BOARD] = {0x0a000101, 0x0a000001, 0x0a000201, 0x0a000301};
-
 int main()
 {
+    // 0: 10.0.0.1
+    // 1: 10.0.1.1
+    // 2: 10.0.2.1
+    // 3: 10.0.3.1
+    // 子网地址
+    // 端序是小端序
+    uint32_t addrs[N_IFACE_ON_BOARD] = {0x0a000001, 0x0a000101, 0x0a000201, 0x0a000301};
+
     Init(addrs);
 
     // Add direct routes
@@ -35,6 +36,6 @@ int main()
             0,                     // big endian, means direct
             0x01000000             // big endian
         );
-        update(true, entry);
+        InsertHardwareTable(ntohl(entry.addr), ntohl(entry.nexthop), entry.len, entry.if_index);
     }
 }

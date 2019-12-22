@@ -2,7 +2,7 @@
 #define __UTILITY_H__
 
 #include "bootloader.h"
-#define MAX_ROUTER_NODE 1024
+#define MAX_ENTRY_NUM 1024
 
 typedef uint8_t macaddr_t[6];
 typedef uint32_t in_addr_t;

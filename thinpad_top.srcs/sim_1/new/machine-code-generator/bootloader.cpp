@@ -7,9 +7,9 @@ volatile uint32_t *UART_STAT = (uint32_t *)0xBFD003FC;
 
 void putc(char ch)
 {
-    // while (!(*UART_STAT & 0x1))
-    //     ;
-    // *UART_TX = ch;
+    while (!(*UART_STAT & 0x1))
+        ;
+    *UART_TX = ch;
 }
 
 uint8_t getc()
