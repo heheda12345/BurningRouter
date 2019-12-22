@@ -311,17 +311,17 @@ module bus_judger (
     input wire clk,
     input wire rst, 
 
-    input wire cpu_mem_req,
-    input wire router_write_req,
-    input wire router_read_req,
+    (*mark_debug="true"*)input wire cpu_mem_req,
+    (*mark_debug="true"*)input wire router_write_req,
+    (*mark_debug="true"*)input wire router_read_req,
 
-    output reg cpu_mem_ok,
-    output reg router_write_ok,
-    output reg router_read_ok,
+    (*mark_debug="true"*)output reg cpu_mem_ok,
+    (*mark_debug="true"*)output reg router_write_ok,
+    (*mark_debug="true"*)output reg router_read_ok,
 
-    output reg cpu_mem_stall,
-    output reg router_write_stall,
-    output reg router_read_stall
+    (*mark_debug="true"*)output reg cpu_mem_stall,
+    (*mark_debug="true"*)output reg router_write_stall,
+    (*mark_debug="true"*)output reg router_read_stall
 );
 
 reg [1:0] state, next_state;

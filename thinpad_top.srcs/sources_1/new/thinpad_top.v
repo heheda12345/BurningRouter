@@ -340,10 +340,13 @@ wire [31:0] router_mem_waddr, router_mem_wdata;
 wire [31:0] router_mem_oaddr, router_mem_odata;
 wire [31:0] router_out_data;
 
+wire clk_cpu = clk_10M;
+wire rst_cpu = reset_of_clk10M;
+
 router_controller #(.BUFFER_IND(BUFFER_SIZE_INDEX)) router_controller_inst
 (
-    .clk(clk_20M),
-    .rst(reset_of_clk20M),
+    .clk(clk_cpu),
+    .rst(rst_cpu),
     .write_stall(router_write_stall),
     .read_stall(router_read_stall),
     .in_index(router_in_index),       // o
@@ -383,9 +386,9 @@ wire ip_modify_req;
 router router_inst(
     .eth_rx_mac_aclk(eth_rx_mac_aclk),
     .eth_tx_mac_aclk(eth_tx_mac_aclk),
-    .cpu_clk(clk_20M),
+    .cpu_clk(clk_cpu),
     .eth_sync_rst_n(eth_sync_rst_n),
-    .cpu_rst(reset_of_clk20M),
+    .cpu_rst(rst_cpu),
 
     .eth_rx_axis_mac_tdata(eth_rx_axis_mac_tdata),
     .eth_rx_axis_mac_tvalid(eth_rx_axis_mac_tvalid),
@@ -439,15 +442,15 @@ end
 
 wire [63:0] timing_mils;
 // Needs to be turned down to little in simulation
-timer #(.FREQ(20000)) timer_inst (
-    .clk(clk_20M),
-    .rst(reset_of_clk20M),
+timer #(.FREQ(10000)) timer_inst (
+    .clk(clk_cpu),
+    .rst(rst_cpu),
     .out(timing_mils)
 );
 
 bus bus_inst(
-    .clk(clk_20M),
-    .rst(reset_of_clk20M),
+    .clk(clk_cpu),
+    .rst(rst_cpu),
 
     .pcram_data(base_ram_data),
     .pcram_addr(base_ram_addr),
@@ -508,8 +511,8 @@ bus bus_inst(
 );
 
 cpu CPU(
-    .clk(clk_20M),
-    .rst(reset_of_clk20M),
+    .clk(clk_cpu),
+    .rst(rst_cpu),
 
     .pc_data_i(pc_data),
     .pc_addr_o(pc_addr),
@@ -526,7 +529,7 @@ cpu CPU(
     .leds(cpu_out)
 );
 
-always @(posedge clk_20M) begin
+always @(posedge clk_cpu) begin
     number <= pc_data[7:0];
 end
 
