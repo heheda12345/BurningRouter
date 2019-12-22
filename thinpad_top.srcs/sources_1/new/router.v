@@ -33,7 +33,8 @@ module router(
     input         lookup_modify_in_ready,
     input  [1:0]  lookup_modify_in_nextport,
     input  [6:0]  lookup_modify_in_len,
-    output  wire  lookup_modify_finish
+    output  wire  lookup_modify_finish,
+    output wire lookup_full
 );
 
 wire eth_sync_rst = ~eth_sync_rst_n;
@@ -46,7 +47,7 @@ wire eth_sync_rst = ~eth_sync_rst_n;
 (*mark_debug="true"*)wire lookup_modify_in_ready_router;
 wire [1:0] lookup_modify_in_nextport_router;
 wire [6:0] lookup_modify_in_len_router;
-wire lookup_modify_finish_router;
+wire lookup_modify_finish_router, lookup_full_router;
 (*mark_debug="true"*)wire ip_modify_req_router;
 
 router_core router_core_i(
@@ -85,7 +86,8 @@ router_core router_core_i(
     .lookup_modify_in_ready(lookup_modify_in_ready_router),
     .lookup_modify_in_nextport(lookup_modify_in_nextport_router),
     .lookup_modify_in_len(lookup_modify_in_len_router),
-    .lookup_modify_finish(lookup_modify_finish_router)
+    .lookup_modify_finish(lookup_modify_finish_router),
+    .lookup_full(lookup_full)
 );
 
 wire [35:0] fifo_cpu2router_din, fifo_router2cpu_dout;
@@ -202,6 +204,13 @@ pulse_crossdomain pulse_crossdomain_finish(
     .rst(eth_sync_rst),
     .pulse_in(lookup_modify_finish_router),
     .pulse_out(lookup_modify_finish)
+);
+pulse_crossdomain pulse_crossdomain_full(
+    .clk_in(eth_rx_mac_aclk),
+    .clk_out(cpu_clk),
+    .rst(eth_sync_rst),
+    .pulse_in(lookup_full_router),
+    .pulse_out(lookup_full)
 );
 pulse_crossdomain pulse_crossdomain_ip_modify(
     .clk_in(cpu_clk),
