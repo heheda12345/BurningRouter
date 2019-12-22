@@ -3,7 +3,7 @@ module buffer_pushing
 (
     input wire clk, 
     input wire [ADDR_WIDTH-1:0] end_addr, // when reading complete, lock it into job_end_mem_addr
-    output reg [ADDR_WIDTH-1:0] start_addr = 0,
+    (*mark_debug="true"*)output reg [ADDR_WIDTH-1:0] start_addr = 0,
     output wire ready,
     input wire start,
     input wire last, // whether package complete
@@ -19,11 +19,11 @@ module buffer_pushing
     output wire cpu_tx_axis_fifo_tvalid,
     output wire cpu_tx_axis_fifo_tlast,
 
-    output wire mem_read_ena,
-    input wire [7:0] mem_read_data,
-    output wire [11:0] mem_read_addr,
+    (*mark_debug="true"*)output wire mem_read_ena,
+    (*mark_debug="true"*)input wire [7:0] mem_read_data,
+    (*mark_debug="true"*)output wire [11:0] mem_read_addr,
 
-    input wire to_cpu
+    (*mark_debug="true"*)input wire to_cpu
 );
 
 localparam  IDLE = 3'd0,
@@ -31,10 +31,10 @@ localparam  IDLE = 3'd0,
             WAITING = 3'd2,
             OVER = 3'd3;
 (*mark_debug="true"*)reg [2:0] state = IDLE, next_state;
-reg [ADDR_WIDTH-1:0] job_cur_mem_addr = 0, job_end_mem_addr_r = 0;
-wire [ADDR_WIDTH - 1:0 ] job_end_mem_addr;
-reg is_last = 0;
-reg to_cpu_r;
+(*mark_debug="true"*)reg [ADDR_WIDTH-1:0] job_cur_mem_addr = 0, job_end_mem_addr_r = 0;
+(*mark_debug="true"*)wire [ADDR_WIDTH - 1:0 ] job_end_mem_addr;
+(*mark_debug="true"*)reg is_last = 0;
+(*mark_debug="true"*)reg to_cpu_r;
 wire packet_end;
 
 assign ready = state == IDLE;
