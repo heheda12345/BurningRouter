@@ -448,7 +448,7 @@ async_setter # (.LEN(4), .ADDR_WIDTH(2)) dst_ip_setter (
 async_getter # (.LEN(6)) dst_mac_getter (
     .value(dest_mac_addr),
     .index(write_counter),
-    .data_input(arp_table_output_mac_addr_r)
+    .data_input(arp_table_output_mac_addr)
 );
 
 assign dest_vlan_port = lookup_query_out_ready ? lookup_query_out_nextport + 1 : 0;
@@ -463,9 +463,8 @@ always @(posedge clk) begin
         end
     end
 end
-always @(arp_table_query_out_ready or arp_table_output_mac_addr) begin
-    if (arp_table_query_out_ready)
-        arp_table_output_mac_addr_r <= arp_table_output_mac_addr;
+always @(*) begin
+    arp_table_output_mac_addr_r <= arp_table_output_mac_addr;
 end
 
 always @(posedge clk) begin

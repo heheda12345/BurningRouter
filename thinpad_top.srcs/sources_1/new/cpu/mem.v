@@ -64,7 +64,11 @@ always @(*) begin
         cp0_reg_we_o <= 0;
         cp0_reg_write_addr_o <= 0;
         cp0_reg_data_o <= 0;
+        ram_be_o <= 0;
         ram_we <= 0;
+        data_to_write <= 0;
+        ram_oe_o <= 0;
+        not_align <= 0;
     end else begin
         wd_o <= wd_i;
         wreg_o <= wreg_i;
@@ -243,6 +247,7 @@ always @(*) begin
     if (rst == 1'b1) begin
         cp0_cause <= 0;
     end else if (wb_cp0_reg_we == 1'b1 && wb_cp0_reg_write_addr == `CP0_REG_CAUSE) begin
+        cp0_cause <= cp0_cause_i;
         cp0_cause[9:8] <= wb_cp0_reg_data[9:8];
         cp0_cause[23] <= wb_cp0_reg_data[23];
         cp0_cause[22] <= wb_cp0_reg_data[22];

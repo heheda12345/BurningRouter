@@ -283,6 +283,8 @@ always @(posedge lku_clk) begin
 end
 
 always @(*) begin
+    new_read_addr <= 0;
+    new_read_enable <= 0;
     case (next_state)
         STATE_PAUSE: begin
                 // $display("state: pause");
