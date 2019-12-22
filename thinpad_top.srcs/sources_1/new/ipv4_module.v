@@ -121,7 +121,6 @@ always @ (posedge clk) begin
     ipv4_read_state <= rst ? IDLE : next_read_state;
 end
 always @ (*) begin
-    to_read_over <= 0;
     to_read_dest <= 0;
     if (rst) begin
         next_read_state <= IDLE;
@@ -190,38 +189,37 @@ always @ (*) begin
             else begin
                 if (rx_last) begin 
                     next_read_state <= is_writing ? WAIT : OVER; 
-                    if (!is_writing) to_read_over <= 1;
                 end
                 else next_read_state <= rx_axis_fifo_tvalid && total_counter == total_length ? TAIL : BODY;
             end
         end
         TAIL: begin
             next_read_state <= rx_last ? (is_writing ? WAIT : OVER) : TAIL;
-            if (rx_last && !is_writing) to_read_over <= 1;
         end
         DISCARD: begin
             next_read_state <= rx_axis_fifo_tvalid && rx_axis_fifo_tlast ? (
                 is_writing ? WAIT : OVER
             ) : DISCARD;
-            if (rx_axis_fifo_tvalid && rx_axis_fifo_tlast && !is_writing) to_read_over <= 1;
         end
         // pipeline, so ... no waiting?
         WAIT: begin
             if (is_writing) next_read_state <= WAIT;
             else begin
                 next_read_state <= OVER;
-                to_read_over <= 1;
             end
             // next_read_state <= is_writing ? WAIT : OVER;
         end
         OVER: begin
-            // to_read_over <= 1;
             next_read_state <= IDLE;
         end
         default:begin
             next_read_state <= IDLE;
         end
     endcase
+end
+
+always @(*) begin
+    to_read_over <= next_read_state == OVER;
 end
 
 assign body_start = (ipv4_read_state == DEST || ipv4_read_state == VARIANT) && rx_axis_fifo_tvalid 
@@ -393,7 +391,7 @@ always @ (posedge clk) begin
 end*/
 //assign mem_read_ena = ipv4_write_state == WRITE_PUSH;
 assign buf_start = next_write_state == WRITE_PUSH || next_write_state == WRITE_TOCPU;
-assign buf_last = to_read_over;
+assign buf_last = next_write_state == OVER;
 assign buf_end_addr = buf_start_addr + mem_write_counter + 1; // mark the farthest point the writer pointer reaches
 always @(posedge clk) begin
     if (ipv4_read_state == IDLE) to_cpu <= 0;

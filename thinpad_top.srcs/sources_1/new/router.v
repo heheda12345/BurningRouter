@@ -87,7 +87,7 @@ router_core router_core_i(
     .lookup_modify_in_nextport(lookup_modify_in_nextport_router),
     .lookup_modify_in_len(lookup_modify_in_len_router),
     .lookup_modify_finish(lookup_modify_finish_router),
-    .lookup_full(lookup_full)
+    .lookup_full(lookup_full_router)
 );
 
 (*mark_debug="true"*)wire [35:0] fifo_cpu2router_din, fifo_router2cpu_dout;
