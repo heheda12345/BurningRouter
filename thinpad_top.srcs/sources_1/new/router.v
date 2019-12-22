@@ -17,15 +17,15 @@ module router(
     output           eth_tx_axis_mac_tuser,
 
     // CPU-side AxiStream interface (use cpu_clk clock)
-    input [31:0]     cpu_tx_qword_tdata,
-    input  [3:0]     cpu_tx_qword_tlast,
-    input            cpu_tx_qword_tvalid,
-    output           cpu_tx_qword_tready,
+    (*mark_debug="true"*)input [31:0]     cpu_tx_qword_tdata,
+    (*mark_debug="true"*)input  [3:0]     cpu_tx_qword_tlast,
+    (*mark_debug="true"*)input            cpu_tx_qword_tvalid,
+    (*mark_debug="true"*)output           cpu_tx_qword_tready,
 
-    output [31:0]    cpu_rx_qword_tdata,
-    output  [3:0]    cpu_rx_qword_tlast,
-    output           cpu_rx_qword_tvalid,
-    input            cpu_rx_qword_tready,
+    (*mark_debug="true"*)output [31:0]    cpu_rx_qword_tdata,
+    (*mark_debug="true"*)output  [3:0]    cpu_rx_qword_tlast,
+    (*mark_debug="true"*)output           cpu_rx_qword_tvalid,
+    (*mark_debug="true"*)input            cpu_rx_qword_tready,
 
     input wire    ip_modify_req,    
     input  [31:0] lookup_modify_in_addr,
@@ -90,11 +90,11 @@ router_core router_core_i(
     .lookup_full(lookup_full)
 );
 
-wire [35:0] fifo_cpu2router_din, fifo_router2cpu_dout;
-wire fifo_cpu2router_empty, fifo_cpu2router_full;
-wire [8:0] fifo_cpu2router_dout, fifo_router2cpu_din;
-wire fifo_router2cpu_wr_en, fifo_cpu2router_rd_en;
-wire fifo_router2cpu_empty, fifo_router2cpu_full;
+(*mark_debug="true"*)wire [35:0] fifo_cpu2router_din, fifo_router2cpu_dout;
+(*mark_debug="true"*)wire fifo_cpu2router_empty, fifo_cpu2router_full;
+(*mark_debug="true"*)wire [8:0] fifo_cpu2router_dout, fifo_router2cpu_din;
+(*mark_debug="true"*)wire fifo_router2cpu_wr_en, fifo_cpu2router_rd_en;
+(*mark_debug="true"*)wire fifo_router2cpu_empty, fifo_router2cpu_full;
 
 assign cpu_rx_qword_tvalid = ~fifo_router2cpu_empty; // non-empty, CPU read is ok
 assign cpu_tx_qword_tready = cpu_tx_qword_tvalid && ~fifo_cpu2router_full; // CPU ready to send
