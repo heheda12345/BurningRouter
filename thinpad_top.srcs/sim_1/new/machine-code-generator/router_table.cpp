@@ -1,4 +1,3 @@
-#include "utility.h"
 #include "router_table.h"
 #include "router.h"
 
@@ -15,12 +14,12 @@ void Trie_Init()
 
 Trie::Trie() : entry(nullptr), lc(nullptr), rc(nullptr) {}
 
-void Trie::insert(RoutingTableEntry entry)
+bool Trie::insert(RoutingTableEntry entry)
 {
     uint32_t addr = ntohl(entry.addr);
 
     Trie *node = this;
-    for (int i = 31, d; i >= 32 - entry.len; --i)
+    for (int i = 31; i >= 32 - (int)entry.len; --i)
     {
         if (~addr >> i & 1)
         {
@@ -44,12 +43,20 @@ void Trie::insert(RoutingTableEntry entry)
     {
         node->entry = entries + entryTot;
         entries[entryTot++] = entry;
+
+        return true;
+    }
+    else
+    {
+        return false;
     }
 }
 
 /**
  * @param addr: big endiness
  * @return: if there's an entry being queried
+ * 
+ * Actually won't be used in our framework.
  */
 bool Trie::query(uint32_t addr, uint32_t *nexthop, uint32_t *metric, uint32_t *if_index)
 {
@@ -58,6 +65,7 @@ bool Trie::query(uint32_t addr, uint32_t *nexthop, uint32_t *metric, uint32_t *i
     bool found = false;
 
     Trie *node = this;
+
     for (int i = 32; i--;)
     {
         if (node->entry)
@@ -73,7 +81,7 @@ bool Trie::query(uint32_t addr, uint32_t *nexthop, uint32_t *metric, uint32_t *i
         {
             if (node->lc == nullptr)
             {
-                break;
+                return found;
             }
             node = node->lc;
         }
@@ -81,10 +89,18 @@ bool Trie::query(uint32_t addr, uint32_t *nexthop, uint32_t *metric, uint32_t *i
         {
             if (node->rc == nullptr)
             {
-                break;
+                return found;
             }
             node = node->rc;
         }
+    }
+    if (node->entry)
+    {
+        *nexthop = node->entry->nexthop;
+        *if_index = node->entry->if_index;
+        *metric = node->entry->metric;
+
+        found = true;
     }
 
     return found;

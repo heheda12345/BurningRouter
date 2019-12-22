@@ -40,20 +40,15 @@ bool update(bool insert, RoutingTableEntry entry)
 {
     if (insert)
     {
-        uint32_t nexthop, metric, if_index;
-        if (!root.query(entry.addr, &nexthop, &metric, &if_index))
+        if (isHardwareTableFull())
         {
-            return false; // Query not found
+            return false;
         }
-        if (ntohl(metric) <= ntohl(entry.metric))
+        if (!root.insert(entry))
         {
-            return false; // There's a closer solution, update is not needed.
+            return false;
         }
-        if (!InsertHardwareTable(ntohl(entry.addr), ntohl(entry.nexthop), entry.len, entry.if_index))
-        {
-            return false; // Cannot insert more entries into the hardware router table.
-        }
-        root.insert(entry);
+        InsertHardwareTable(ntohl(entry.addr), ntohl(entry.nexthop), entry.len, entry.if_index);
         return true;
     }
     else
@@ -70,8 +65,7 @@ bool update(bool insert, RoutingTableEntry entry)
  */
 bool query(uint32_t addr, uint32_t *nexthop, uint32_t *metric, uint32_t *if_index)
 {
-    bool ans = root.query(addr, nexthop, metric, if_index);
-    return ans;
+    return root.query(addr, nexthop, metric, if_index);
 }
 
 int getEntries(RoutingTableEntry **entries, int if_index)

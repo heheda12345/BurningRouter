@@ -10,7 +10,7 @@ struct Trie
     RoutingTableEntry *entry;
     Trie *lc, *rc;
 
-    void insert(RoutingTableEntry entry);
+    bool insert(RoutingTableEntry entry);
     bool query(uint32_t addr, uint32_t *nexthop, uint32_t *metric, uint32_t *if_index);
     int getEntries(RoutingTableEntry **entries, int if_index);
     int getEntriesRec(int node, uint32_t addr, RoutingTableEntry *entries, int if_index);
