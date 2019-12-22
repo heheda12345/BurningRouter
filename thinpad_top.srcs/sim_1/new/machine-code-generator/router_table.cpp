@@ -65,6 +65,16 @@ TrieEntry &TrieEntry::operator=(TrieEntry r)
     memcpy(child, r.child, 4 * 16);
 }
 
+RoutingTableEntry TrieEntry::toRoutingTableEntry(uint32_t addr)
+{
+    return RoutingTableEntry(htonl(addr), maskLen, if_index, htonl(nextHop), htonl(metric));
+}
+
+bool TrieEntry::operator!=(TrieEntry r) const
+{
+    return nextHop != r.nextHop || if_index != r.if_index || maskLen != r.maskLen || metric != r.metric;
+}
+
 Trie::Trie() : node_cnt(1)
 {
 }
@@ -274,6 +284,9 @@ bool Trie::query(unsigned addr, unsigned *nexthop, unsigned *if_index)
         read_enable = 1;
         state = QUE_READ;
     }
+
+    bool found = false;
+
     while (state != PAUSE)
     {
         // print_state(state);
@@ -291,7 +304,7 @@ bool Trie::query(unsigned addr, unsigned *nexthop, unsigned *if_index)
             {
                 *nexthop = entry_read.nextHop;
                 *if_index = entry_read.if_index;
-                return true;
+                found = true;
             }
             upd_child = addr >> dep & 3;
             if (entry_read.child[upd_child] > 0)
@@ -308,7 +321,34 @@ bool Trie::query(unsigned addr, unsigned *nexthop, unsigned *if_index)
             break;
         }
     }
-    return false;
+    return found;
+}
+
+int Trie::getEntries(RoutingTableEntry *entries, int if_index)
+{
+    int root_cnt = 0;
+    if (tr[1].valid)
+    {
+        root_cnt = 1;
+        entries[1] = tr[1].toRoutingTableEntry(0);
+    }
+    return root_cnt + getEntriesRec(0, entries + root_cnt, if_index);
+}
+
+int Trie::getEntriesRec(int node, uint32_t addr, RoutingTableEntry *entries, int if_index)
+{
+    int tot = 0, chtot;
+    for (int i = 0; i < 4; ++i)
+        if (tr[node].child[i])
+        {
+            if (tr[tr[node].child[i]].valid && tr[tr[node].child[i]].if_index != if_index && (i == 0 || tr[tr[node].child[i]] != tr[tr[node].child[i - 1]]))
+            {
+                entries[tot++] = tr[i].toRoutingTableEntry(addr);
+            }
+            chtot = getEntriesRec(tr[node].child[i], entries + tot, if_index);
+            tot += chtot;
+        }
+    return tot;
 }
 
 void Trie::output() {}

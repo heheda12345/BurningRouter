@@ -13,7 +13,7 @@ extern uint32_t assemble(const RipPacket *rip, uint8_t *buffer);
 extern RipPacket routingTable(uint32_t if_index);
 extern void outputTable();
 
-uint8_t output[2048];
+uint8_t output[1522];
 // 0: 10.0.0.1
 // 1: 10.0.1.1
 // 2: 10.0.2.1
@@ -24,50 +24,43 @@ uint32_t addrs[N_IFACE_ON_BOARD] = {0x0a000101, 0x0a000001, 0x0a000201, 0x0a0003
 
 uint32_t packetAssemble(RipPacket rip, uint32_t srcIP, uint32_t dstIP)
 {
-    uint32_t len = assemble(&rip, output + 20 + 8);
+    uint32_t len = assemble(&rip, output + IP_OFFSET + 20 + 8);
 
     // UDP
-    *(uint16_t *)(output + 20) = htons(520);     // src port: 520
-    *(uint16_t *)(output + 20 + 2) = htons(520); // dst port: 520
-    *(uint16_t *)(output + 20 + 4) = htons(len += 8);
+    *(uint16_t *)(output + IP_OFFSET + 20) = htons(520);     // src port: 520
+    *(uint16_t *)(output + IP_OFFSET + 20 + 2) = htons(520); // dst port: 520
+    *(uint16_t *)(output + IP_OFFSET + 20 + 4) = htons(len += 8);
     // TODO: calculate the checksum of UDP
     // checksum calculation for udp
     // if you don't want to calculate udp checksum, set it to zero
-    *(uint16_t *)(output + 20 + 6) = 0; // checksum: omitted as zero
+    *(uint16_t *)(output + IP_OFFSET + 20 + 6) = 0; // checksum: omitted as zero
 
     // IP
-    *(uint8_t *)(output + 0) = 0x45;                        // Version & Header length
-    *(uint8_t *)(output + 1) = 0xc0;                        // Differentiated Services Code Point (DSCP)
-    *(uint16_t *)(output + 2) = htons(len += 20);           // Total Length
-    *(uint16_t *)(output + 4) = 0;                          // ID
-    *(uint16_t *)(output + 6) = 0;                          // FLAGS/OFF
-    *(uint8_t *)(output + 8) = 1;                           // TTL
-    *(uint8_t *)(output + 9) = 0x11;                        // Protocol: UDP:0x11 TCP:0x06 ICMP:0x01
-    *(uint32_t *)(output + 12) = srcIP;                     // src ip
-    *(uint32_t *)(output + 16) = dstIP;                     // dst ip
-    *(uint16_t *)(output + 10) = ntohs(IPChecksum(output)); // checksum calculation for ip
+    *(uint8_t *)(output + IP_OFFSET + 0) = 0x45;                                    // Version & Header length
+    *(uint8_t *)(output + IP_OFFSET + 1) = 0xc0;                                    // Differentiated Services Code Point (DSCP)
+    *(uint16_t *)(output + IP_OFFSET + 2) = htons(len += 20);                       // Total Length
+    *(uint16_t *)(output + IP_OFFSET + 4) = 0;                                      // ID
+    *(uint16_t *)(output + IP_OFFSET + 6) = 0;                                      // FLAGS/OFF
+    *(uint8_t *)(output + IP_OFFSET + 8) = 1;                                       // TTL
+    *(uint8_t *)(output + IP_OFFSET + 9) = 0x11;                                    // Protocol: UDP:0x11 TCP:0x06 ICMP:0x01
+    *(uint32_t *)(output + IP_OFFSET + 12) = srcIP;                                 // src ip
+    *(uint32_t *)(output + IP_OFFSET + 16) = dstIP;                                 // dst ip
+    *(uint16_t *)(output + IP_OFFSET + 10) = ntohs(IPChecksum(output + IP_OFFSET)); // checksum calculation for ip
 
     return len;
 }
 
 int main(int argc, char *argv[])
 {
+    uint8_t *eth_frame;
+
     printf("addrs = [");
     for (int i = 0; i < N_IFACE_ON_BOARD; ++i)
         printf("%u, ", (in_addr){addrs[i]}.s_addr);
     printf("]\n");
 
-// 0a.
-#ifdef ROUTER_BACKEND_LINUX
-    int res = HAL_Init(1, addrs);
-    if (res < 0)
-    {
-        return res;
-    }
-#endif
-#ifdef ROUTER_BACKEND_MIPS
+    // 0a.
     Init(addrs);
-#endif
 
     // 0b. Add direct routes
     // For example:
@@ -107,7 +100,7 @@ int main(int argc, char *argv[])
             {
                 size_t len = packetAssemble(routingTable(i), addrs[i], multicastingIP);
 
-                SendIPPacaket(i, output, len);
+                SendEthernetFrame(i, output + 4, len);
             }
             last_time = time;
         }
@@ -115,7 +108,7 @@ int main(int argc, char *argv[])
         int mask = (1 << N_IFACE_ON_BOARD) - 1;
         int if_index;
 
-        ReceiveIPPacket(packet, 1000, &if_index);
+        int res = ReceiveEthernetFrame(eth_frame, 1000, &if_index);
 
         if (res < 0)
         {
@@ -126,22 +119,22 @@ int main(int argc, char *argv[])
             // Timeout
             continue;
         }
-        else if (res > sizeof(packet))
+        else if (res > 2047)
         {
             // packet is truncated, ignore it
             continue;
         }
 
         // 1. validate
-        if (!validateIPChecksum(packet, res))
+        if (!validateIPChecksum(eth_frame + IP_OFFSET, res))
         {
             printf("Invalid IP Checksum\n");
             continue;
         }
 
         // big endian
-        in_addr_t src_addr = read_addr(packet + IP_OFFSET + 12);
-        in_addr_t dst_addr = read_addr(packet + IP_OFFSET + 16);
+        in_addr_t src_addr = read_addr(eth_frame + IP_OFFSET + 12);
+        in_addr_t dst_addr = read_addr(eth_frame + IP_OFFSET + 16);
 
         // 2. check whether dst is me
         bool dst_is_me = false;
@@ -167,7 +160,7 @@ int main(int argc, char *argv[])
             printf("Receive an package from if %d\n", if_index);
 
             // check and validate
-            if (disassemble(packet, res, &rip))
+            if (disassemble(eth_frame + IP_OFFSET, res, &rip))
             {
                 if (rip.command == 1)
                 {
@@ -176,7 +169,7 @@ int main(int argc, char *argv[])
                     // but horizontal split also needs considering here
                     printf("RIP request\n");
                     // send it back
-                    HAL_SendIPPacket(if_index, output, packetAssemble(routingTable(if_index), addrs[if_index], src_addr), src_mac);
+                    SendEthernetFrame(if_index, output + 4, packetAssemble(routingTable(if_index), addrs[if_index], src_addr));
                 }
                 else
                 {
@@ -215,59 +208,6 @@ int main(int argc, char *argv[])
 
                     // triggered updates? ref. RFC2453 3.10.1
                 }
-            }
-        }
-        else
-        {
-            // 3b.1 dst is not me
-            // forward
-            // beware of endianness
-            uint32_t nexthop, dest_if;
-            if (query(dst_addr, &nexthop, &dest_if))
-            {
-                // found
-                macaddr_t dest_mac;
-                // direct routing
-                if (nexthop == 0)
-                {
-                    nexthop = dst_addr;
-                }
-                if (true)
-                { // SOS
-                    // if (HAL_ArpGetMacAddress(dest_if, nexthop, dest_mac) == 0) {
-                    // found
-                    for (int i = 0; i < res; i++)
-                        output[i] = packet[i];
-                    // update ttl and checksum
-                    if (forward(output, res))
-                    {
-                        // DONE: you might want to check ttl=0 case
-                        if (packet[8])
-                        {
-                            HAL_SendIPPacket(dest_if, output, res, dest_mac);
-                        }
-                        else
-                        {
-                            printf("TTL decreased to 0.\n");
-                        }
-                    }
-                    else
-                    {
-                        printf("Checksum does not match.\n");
-                    }
-                }
-                else
-                {
-                    // not found
-                    // you can drop it
-                    printf("ARP not found for %d\n", nexthop);
-                }
-            }
-            else
-            {
-                // not found
-                // optionally you can send ICMP Host Unreachable
-                printf("IP not found for %x\n", src_addr);
             }
         }
     }

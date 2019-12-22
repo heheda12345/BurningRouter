@@ -68,14 +68,14 @@ int ReceiveEthernetFrame(uint8_t *&buffer, int64_t timeout, int *if_index)
 
     int res = *(int *)(buffer - 4);
 
-    puts("[recv]");
+    // puts("[recv]", 6);
 
-    printf("sys_index = ");
+    // printf("sys_index = ", 11);
     puthex(sys_index);
-    puts("");
-    printf("tail = ");
+    putc('\n');
+    // printf("tail = ", 7);
     puthex(tail);
-    puts("");
+    putc('\n');
 
     for (int i = 0; i < res; ++i)
     {
@@ -91,7 +91,7 @@ int ReceiveEthernetFrame(uint8_t *&buffer, int64_t timeout, int *if_index)
             putc(' ');
         }
     }
-    puts("");
+    putc('\n');
 
     return res;
 }
@@ -103,8 +103,8 @@ void SendEthernetFrame(int if_index, uint8_t *buffer, size_t length)
     *(uint8_t *)(buffer + 1) = 0x02;
     *(uint8_t *)(buffer + 2) = 0x03;
     *(uint8_t *)(buffer + 3) = 0x03;
-    *(uint8_t *)(buffer + 4) = 0x03;
-    *(uint8_t *)(buffer + 5) = 0x03;
+    *(uint8_t *)(buffer + 4) = 0x00;
+    *(uint8_t *)(buffer + 5) = 0x00;
 
     *(uint8_t *)(buffer + 15) = if_index + 1;
     buffer -= 4;
@@ -117,11 +117,11 @@ void SendEthernetFrame(int if_index, uint8_t *buffer, size_t length)
     }
     *(uint32_t *)SEND_CONTROL_ADDRESS = (uint32_t)buffer;
 
-    puts("[send]");
+    // puts("[send]");
     for (int i = 0; i < length; ++i)
     {
-        putc(hextoch(buffer[i] >> 4 & 0xf));
-        putc(hextoch(buffer[i] & 0xf));
+        putc(hextoch(buffer[i + 4] >> 4 & 0xf));
+        putc(hextoch(buffer[i + 4] & 0xf));
 
         if (i % 16 == 15)
         {
@@ -132,5 +132,5 @@ void SendEthernetFrame(int if_index, uint8_t *buffer, size_t length)
             putc(' ');
         }
     }
-    puts("");
+    putc('\n');
 }

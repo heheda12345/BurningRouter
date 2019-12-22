@@ -104,3 +104,8 @@ char hextoch(int x)
     else
         return 'a' + x - 10;
 }
+
+in_addr_t read_addr(uint8_t *p)
+{
+    return (uint32_t)*p | (uint32_t) * (p + 1) << 8 | (uint32_t) * (p + 2) << 16 | (uint32_t) * (p + 3) << 24;
+}
