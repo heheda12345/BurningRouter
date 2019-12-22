@@ -90,6 +90,16 @@ always @ (posedge clk_50M) begin
     if (reset_btn == 1) reset_btn = 0;
 end*/
 
+initial begin
+    reset_btn <= 1;
+    #100
+    reset_btn <= 0;
+    // #40000
+    // reset_btn <= 1;
+    // #40000
+    // reset_btn <= 0;
+end
+
 // 待测试用户设�???
 thinpad_top dut(
     .clk_50M(clk_50M),
@@ -355,6 +365,7 @@ end
 // wire lookup_succ;
 // lookup_test ltt_inst(
 //     .lku_clk(clk_125M),
+//     .lku_rst(reset_btn),
 //     .succ(lookup_succ)
 // );
 

@@ -131,7 +131,6 @@ always @(posedge lku_clk) begin
         state  <= STATE_PAUSE;
         read_addr <= 0;
         read_enable <= 0;
-        node_cnt <= 1;
         upd_mask[0] <= 2;
         upd_mask[1] <= 3;
         // upd_mask[2] <= 14;
@@ -145,11 +144,11 @@ always @(posedge lku_clk) begin
         read_addr <= new_read_addr;
         read_enable <= new_read_enable;
     end
-    if (read_enable)
-        $display("read from %d: [%d %d]/[%d %d]/[%d %d] hop-%h port-%d len-%d vaild-%d", read_addr, bram_entry_read[9:0], bram_entry_read[19:10], entry_read[9:0], entry_read[19:10], entry_read_child[0], entry_read_child[1], bram_entry_read[NXT_HOP_END:NXT_HOP_BEGIN], bram_entry_read[NXT_PORT_END: NXT_PORT_BEGIN], bram_entry_read[LEN_END:LEN_BEGIN], bram_entry_read[VALID_POS]);
-    if (write_enable)
-        $display("write to %d: [%d %d] hop-%h port-%d len-%d valid-%d", write_addr, entry_to_write[9:0], entry_to_write[19:10], entry_to_write[NXT_HOP_END:NXT_HOP_BEGIN], entry_to_write[NXT_PORT_END: NXT_PORT_BEGIN],  entry_to_write[LEN_END:LEN_BEGIN], entry_to_write[VALID_POS]);
-    $display("state: %d-%d", state, next_state);
+    // if (read_enable)
+    //     $display("read from %d: [%d %d]/[%d %d]/[%d %d] hop-%h port-%d len-%d vaild-%d", read_addr, bram_entry_read[9:0], bram_entry_read[19:10], entry_read[9:0], entry_read[19:10], entry_read_child[0], entry_read_child[1], bram_entry_read[NXT_HOP_END:NXT_HOP_BEGIN], bram_entry_read[NXT_PORT_END: NXT_PORT_BEGIN], bram_entry_read[LEN_END:LEN_BEGIN], bram_entry_read[VALID_POS]);
+    // if (write_enable)
+    //     $display("write to %d: [%d %d] hop-%h port-%d len-%d valid-%d", write_addr, entry_to_write[9:0], entry_to_write[19:10], entry_to_write[NXT_HOP_END:NXT_HOP_BEGIN], entry_to_write[NXT_PORT_END: NXT_PORT_BEGIN],  entry_to_write[LEN_END:LEN_BEGIN], entry_to_write[VALID_POS]);
+    // $display("state: %d-%d", state, next_state);
 end
 
 // state machine
