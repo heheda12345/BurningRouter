@@ -2,11 +2,11 @@ module lookup_table_trie (
     input wire lku_clk, lku_rst, //rst not implement
     
     // interface for query
-    input wire [31:0] query_in_addr,
-    input wire query_in_ready,
-    output reg [31:0] query_out_nexthop,
-    output reg [1:0] query_out_nextport,
-    output reg query_out_ready,
+    (*mark_Debug="true"*)input wire [31:0] query_in_addr,
+    (*mark_Debug="true"*)input wire query_in_ready,
+    (*mark_Debug="true"*)output reg [31:0] query_out_nexthop,
+    (*mark_Debug="true"*)output reg [1:0] query_out_nextport,
+    (*mark_Debug="true"*)output reg query_out_ready,
 
     // interface for insert/delete
     input wire [31:0] modify_in_addr,
