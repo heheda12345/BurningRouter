@@ -13,11 +13,13 @@ uint8_t output[2048];
 // 2: 10.0.2.1
 // 3: 10.0.3.1
 // 子网地址
-// 你可以按需进行修改，注意端序是大端序
-uint32_t addrs[N_IFACE_ON_BOARD] = {0x203a8c0, 0x104a8c0, 0x102000a, 0x103000a};
+// 端序是小端序
+uint32_t addrs[N_IFACE_ON_BOARD] = {0x0a000101, 0x0a000001, 0x0a000201, 0x0a000301};
 
 int main()
 {
+    Init(addrs);
+
     // Add direct routes
     // For example:
     // 10.0.0.0/24 if 0
@@ -33,5 +35,6 @@ int main()
             0,                     // big endian, means direct
             0x01000000             // big endian
         );
+        update(true, entry);
     }
 }

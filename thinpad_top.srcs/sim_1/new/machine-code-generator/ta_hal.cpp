@@ -34,9 +34,7 @@ uint64_t GetTicks()
     return time2 << 32 | time1;
 }
 
-int ReceiveEthernetFrame(uint8_t *&buffer,
-                         macaddr_t src_mac, macaddr_t dst_mac, int64_t timeout,
-                         int *if_index)
+int ReceiveEthernetFrame(uint8_t *&buffer, int64_t timeout, int *if_index)
 {
     // volatile = could be changed by sb. outside this cpp program
     volatile uint32_t *BufferIndexPtr = (uint32_t *)BUFFER_TAIL_ADDRESS;
@@ -65,13 +63,6 @@ int ReceiveEthernetFrame(uint8_t *&buffer,
 
     // packet address
     buffer = (uint8_t *)(BUFFER_BASE_ADDRESS + ((sys_index++) << 11)) + 4;
-    // Note: the Ethernet header the cpu receives is different from that of a standard one.
-    // In our implementation, src mac is ahead of dst mac.
-    for (int i = 0; i < 6; ++i)
-    {
-        *(uint8_t *)(src_mac + i) = *(uint8_t *)(buffer + i);
-        *(uint8_t *)(dst_mac + i) = *(uint8_t *)(buffer + 8 + i);
-    }
 
     *(int *)if_index = *(uint8_t *)(buffer + 15) - 1;
 
@@ -86,29 +77,28 @@ int ReceiveEthernetFrame(uint8_t *&buffer,
     puthex(tail);
     puts("");
 
-    for (int i = 0; i < res; i += 4)
+    for (int i = 0; i < res; ++i)
     {
-        // putc(buffer[i]);
-        for (int j = 3; j >= 0; j--)
-        {
-            if (i + j < res)
-            {
-                putc(hextoch(buffer[i + j] >> 4 & 0xf));
-                putc(hextoch(buffer[i + j] & 0xf));
-                putc(' ');
-            }
-        }
-        if (i % 16 == 8)
+        putc(hextoch(buffer[i] >> 4 & 0xf));
+        putc(hextoch(buffer[i] & 0xf));
+
+        if (i % 16 == 15)
         {
             putc('\n');
         }
+        else
+        {
+            putc(' ');
+        }
     }
     puts("");
+
     return res;
 }
 
 void SendEthernetFrame(int if_index, uint8_t *buffer, size_t length)
 {
+    // MAC Address of our router
     *(uint8_t *)(buffer + 0) = 0x02;
     *(uint8_t *)(buffer + 1) = 0x02;
     *(uint8_t *)(buffer + 2) = 0x03;
@@ -126,22 +116,20 @@ void SendEthernetFrame(int if_index, uint8_t *buffer, size_t length)
             break;
     }
     *(uint32_t *)SEND_CONTROL_ADDRESS = (uint32_t)buffer;
-    puts("[send]");
-    for (int i = 0; i < length; i += 4)
-    {
 
-        for (int j = 3; j >= 0; j--)
-        {
-            if (i + j < length)
-            {
-                putc(hextoch(buffer[i + j + 4] >> 4 & 0xf));
-                putc(hextoch(buffer[i + j + 4] & 0xf));
-                putc(' ');
-            }
-        }
-        if (i % 16 == 8)
+    puts("[send]");
+    for (int i = 0; i < length; ++i)
+    {
+        putc(hextoch(buffer[i] >> 4 & 0xf));
+        putc(hextoch(buffer[i] & 0xf));
+
+        if (i % 16 == 15)
         {
             putc('\n');
+        }
+        else
+        {
+            putc(' ');
         }
     }
     puts("");

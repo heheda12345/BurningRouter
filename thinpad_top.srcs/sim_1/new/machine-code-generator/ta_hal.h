@@ -2,6 +2,7 @@
 
 #include "utility.h"
 #define N_IFACE_ON_BOARD 4 // Default
+#define IP_OFFSET 18
 
 enum HAL_ERROR_NUMBER
 {
@@ -50,8 +51,7 @@ extern "C"
  * 
  * @note IP包从(buffer + 16)开始
  */
-    int ReceiveEthernetFrame(uint8_t *&buffer,
-                             macaddr_t src_mac, macaddr_t dst_mac, int64_t timeout,
+    int ReceiveEthernetFrame(uint8_t *&buffer, int64_t timeout,
                              int *if_index);
 
     /**
