@@ -104,7 +104,8 @@ reg [7:0] ttl;
 wire [31:0] dst_ip;
 wire [7:0] dest_vlan_port, dest_mac_addr;
 reg [7:0] dest_vlan_port_r;
-reg [47:0] arp_table_output_mac_addr_r;
+reg [47:0] arp_table_output_mac_addr_r = 0;
+wire [47:0] arp_table_output_mac_addr_w;
 reg [31:0] dest_ipv4_address_r;
 wire [7:0] arp_request_data;
 wire [5:0] arp_request_counter;
@@ -279,7 +280,7 @@ assign rx_axis_fifo_tready = rx_axis_fifo_tvalid && (ipv4_read_state >= START &&
 
 always @ (posedge clk) begin
     header_counter <= next_read_state >= HEADER_LEN && next_read_state < BODY ? (rx_axis_fifo_tready ?header_counter + 1 : header_counter) : 0;
-    total_counter <= next_read_state >= HEADER_LEN && next_read_state <= BODY ? (rx_axis_fifo_tready ?total_counter + 1 : total_counter) : 0;
+    total_counter <= next_read_state >= HEADER_LEN && next_read_state <= BODY ? (rx_axis_fifo_tready ? total_counter + 1 : total_counter) : 0;
     write_counter <= next_write_state == WRITE_DEST_MAC_ADDR || next_write_state == WRITE_CHECKSUM || next_write_state == WRITE_VLAN_PORT ? write_counter + 1 : 0;
 end
 
@@ -353,9 +354,9 @@ always @ (posedge clk) begin
         mem_write_data <= dest_mac_addr;
     end 
     else if (next_write_state == WRITE_VLAN_PORT) begin
-        mem_write_addr <= buf_start_addr + 14 + (write_counter - 6);
+        mem_write_addr <= buf_start_addr + 15;
         mem_write_ena <= 1;
-        mem_write_data <= write_counter[0] == 0 ? 0 : dest_vlan_port_r;
+        mem_write_data <= dest_vlan_port_r;
     end
     else if (next_write_state == WRITE_CHECKSUM) begin
         mem_write_addr <= buf_start_addr + 28 + write_counter;
@@ -391,7 +392,7 @@ always @ (posedge clk) begin
 end*/
 //assign mem_read_ena = ipv4_write_state == WRITE_PUSH;
 assign buf_start = next_write_state == WRITE_PUSH || next_write_state == WRITE_TOCPU;
-assign buf_last = next_write_state == OVER;
+assign buf_last = next_read_state == OVER;
 assign buf_end_addr = buf_start_addr + mem_write_counter + 1; // mark the farthest point the writer pointer reaches
 always @(posedge clk) begin
     if (ipv4_read_state == IDLE) to_cpu <= 0;
@@ -443,26 +444,30 @@ async_setter # (.LEN(4), .ADDR_WIDTH(2)) dst_ip_setter (
     .data_input(rx_axis_fifo_tdata),
     .index(header_counter[1:0])
 );
+wire [7:0] dest_mac_addr_0, dest_mac_addr_1;
 async_getter # (.LEN(6)) dst_mac_getter (
-    .value(dest_mac_addr),
+    .value(dest_mac_addr_1),
     .index(write_counter),
-    .data_input(arp_table_output_mac_addr)
+    .data_input(arp_table_output_mac_addr_r)
 );
+assign dest_mac_addr_0 = arp_table_output_mac_addr[47:40];
+assign dest_mac_addr = write_counter == 0 ? dest_mac_addr_0 : dest_mac_addr_1;
+
+always @(posedge clk) begin
+    if (rst) arp_table_output_mac_addr_r <= 0;
+    else if (arp_table_query_exist) arp_table_output_mac_addr_r <= arp_table_output_mac_addr;
+end
 
 assign dest_vlan_port = lookup_query_out_ready ? lookup_query_out_nextport + 1 : 0;
 always @(posedge clk) begin
     if (lookup_query_out_ready) begin
+        dest_vlan_port_r <= lookup_query_out_nextport + 1;
         if (lookup_query_out_nexthop == 0) begin
             dest_ipv4_address_r <= dst_ip;
-            dest_vlan_port_r <= dest_vlan_port;
         end else begin
-            dest_vlan_port_r <= dest_vlan_port;
             dest_ipv4_address_r <= lookup_query_out_nexthop;
         end
     end
-end
-always @(*) begin
-    arp_table_output_mac_addr_r <= arp_table_output_mac_addr;
 end
 
 always @(posedge clk) begin
@@ -472,7 +477,8 @@ end
 assign lookup_query_in_addr = dst_ip;
 // just complete reading destination address
 assign lookup_query_in_ready = header_counter == 20;
-assign arp_table_query_ipv4_addr = lookup_query_out_nexthop;
+assign arp_table_query_ipv4_addr = lookup_query_out_ready == 0 ? dest_ipv4_address_r : 
+        (lookup_query_out_nexthop == 0 ? dst_ip : lookup_query_out_nexthop);
 assign arp_table_query_vlan_port = dest_vlan_port;
 
 endmodule

@@ -2,6 +2,7 @@ module buffer_pushing
 # (parameter ADDR_WIDTH = 12)
 (
     input wire clk, 
+    input wire rst,
     input wire [ADDR_WIDTH-1:0] end_addr, // when reading complete, lock it into job_end_mem_addr
     (*mark_debug="true"*)output reg [ADDR_WIDTH-1:0] start_addr = 0,
     output wire ready,
@@ -44,7 +45,7 @@ always @(posedge clk) begin
     if (next_state == IDLE) begin
         is_last <= 0;
     end
-    else if (next_state == PUSHING && last) begin
+    else if ((next_state == PUSHING || next_state == WAITING) && last) begin
         start_addr <= end_addr + 1;
         is_last <= 1;
         // job_end_mem_addr <= end_addr;
@@ -55,7 +56,8 @@ end
 assign job_end_mem_addr = !is_last ? end_addr : job_end_mem_addr_r;
 
 always @(posedge clk) begin
-    state <= next_state;
+    if (rst) state <= IDLE;
+    else state <= next_state;
 end
 
 always @(posedge clk) begin
@@ -66,10 +68,8 @@ always @(*) begin
     case (state)
         IDLE: 
             next_state <= start ? PUSHING : IDLE;
-        PUSHING:
+        PUSHING, WAITING:
             next_state <= job_cur_mem_addr == job_end_mem_addr ? (is_last ? OVER : WAITING) : PUSHING;
-        WAITING:
-            next_state <= job_cur_mem_addr == job_end_mem_addr ? WAITING : PUSHING;
         OVER:
             next_state <= IDLE;
         default: 

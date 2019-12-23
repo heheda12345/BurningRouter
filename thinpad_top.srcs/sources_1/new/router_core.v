@@ -212,6 +212,7 @@ lookup_table_trie lookup_table_trie_inst (
 
 buffer_pushing buffer_pushing_i (
     .clk(axi_tclk), 
+    .rst(axi_treset),
     .end_addr(buf_end_addr), // i
     .start_addr(buf_start_addr), // o
     .ready(buf_ready), // o
@@ -356,40 +357,38 @@ blk_mem_gen_0 blk_mem_inst (
 //         counter <= counter + 1;
 // end
 
-// always @(posedge axi_tclk) begin
-//     if (counter == 100) begin
-//         lookup_modify_in_addr <= 32'h0a00010b;
-//         lookup_modify_in_nexthop <= 32'h0a00010b;
-//         lookup_modify_in_nextport <= 2'h0;
-//         lookup_modify_in_len <= 32;
-//         lookup_modify_in_ready <= 1;
-//     end else if (counter == 150) begin
-//         lookup_modify_in_ready <= 0;
-//     end else if (counter == 350) begin
-//         lookup_modify_in_addr <= 32'h0a00000c;
-//         lookup_modify_in_nexthop <= 32'h0a00000c;
-//         lookup_modify_in_nextport <= 2'h1;
-//         lookup_modify_in_len <= 32;
-//         lookup_modify_in_ready <= 1;
-//     end else if (counter == 400) begin
-//         lookup_modify_in_ready <= 0;
-//     end else if (counter == 600) begin
-//         lookup_modify_in_addr <= 32'h0a00020d;
-//         lookup_modify_in_nexthop <= 32'h0a00020d;
-//         lookup_modify_in_nextport <= 2'h2;
-//         lookup_modify_in_len <= 32;
-//         lookup_modify_in_ready <= 1;
-//     end else if (counter == 650) begin
-//         lookup_modify_in_ready <= 0;
-//     end else if (counter == 850) begin
-//         lookup_modify_in_addr <= 32'h0a00030e;
-//         lookup_modify_in_nexthop <= 32'h0a00030e;
-//         lookup_modify_in_nextport <= 2'h3;
-//         lookup_modify_in_len <= 32;
-//         lookup_modify_in_ready <= 1;
-//     end else if (counter == 900) begin
-//         lookup_modify_in_ready <= 0;
-//     end
+// initial begin
+//     lookup_modify_in_addr_r <= 32'h0a00010b;
+//     lookup_modify_in_nexthop_r <= 32'h0a00010b;
+//     lookup_modify_in_nextport_r <= 2'h0;
+//     lookup_modify_in_len_r <= 32;
+//     lookup_modify_in_ready_r <= 1;
+//     #100
+//     lookup_modify_in_ready_r <= 0;
+//     #100
+//     lookup_modify_in_addr_r <= 32'h0a00000c;
+//     lookup_modify_in_nexthop_r <= 32'h0a00000c;
+//     lookup_modify_in_nextport_r <= 2'h1;
+//     lookup_modify_in_len_r <= 32;
+//     lookup_modify_in_ready_r <= 1;
+//     #100
+//     lookup_modify_in_ready_r <= 0;
+//     #100
+//     lookup_modify_in_addr_r <= 32'h0a00020d;
+//     lookup_modify_in_nexthop_r <= 32'h0a00020d;
+//     lookup_modify_in_nextport_r <= 2'h2;
+//     lookup_modify_in_len_r <= 32;
+//     lookup_modify_in_ready_r <= 1;
+//     #100
+//     lookup_modify_in_ready_r <= 0;
+//     #100
+//     lookup_modify_in_addr_r <= 32'h0a00030e;
+//     lookup_modify_in_nexthop_r <= 32'h0a00030e;
+//     lookup_modify_in_nextport <= 2'h3;
+//     lookup_modify_in_len <= 32;
+//     lookup_modify_in_ready <= 1;
+//     #100
+//     lookup_modify_in_ready <= 0;
 // end
 
 always @(posedge axi_tclk or posedge axi_treset) begin
