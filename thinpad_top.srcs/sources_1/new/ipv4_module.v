@@ -396,7 +396,7 @@ assign buf_last = next_read_state == OVER;
 assign buf_end_addr = buf_start_addr + mem_write_counter + 1; // mark the farthest point the writer pointer reaches
 always @(posedge clk) begin
     if (ipv4_read_state == IDLE) to_cpu <= 0;
-    else if (header_counter == 20) to_cpu <= dst_ip == MY_IPV4_ADDRESS || dst_ip[31:8] == 24'he00000;
+    else if (header_counter == 20) to_cpu <= dst_ip == MY_IPV4_ADDRESS || (dst_ip[31:8] == 24'he00000 && !from_cpu);
 end
 
 assign complete = ipv4_read_state == OVER;
@@ -461,7 +461,9 @@ end
 assign dest_vlan_port = lookup_query_out_ready ? lookup_query_out_nextport + 1 : 0;
 always @(posedge clk) begin
     if (lookup_query_out_ready) begin
-        dest_vlan_port_r <= lookup_query_out_nextport + 1;
+        if (lookup_query_in_addr[31:8] == 24'he00000)
+            dest_vlan_port_r <= vlan_port;
+        else dest_vlan_port_r <= lookup_query_out_nextport + 1;
         if (lookup_query_out_nexthop == 0) begin
             dest_ipv4_address_r <= dst_ip;
         end else begin
