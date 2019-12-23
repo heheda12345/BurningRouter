@@ -1,314 +1,128 @@
-#include "utility.h"
 #include "router_table.h"
 #include "router.h"
 
-const int root = 1;
-enum State
-{
-    INIT,
-    INS_READ,
-    INS_SET,
-    INS_UPD_SELF,
-    INS_UPD_ROOT,
-    QUE_READ,
-    PAUSE,
-    WAIT_FOR_END
-};
+RoutingTableEntry entries[MAX_ENTRY_NUM];
+int entryTot;
 
-void print_state(State state)
+Trie tries[32 * MAX_ENTRY_NUM];
+int trieTot;
+
+void Trie_Init()
 {
-    switch (state)
+    entryTot = trieTot = 0;
+}
+
+Trie::Trie() : entry(nullptr), lc(nullptr), rc(nullptr) {}
+
+bool Trie::insert(RoutingTableEntry entry)
+{
+    uint32_t addr = ntohl(entry.addr);
+
+    Trie *node = this;
+    for (int i = 31; i >= 32 - (int)entry.len; --i)
     {
-    case INIT:
-        printf("INIT");
-        break;
-    case INS_READ:
-        printf("INS_READ");
-        break;
-    case INS_SET:
-        printf("INS_SET");
-        break;
-    case INS_UPD_ROOT:
-        printf("INS_UPD_ROOT");
-        break;
-    case INS_UPD_SELF:
-        printf("INS_UPD_SELF");
-        break;
-    case QUE_READ:
-        printf("QUE_READ");
-        break;
-    case PAUSE:
-        printf("PAUSE");
-        break;
-    case WAIT_FOR_END:
-        printf("WAIT_FOR_END");
-        break;
-    default:
-        printf("UNSUPPORT STATE");
-        break;
+        if (~addr >> i & 1)
+        {
+            if (node->lc == nullptr)
+            {
+                node->lc = tries + trieTot++;
+            }
+            node = node->lc;
+        }
+        else
+        {
+            if (node->rc == nullptr)
+            {
+                node->rc = tries + trieTot++;
+            }
+            node = node->rc;
+        }
     }
-    printf("\n");
-}
 
-TrieEntry::TrieEntry(unsigned nextHop = 0, unsigned if_index = 0, unsigned maskLen = 0, unsigned valid = 0, unsigned metric = 16) : nextHop(nextHop), if_index(if_index), maskLen(maskLen), valid(valid), metric(metric)
-{
-    memset(child, 0, sizeof(child));
-}
-
-TrieEntry &TrieEntry::operator=(TrieEntry r)
-{
-    nextHop = r.nextHop;
-    if_index = r.if_index;
-    maskLen = r.maskLen;
-    valid = r.valid;
-    metric = r.metric;
-    memcpy(child, r.child, 4 * 16);
-}
-
-Trie::Trie() : node_cnt(1)
-{
-}
-
-// 这里所有的参数均为小端序
-bool Trie::insert(unsigned addr, unsigned len, unsigned nexthop, unsigned if_index, unsigned metric)
-{
-    // printf("insert %x %u %d\n", addr, len, nexthop);
-    // init
-    State state = PAUSE;
-    bool read_enable = 0, write_enable = 0;
-    int upd_mask[2] = {2, 3};
-    int upd_extend[2] = {1, 0};
-
-    //init end
-    int dep;
-    int read_addr, write_addr, cur;
-    TrieEntry entry, entry_read, entry_to_write;
-    int upd_child, upd_last;
-
-    // PAUSE
-    dep = 30;
-    read_addr = 1;
-    read_enable = 1;
-    if (len == 0)
+    if (node->entry == nullptr || node->entry->metric > entry.metric)
     {
-        state = INS_UPD_ROOT;
+        node->entry = entries + entryTot;
+        entries[entryTot++] = entry;
+
+        return true;
     }
     else
-    {
-        state = INS_READ;
-    }
-
-    // Variables only used on CPU
-    int plan_addition = 0;
-    bool inserted = false;
-
-    while (state != PAUSE)
-    {
-        //syn
-        if (read_enable)
-        {
-            entry_read = tr[read_addr];
-            // printf("read  %d: ", read_addr);
-            // entry_read.outit();
-        }
-        if (write_enable)
-        {
-            tr[write_addr] = entry_to_write;
-            // printf("write %d: ", write_addr);
-            // entry_to_write.outit();
-        }
-        read_enable = write_enable = 0;
-        // printf("\n");
-        // print_state(state);
-        // printf("cur_read "); entry_read.outit();
-        //syn end
-
-        switch (state)
-        {
-        case INS_UPD_ROOT:
-        {
-            inserted = true;
-
-            entry_to_write = entry_read;
-
-            entry_to_write.nextHop = nexthop;
-            entry_to_write.if_index = if_index;
-            entry_to_write.valid = 1;
-            entry_to_write.metric = metric;
-
-            write_enable = true;
-            write_addr = 1;
-            state = WAIT_FOR_END;
-            break;
-        }
-        case INS_READ:
-        {
-            if (len <= 2)
-            {
-                upd_child = addr >> dep & upd_mask[len - 1];
-                upd_last = upd_child | upd_extend[len - 1];
-                entry = entry_read;
-                cur = read_addr;
-                // printf("cur %d upd_child %d upd_last %d\n", cur, upd_child, upd_last);
-                if (entry.child[upd_child] == 0)
-                {
-                    plan_addition++;
-                    entry.child[upd_child] = node_cnt + plan_addition;
-                    entry_read = TrieEntry();
-                    read_addr = node_cnt; // 装作这是读出来的
-                }
-                else
-                {
-                    read_addr = entry.child[upd_child];
-                    read_enable = true;
-                }
-                state = INS_SET;
-            }
-            else
-            {
-                upd_child = addr >> dep & 3;
-                // printf("upd_child %d\n", upd_child);
-                entry = entry_read;
-                if (entry.child[upd_child] == 0)
-                {
-                    entry_to_write = entry_read;
-                    ++plan_addition;
-                    // printf("node_cnt %d\n", node_cnt);
-                    entry_to_write.child[upd_child] = node_cnt + plan_addition;
-                    write_addr = read_addr;
-                    write_enable = true;
-                    entry_read = TrieEntry();
-                    // printf("setentry "); entry_read.outit();
-                    read_addr = node_cnt + plan_addition;
-                }
-                else
-                {
-                    read_addr = entry.child[upd_child];
-                    read_enable = true;
-                }
-                len -= 2;
-                dep -= 2;
-                state = INS_READ;
-            }
-            break;
-        }
-        case INS_SET:
-        {
-            entry_to_write = entry_read;
-            if (entry_read.valid == 0 || entry_to_write.maskLen < len - 1 || entry_to_write.maskLen == len && entry_to_write.metric > metric)
-            {
-                inserted = true;
-
-                entry_to_write.maskLen = len - 1;
-                entry_to_write.nextHop = nexthop;
-                entry_to_write.if_index = if_index;
-                entry_to_write.valid = 1;
-            }
-            write_enable = true;
-            write_addr = read_addr;
-            if (upd_child != upd_last)
-            {
-                upd_child++;
-                if (entry.child[upd_child] == 0)
-                {
-                    ++plan_addition;
-                    // printf("node_cnt %d\n", node_cnt);
-                    entry.child[upd_child] = node_cnt + plan_addition;
-                    entry_read = TrieEntry();
-                    read_addr = node_cnt + plan_addition; // 装作这是读出来的
-                }
-                else
-                {
-                    read_addr = entry.child[upd_child];
-                    read_enable = true;
-                }
-                state = INS_SET;
-            }
-            else
-            {
-                state = INS_UPD_SELF;
-            }
-            break;
-        }
-        case INS_UPD_SELF:
-        {
-            entry_to_write = entry;
-            write_addr = cur;
-            write_enable = true;
-            state = WAIT_FOR_END;
-            break;
-        }
-        case WAIT_FOR_END:
-        {
-            // no work, just wait...
-            state = PAUSE;
-            break;
-        }
-        }
-    }
-    if (node_cnt + plan_addition >= MAX_ROUTER_NODE)
     {
         return false;
     }
-    else
-    {
-        node_cnt += plan_addition;
-        return inserted;
-    }
 }
 
-bool Trie::query(unsigned addr, unsigned *nexthop, unsigned *if_index)
+/**
+ * @param addr: big endiness
+ * @return: if there's an entry being queried
+ * 
+ * Actually won't be used in our framework.
+ */
+bool Trie::query(uint32_t addr, uint32_t *nexthop, uint32_t *metric, uint32_t *if_index)
 {
-    // printf("query %x\n", addr);
-    State state;
-    bool read_enable = 0;
-    //init end
-    int dep;
-    int read_addr;
-    int upd_child;
-    TrieEntry entry, entry_read;
+    addr = ntohl(addr);
+
+    bool found = false;
+
+    Trie *node = this;
+
+    for (int i = 32; i--;)
     {
-        // PAUSE
-        dep = 30;
-        read_addr = 1;
-        read_enable = 1;
-        state = QUE_READ;
-    }
-    while (state != PAUSE)
-    {
-        // print_state(state);
-        //syn
-        if (read_enable)
+        if (node->entry)
         {
-            entry_read = tr[read_addr];
+            *nexthop = node->entry->nexthop;
+            *if_index = node->entry->if_index;
+            *metric = node->entry->metric;
+
+            found = true;
         }
-        read_enable = 0;
-        // state machine
-        switch (state)
+
+        if (~addr >> i & 1)
         {
-        case QUE_READ:
-            if (entry_read.valid)
+            if (node->lc == nullptr)
             {
-                *nexthop = entry_read.nextHop;
-                *if_index = entry_read.if_index;
-                return true;
+                return found;
             }
-            upd_child = addr >> dep & 3;
-            if (entry_read.child[upd_child] > 0)
+            node = node->lc;
+        }
+        else
+        {
+            if (node->rc == nullptr)
             {
-                read_addr = entry_read.child[upd_child];
-                read_enable = true;
-                state = QUE_READ;
-                dep -= 2;
+                return found;
             }
-            else
-            {
-                state = PAUSE;
-            }
-            break;
+            node = node->rc;
         }
     }
-    return false;
+    if (node->entry)
+    {
+        *nexthop = node->entry->nexthop;
+        *if_index = node->entry->if_index;
+        *metric = node->entry->metric;
+
+        found = true;
+    }
+
+    return found;
 }
 
-void Trie::output() {}
+int Trie::getEntries(RoutingTableEntry **entries, int if_index)
+{
+    int tot = 0;
+    if (entry && entry->if_index != if_index)
+    {
+        *++entries = entry;
+        ++tot;
+    }
+    if (lc)
+    {
+        int lcnt = getEntries(entries, if_index);
+        tot += lcnt;
+        entries += lcnt;
+    }
+    if (rc)
+    {
+        tot += getEntries(entries, if_index);
+    }
+    return tot;
+}

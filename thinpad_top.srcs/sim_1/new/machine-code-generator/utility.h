@@ -2,6 +2,7 @@
 #define __UTILITY_H__
 
 #include "bootloader.h"
+#define MAX_ENTRY_NUM 1024
 
 typedef uint8_t macaddr_t[6];
 typedef uint32_t in_addr_t;
@@ -41,9 +42,6 @@ unsigned min(unsigned x, unsigned y);
 char hextoch(int x);
 
 // saved as big endian
-in_addr_t read_addr(uint8_t *p)
-{
-    return (uint32_t)*p | (uint32_t) * (p + 1) << 8 | (uint32_t) * (p + 2) << 16 | (uint32_t) * (p + 3) << 24;
-}
+in_addr_t read_addr(uint8_t *p);
 
 #endif

@@ -6,7 +6,7 @@
 // 路由表的一项
 struct RoutingTableEntry
 {
-    RoutingTableEntry(uint32_t addr = 0, uint32_t len = 0, uint32_t if_index = 0, uint32_t nexthop = 0, uint32_t metric = 16) : addr(0), len(0), if_index(if_index), nexthop(nexthop), metric(metric) {}
+    RoutingTableEntry(uint32_t addr = 0, uint32_t len = 0, uint32_t if_index = 0, uint32_t nexthop = 0, uint32_t metric = 16) : addr(addr), len(len), if_index(if_index), nexthop(nexthop), metric(metric) {}
 
     uint32_t addr;     // 大端序，IPv4 地址
     uint32_t len;      // 小端序，前缀长度
