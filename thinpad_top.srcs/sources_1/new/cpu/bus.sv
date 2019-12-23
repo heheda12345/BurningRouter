@@ -241,7 +241,7 @@ always_comb begin
             mem_data_reg = dtram_data_o;
             mem_stall = mem_extram_stall;
         end else if (mem_sstat)
-            mem_data_reg = {30'b000000000000000000000000000000, uart_dataready, uart_tsre};
+            mem_data_reg = {30'b000000000000000000000000000000, uart_dataready, uart_tsre & uart_tbre};
         else if (mem_rtrbi)
             mem_data_reg = router_in_ind;
         else if (mem_rtss)
