@@ -288,9 +288,13 @@ rgmii_model rgmii(
 
 // wire mem_read_en, out_en;
 // wire [31:0] mem_read_data, mem_read_addr, out_data;
+reg [7:0] MEMORY[0:2047];
+reg A_start = 1;
+
 wire [7:0] cpu_rx_axis_tdata;
 wire cpu_rx_axis_tvalid, cpu_rx_axis_tlast;
-wire cpu_rx_axis_tready;
+reg [2:0]A_counter = 0;
+wire cpu_rx_axis_tready = cpu_rx_axis_tvalid;
 cpu_interface_model cpu_itf (
     .clk_cpu(clk_125M),
     .cpu_rx_axis_tdata(cpu_rx_axis_tdata),
@@ -312,6 +316,44 @@ cpu_interface_model cpu_itf (
     // .mem_read_data(mem_read_data)
 );
 
+reg [11:0] A_end_addr = 0;
+
+always @ (posedge clk_125M) begin
+    MEMORY[A_end_addr] <= cpu_rx_axis_tdata;
+    if (cpu_rx_axis_tready) begin
+        A_end_addr <= A_end_addr + 1;
+    end
+    if (cpu_rx_axis_tvalid) A_counter <= A_counter + 1;
+    A_start <= 0;
+end
+
+reg [7:0] A_mem_data;
+wire [11:0] A_mem_addr;
+wire A_mem_ena;
+always @ (posedge clk_125M) begin
+    if (A_mem_ena) begin
+        A_mem_data <= MEMORY[A_mem_addr];
+    end
+end
+wire A_c_ready, A_c_valid;
+assign A_c_ready = A_c_valid;
+wire A_ready, A_valid;
+assign A_ready = A_valid;
+buffer_pushing buf_pusher(
+    .clk(clk_125M),
+    .rst(0),
+    .start(A_end_addr == 1),
+    .last(0),
+    .end_addr(A_end_addr),
+    .mem_read_ena(A_mem_ena),
+    .mem_read_data(A_mem_data),
+    .mem_read_addr(A_mem_addr),
+    .tx_axis_fifo_tvalid(A_valid),
+    .tx_axis_fifo_tready(A_ready),
+    .cpu_tx_axis_fifo_tvalid(A_c_valid),
+    .cpu_tx_axis_fifo_tready(A_c_ready),
+    .to_cpu(0)
+);
 // logic bus_stall, bus_stall_reg;
 // initial begin
 //     bus_stall = 0;
@@ -338,17 +380,18 @@ cpu_interface_model cpu_itf (
 // );
 // assign cpu_tx_qword_tready = cpu_tx_qword_tvalid;
 
-pkg_classify pkg_inst(
-    .axi_tclk(clk_125M), // i 
-    .axi_tresetn(1), // i
-    //.enable_address_swap(1'b1), // i
-    .MY_MAC_ADDRESS(48'h020203030000),
+// pkg_classify pkg_inst(
+//     .axi_tclk(clk_125M), // i 
+//     .axi_tresetn(1), // i
+//     //.enable_address_swap(1'b1), // i
+//     .MY_MAC_ADDRESS(48'h020203030000),
 
-    .rx_axis_fifo_tdata(cpu_rx_axis_tdata), // i
-    .rx_axis_fifo_tvalid(cpu_rx_axis_tvalid), // i
-    .rx_axis_fifo_tlast(cpu_rx_axis_tlast), // i
-    .rx_axis_fifo_tready(cpu_rx_axis_tready) // o
-);
+//     .rx_axis_fifo_tdata(cpu_rx_axis_tdata), // i
+//     .rx_axis_fifo_tvalid(cpu_rx_axis_tvalid), // i
+//     .rx_axis_fifo_tlast(cpu_rx_axis_tlast), // i
+//     .rx_axis_fifo_tready(cpu_rx_axis_tready) // o
+// );
+
 
 // Lookup Table Test
 reg lookup_in_ready;
