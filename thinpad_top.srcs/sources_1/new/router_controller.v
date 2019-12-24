@@ -24,9 +24,9 @@ module router_controller
     output wire out_state, 
     input  wire out_en, 
     input wire[31:0] out_data, // addr or length
-    output wire mem_read_en,
-    output wire [31:0] mem_read_addr,
-    input wire [31:0] mem_read_data,
+    (*mark_debug="true"*)output wire mem_read_en,
+    (*mark_debug="true"*)output wire [31:0] mem_read_addr,
+    (*mark_debug="true"*)input wire [31:0] mem_read_data,
 
     input wire [31:0] cpu_rx_qword_tdata, 
     input wire [3:0] cpu_rx_qword_tlast, 

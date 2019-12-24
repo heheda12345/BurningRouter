@@ -367,7 +367,7 @@ always @ (posedge clk) begin
             mem_write_addr <= buf_start_addr + 18;
             mem_write_counter <= 18;
         end
-        else if (ipv4_read_state == IDLE || ipv4_read_state == OVER) begin
+        else if (ipv4_read_state == IDLE) begin
             mem_write_addr <= buf_start_addr;
             mem_write_counter <= 0;
         end
@@ -392,7 +392,7 @@ always @ (posedge clk) begin
 end*/
 //assign mem_read_ena = ipv4_write_state == WRITE_PUSH;
 assign buf_start = next_write_state == WRITE_PUSH || next_write_state == WRITE_TOCPU;
-assign buf_last = next_read_state == OVER;
+assign buf_last = ipv4_read_state == OVER;
 assign buf_end_addr = buf_start_addr + mem_write_counter + 1; // mark the farthest point the writer pointer reaches
 always @(posedge clk) begin
     if (ipv4_read_state == IDLE) to_cpu <= 0;

@@ -35,6 +35,7 @@ module cpu_interface_model (
     logic [7:0] frame_data [FRAME_COUNT-1:0][BUFFER_SIZE-1:0];
     logic [8*BUFFER_SIZE-1:0] buffer;
     logic [15:0] count, count2 = 0;
+    logic [2:0] timer = 0;
     logic [15:0] frame_size [FRAME_COUNT-1:0];
     integer fd, fout, index, res, frame_count;
 
@@ -149,7 +150,8 @@ module cpu_interface_model (
         end
     end
     always_ff @ (posedge clk_cpu) begin
-        cpu_rx_axis_tvalid <= ~cpu_rx_axis_tvalid;
+        timer <= timer + 1;
+        cpu_rx_axis_tvalid <= timer[2];
         if (cpu_rx_axis_tready) count2 <= count2 + 1;
     end
     always_comb begin

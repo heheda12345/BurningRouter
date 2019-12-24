@@ -11,13 +11,13 @@ module buffer_pushing
     output wire finish,
     
     output wire [7:0] tx_axis_fifo_tdata,
-    output wire tx_axis_fifo_tvalid,
+    output reg tx_axis_fifo_tvalid,
     output wire tx_axis_fifo_tlast,
     input wire tx_axis_fifo_tready,
 
     output wire [7:0] cpu_tx_axis_fifo_tdata,
     input wire cpu_tx_axis_fifo_tready,
-    output wire cpu_tx_axis_fifo_tvalid,
+    output reg cpu_tx_axis_fifo_tvalid,
     output wire cpu_tx_axis_fifo_tlast,
 
     (*mark_debug="true"*)output wire mem_read_ena,
@@ -32,10 +32,11 @@ localparam  IDLE = 3'd0,
             WAITING = 3'd2,
             OVER = 3'd3;
 (*mark_debug="true"*)reg [2:0] state = IDLE, next_state;
-(*mark_debug="true"*)reg [ADDR_WIDTH-1:0] job_cur_mem_addr = 0, job_end_mem_addr_r = 0;
+(*mark_debug="true"*)reg [ADDR_WIDTH-1:0] job_cur_mem_addr_r = 0, job_end_mem_addr_r = 0;
+(*mark_debug="true"*)wire [ADDR_WIDTH-1:0] job_cur_mem_addr;
 (*mark_debug="true"*)wire [ADDR_WIDTH - 1:0 ] job_end_mem_addr;
 (*mark_debug="true"*)reg is_last = 0;
-(*mark_debug="true"*)reg to_cpu_r;
+(*mark_debug="true"*)reg to_cpu_r = 0;
 wire packet_end;
 
 assign ready = state == IDLE;
@@ -61,7 +62,7 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
-    if (next_state == IDLE) to_cpu_r <= to_cpu;
+    if (state == IDLE) to_cpu_r <= to_cpu;
 end
 
 always @(*) begin
@@ -69,7 +70,7 @@ always @(*) begin
         IDLE: 
             next_state <= start ? PUSHING : IDLE;
         PUSHING, WAITING:
-            next_state <= job_cur_mem_addr == job_end_mem_addr ? (is_last ? OVER : WAITING) : PUSHING;
+            next_state <= job_cur_mem_addr == job_end_mem_addr ? (last || is_last ? OVER : WAITING) : PUSHING;
         OVER:
             next_state <= IDLE;
         default: 
@@ -82,20 +83,23 @@ wire fifo_ready = to_cpu_r && cpu_tx_axis_fifo_tready && cpu_tx_axis_fifo_tvalid
 
 always @ (posedge clk) begin
     //mem_read_ena <= next_state == PUSHING;
-    if (mem_read_ena) 
-        job_cur_mem_addr <= job_cur_mem_addr + 1;
+    if (fifo_ready) 
+        job_cur_mem_addr_r <= job_cur_mem_addr_r + 1;
     else if (next_state == IDLE)
-        job_cur_mem_addr <= start_addr;
+        job_cur_mem_addr_r <= start_addr;
 end
+assign job_cur_mem_addr = fifo_ready ? job_cur_mem_addr_r + 1 : job_cur_mem_addr_r;  
 assign mem_read_addr = job_cur_mem_addr;
-assign mem_read_ena = next_state == PUSHING && (fifo_ready || start);
+assign mem_read_ena = next_state != IDLE && job_cur_mem_addr != job_end_mem_addr;
 
 assign tx_axis_fifo_tdata = mem_read_data;
 assign cpu_tx_axis_fifo_tdata = mem_read_data;
-assign tx_axis_fifo_tvalid = state == PUSHING && !to_cpu_r;
-assign cpu_tx_axis_fifo_tvalid = state == PUSHING && to_cpu_r;
-assign packet_end = is_last && job_cur_mem_addr == job_end_mem_addr;
-assign tx_axis_fifo_tlast = packet_end && tx_axis_fifo_tvalid;
-assign cpu_tx_axis_fifo_tlast = packet_end && cpu_tx_axis_fifo_tvalid;
+always @(posedge clk) begin
+    tx_axis_fifo_tvalid <= (mem_read_ena || next_state == OVER) && !to_cpu_r;
+    cpu_tx_axis_fifo_tvalid <= (mem_read_ena || next_state == OVER) && to_cpu_r;
+end
+assign packet_end = state == OVER;//(last || is_last) && job_cur_mem_addr == job_end_mem_addr;
+assign tx_axis_fifo_tlast = !to_cpu_r && packet_end;
+assign cpu_tx_axis_fifo_tlast = packet_end && to_cpu_r;
 
 endmodule // buffer_pushing

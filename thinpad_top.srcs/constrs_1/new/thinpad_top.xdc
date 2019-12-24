@@ -340,6 +340,9 @@ connect_debug_port dbg_hub/clk [get_nets clk_20M]
 
 
 
+
+set_property MARK_DEBUG true [get_nets router_controller_inst/router_controller_in_inst/mem_write_en]
+
 create_debug_core u_ila_0 ila
 set_property ALL_PROBE_SAME_MU true [get_debug_cores u_ila_0]
 set_property ALL_PROBE_SAME_MU_CNT 1 [get_debug_cores u_ila_0]
@@ -352,152 +355,120 @@ set_property C_TRIGOUT_EN false [get_debug_cores u_ila_0]
 set_property port_width 1 [get_debug_ports u_ila_0/clk]
 connect_debug_port u_ila_0/clk [get_nets [list eth_mac_inst/inst/tri_mode_ethernet_mac_i/rgmii_interface/CLK]]
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe0]
-set_property port_width 5 [get_debug_ports u_ila_0/probe0]
-connect_debug_port u_ila_0/probe0 [get_nets [list {router_inst/router_core_i/ipv4_module_inst/ipv4_write_state[0]} {router_inst/router_core_i/ipv4_module_inst/ipv4_write_state[1]} {router_inst/router_core_i/ipv4_module_inst/ipv4_write_state[2]} {router_inst/router_core_i/ipv4_module_inst/ipv4_write_state[3]} {router_inst/router_core_i/ipv4_module_inst/ipv4_write_state[4]}]]
+set_property port_width 4 [get_debug_ports u_ila_0/probe0]
+connect_debug_port u_ila_0/probe0 [get_nets [list {router_inst/router_core_i/arp_module_inst/arp_read_state[0]} {router_inst/router_core_i/arp_module_inst/arp_read_state[1]} {router_inst/router_core_i/arp_module_inst/arp_read_state[2]} {router_inst/router_core_i/arp_module_inst/arp_read_state[3]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe1]
-set_property port_width 5 [get_debug_ports u_ila_0/probe1]
-connect_debug_port u_ila_0/probe1 [get_nets [list {router_inst/router_core_i/ipv4_module_inst/ipv4_read_state[0]} {router_inst/router_core_i/ipv4_module_inst/ipv4_read_state[1]} {router_inst/router_core_i/ipv4_module_inst/ipv4_read_state[2]} {router_inst/router_core_i/ipv4_module_inst/ipv4_read_state[3]} {router_inst/router_core_i/ipv4_module_inst/ipv4_read_state[4]}]]
+set_property port_width 4 [get_debug_ports u_ila_0/probe1]
+connect_debug_port u_ila_0/probe1 [get_nets [list {router_inst/router_core_i/arp_module_inst/arp_write_state[0]} {router_inst/router_core_i/arp_module_inst/arp_write_state[1]} {router_inst/router_core_i/arp_module_inst/arp_write_state[2]} {router_inst/router_core_i/arp_module_inst/arp_write_state[3]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe2]
-set_property port_width 3 [get_debug_ports u_ila_0/probe2]
-connect_debug_port u_ila_0/probe2 [get_nets [list {router_inst/router_core_i/pkg_classify_inst/read_state[0]} {router_inst/router_core_i/pkg_classify_inst/read_state[1]} {router_inst/router_core_i/pkg_classify_inst/read_state[2]}]]
+set_property port_width 32 [get_debug_ports u_ila_0/probe2]
+connect_debug_port u_ila_0/probe2 [get_nets [list {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[0]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[1]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[2]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[3]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[4]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[5]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[6]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[7]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[8]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[9]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[10]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[11]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[12]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[13]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[14]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[15]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[16]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[17]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[18]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[19]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[20]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[21]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[22]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[23]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[24]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[25]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[26]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[27]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[28]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[29]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[30]} {router_inst/router_core_i/lookup_table_trie_inst/query_in_addr[31]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe3]
-set_property port_width 12 [get_debug_ports u_ila_0/probe3]
-connect_debug_port u_ila_0/probe3 [get_nets [list {router_inst/router_core_i/arp_buf_end_addr[0]} {router_inst/router_core_i/arp_buf_end_addr[1]} {router_inst/router_core_i/arp_buf_end_addr[2]} {router_inst/router_core_i/arp_buf_end_addr[3]} {router_inst/router_core_i/arp_buf_end_addr[4]} {router_inst/router_core_i/arp_buf_end_addr[5]} {router_inst/router_core_i/arp_buf_end_addr[6]} {router_inst/router_core_i/arp_buf_end_addr[7]} {router_inst/router_core_i/arp_buf_end_addr[8]} {router_inst/router_core_i/arp_buf_end_addr[9]} {router_inst/router_core_i/arp_buf_end_addr[10]} {router_inst/router_core_i/arp_buf_end_addr[11]}]]
+set_property port_width 3 [get_debug_ports u_ila_0/probe3]
+connect_debug_port u_ila_0/probe3 [get_nets [list {router_inst/router_core_i/pkg_classify_inst/read_state[0]} {router_inst/router_core_i/pkg_classify_inst/read_state[1]} {router_inst/router_core_i/pkg_classify_inst/read_state[2]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe4]
-set_property port_width 8 [get_debug_ports u_ila_0/probe4]
-connect_debug_port u_ila_0/probe4 [get_nets [list {router_inst/cpu_tx_axis_tdata[0]} {router_inst/cpu_tx_axis_tdata[1]} {router_inst/cpu_tx_axis_tdata[2]} {router_inst/cpu_tx_axis_tdata[3]} {router_inst/cpu_tx_axis_tdata[4]} {router_inst/cpu_tx_axis_tdata[5]} {router_inst/cpu_tx_axis_tdata[6]} {router_inst/cpu_tx_axis_tdata[7]}]]
+set_property port_width 12 [get_debug_ports u_ila_0/probe4]
+connect_debug_port u_ila_0/probe4 [get_nets [list {router_inst/router_core_i/buffer_pushing_i/job_cur_mem_addr[0]} {router_inst/router_core_i/buffer_pushing_i/job_cur_mem_addr[1]} {router_inst/router_core_i/buffer_pushing_i/job_cur_mem_addr[2]} {router_inst/router_core_i/buffer_pushing_i/job_cur_mem_addr[3]} {router_inst/router_core_i/buffer_pushing_i/job_cur_mem_addr[4]} {router_inst/router_core_i/buffer_pushing_i/job_cur_mem_addr[5]} {router_inst/router_core_i/buffer_pushing_i/job_cur_mem_addr[6]} {router_inst/router_core_i/buffer_pushing_i/job_cur_mem_addr[7]} {router_inst/router_core_i/buffer_pushing_i/job_cur_mem_addr[8]} {router_inst/router_core_i/buffer_pushing_i/job_cur_mem_addr[9]} {router_inst/router_core_i/buffer_pushing_i/job_cur_mem_addr[10]} {router_inst/router_core_i/buffer_pushing_i/job_cur_mem_addr[11]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe5]
 set_property port_width 8 [get_debug_ports u_ila_0/probe5]
-connect_debug_port u_ila_0/probe5 [get_nets [list {router_inst/cpu_rx_axis_tdata[0]} {router_inst/cpu_rx_axis_tdata[1]} {router_inst/cpu_rx_axis_tdata[2]} {router_inst/cpu_rx_axis_tdata[3]} {router_inst/cpu_rx_axis_tdata[4]} {router_inst/cpu_rx_axis_tdata[5]} {router_inst/cpu_rx_axis_tdata[6]} {router_inst/cpu_rx_axis_tdata[7]}]]
+connect_debug_port u_ila_0/probe5 [get_nets [list {router_inst/router_core_i/buffer_pushing_i/mem_read_data[0]} {router_inst/router_core_i/buffer_pushing_i/mem_read_data[1]} {router_inst/router_core_i/buffer_pushing_i/mem_read_data[2]} {router_inst/router_core_i/buffer_pushing_i/mem_read_data[3]} {router_inst/router_core_i/buffer_pushing_i/mem_read_data[4]} {router_inst/router_core_i/buffer_pushing_i/mem_read_data[5]} {router_inst/router_core_i/buffer_pushing_i/mem_read_data[6]} {router_inst/router_core_i/buffer_pushing_i/mem_read_data[7]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe6]
 set_property port_width 12 [get_debug_ports u_ila_0/probe6]
-connect_debug_port u_ila_0/probe6 [get_nets [list {router_inst/router_core_i/buf_end_addr[0]} {router_inst/router_core_i/buf_end_addr[1]} {router_inst/router_core_i/buf_end_addr[2]} {router_inst/router_core_i/buf_end_addr[3]} {router_inst/router_core_i/buf_end_addr[4]} {router_inst/router_core_i/buf_end_addr[5]} {router_inst/router_core_i/buf_end_addr[6]} {router_inst/router_core_i/buf_end_addr[7]} {router_inst/router_core_i/buf_end_addr[8]} {router_inst/router_core_i/buf_end_addr[9]} {router_inst/router_core_i/buf_end_addr[10]} {router_inst/router_core_i/buf_end_addr[11]}]]
+connect_debug_port u_ila_0/probe6 [get_nets [list {router_inst/router_core_i/buffer_pushing_i/start_addr[0]} {router_inst/router_core_i/buffer_pushing_i/start_addr[1]} {router_inst/router_core_i/buffer_pushing_i/start_addr[2]} {router_inst/router_core_i/buffer_pushing_i/start_addr[3]} {router_inst/router_core_i/buffer_pushing_i/start_addr[4]} {router_inst/router_core_i/buffer_pushing_i/start_addr[5]} {router_inst/router_core_i/buffer_pushing_i/start_addr[6]} {router_inst/router_core_i/buffer_pushing_i/start_addr[7]} {router_inst/router_core_i/buffer_pushing_i/start_addr[8]} {router_inst/router_core_i/buffer_pushing_i/start_addr[9]} {router_inst/router_core_i/buffer_pushing_i/start_addr[10]} {router_inst/router_core_i/buffer_pushing_i/start_addr[11]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe7]
-set_property port_width 11 [get_debug_ports u_ila_0/probe7]
-connect_debug_port u_ila_0/probe7 [get_nets [list {router_inst/router_core_i/buf_start_addr[1]} {router_inst/router_core_i/buf_start_addr[2]} {router_inst/router_core_i/buf_start_addr[3]} {router_inst/router_core_i/buf_start_addr[4]} {router_inst/router_core_i/buf_start_addr[5]} {router_inst/router_core_i/buf_start_addr[6]} {router_inst/router_core_i/buf_start_addr[7]} {router_inst/router_core_i/buf_start_addr[8]} {router_inst/router_core_i/buf_start_addr[9]} {router_inst/router_core_i/buf_start_addr[10]} {router_inst/router_core_i/buf_start_addr[11]}]]
+set_property port_width 12 [get_debug_ports u_ila_0/probe7]
+connect_debug_port u_ila_0/probe7 [get_nets [list {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr_r[0]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr_r[1]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr_r[2]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr_r[3]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr_r[4]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr_r[5]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr_r[6]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr_r[7]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr_r[8]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr_r[9]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr_r[10]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr_r[11]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe8]
-set_property port_width 11 [get_debug_ports u_ila_0/probe8]
-connect_debug_port u_ila_0/probe8 [get_nets [list {router_inst/router_core_i/ipv4_buf_end_addr[1]} {router_inst/router_core_i/ipv4_buf_end_addr[2]} {router_inst/router_core_i/ipv4_buf_end_addr[3]} {router_inst/router_core_i/ipv4_buf_end_addr[4]} {router_inst/router_core_i/ipv4_buf_end_addr[5]} {router_inst/router_core_i/ipv4_buf_end_addr[6]} {router_inst/router_core_i/ipv4_buf_end_addr[7]} {router_inst/router_core_i/ipv4_buf_end_addr[8]} {router_inst/router_core_i/ipv4_buf_end_addr[9]} {router_inst/router_core_i/ipv4_buf_end_addr[10]} {router_inst/router_core_i/ipv4_buf_end_addr[11]}]]
+set_property port_width 3 [get_debug_ports u_ila_0/probe8]
+connect_debug_port u_ila_0/probe8 [get_nets [list {router_inst/router_core_i/buffer_pushing_i/state[0]} {router_inst/router_core_i/buffer_pushing_i/state[1]} {router_inst/router_core_i/buffer_pushing_i/state[2]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe9]
-set_property port_width 32 [get_debug_ports u_ila_0/probe9]
-connect_debug_port u_ila_0/probe9 [get_nets [list {router_inst/lookup_modify_in_addr_router[0]} {router_inst/lookup_modify_in_addr_router[1]} {router_inst/lookup_modify_in_addr_router[2]} {router_inst/lookup_modify_in_addr_router[3]} {router_inst/lookup_modify_in_addr_router[4]} {router_inst/lookup_modify_in_addr_router[5]} {router_inst/lookup_modify_in_addr_router[6]} {router_inst/lookup_modify_in_addr_router[7]} {router_inst/lookup_modify_in_addr_router[8]} {router_inst/lookup_modify_in_addr_router[9]} {router_inst/lookup_modify_in_addr_router[10]} {router_inst/lookup_modify_in_addr_router[11]} {router_inst/lookup_modify_in_addr_router[12]} {router_inst/lookup_modify_in_addr_router[13]} {router_inst/lookup_modify_in_addr_router[14]} {router_inst/lookup_modify_in_addr_router[15]} {router_inst/lookup_modify_in_addr_router[16]} {router_inst/lookup_modify_in_addr_router[17]} {router_inst/lookup_modify_in_addr_router[18]} {router_inst/lookup_modify_in_addr_router[19]} {router_inst/lookup_modify_in_addr_router[20]} {router_inst/lookup_modify_in_addr_router[21]} {router_inst/lookup_modify_in_addr_router[22]} {router_inst/lookup_modify_in_addr_router[23]} {router_inst/lookup_modify_in_addr_router[24]} {router_inst/lookup_modify_in_addr_router[25]} {router_inst/lookup_modify_in_addr_router[26]} {router_inst/lookup_modify_in_addr_router[27]} {router_inst/lookup_modify_in_addr_router[28]} {router_inst/lookup_modify_in_addr_router[29]} {router_inst/lookup_modify_in_addr_router[30]} {router_inst/lookup_modify_in_addr_router[31]}]]
+set_property port_width 12 [get_debug_ports u_ila_0/probe9]
+connect_debug_port u_ila_0/probe9 [get_nets [list {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr[0]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr[1]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr[2]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr[3]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr[4]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr[5]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr[6]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr[7]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr[8]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr[9]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr[10]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr[11]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe10]
-set_property port_width 32 [get_debug_ports u_ila_0/probe10]
-connect_debug_port u_ila_0/probe10 [get_nets [list {router_inst/lookup_modify_in_nexthop_router[0]} {router_inst/lookup_modify_in_nexthop_router[1]} {router_inst/lookup_modify_in_nexthop_router[2]} {router_inst/lookup_modify_in_nexthop_router[3]} {router_inst/lookup_modify_in_nexthop_router[4]} {router_inst/lookup_modify_in_nexthop_router[5]} {router_inst/lookup_modify_in_nexthop_router[6]} {router_inst/lookup_modify_in_nexthop_router[7]} {router_inst/lookup_modify_in_nexthop_router[8]} {router_inst/lookup_modify_in_nexthop_router[9]} {router_inst/lookup_modify_in_nexthop_router[10]} {router_inst/lookup_modify_in_nexthop_router[11]} {router_inst/lookup_modify_in_nexthop_router[12]} {router_inst/lookup_modify_in_nexthop_router[13]} {router_inst/lookup_modify_in_nexthop_router[14]} {router_inst/lookup_modify_in_nexthop_router[15]} {router_inst/lookup_modify_in_nexthop_router[16]} {router_inst/lookup_modify_in_nexthop_router[17]} {router_inst/lookup_modify_in_nexthop_router[18]} {router_inst/lookup_modify_in_nexthop_router[19]} {router_inst/lookup_modify_in_nexthop_router[20]} {router_inst/lookup_modify_in_nexthop_router[21]} {router_inst/lookup_modify_in_nexthop_router[22]} {router_inst/lookup_modify_in_nexthop_router[23]} {router_inst/lookup_modify_in_nexthop_router[24]} {router_inst/lookup_modify_in_nexthop_router[25]} {router_inst/lookup_modify_in_nexthop_router[26]} {router_inst/lookup_modify_in_nexthop_router[27]} {router_inst/lookup_modify_in_nexthop_router[28]} {router_inst/lookup_modify_in_nexthop_router[29]} {router_inst/lookup_modify_in_nexthop_router[30]} {router_inst/lookup_modify_in_nexthop_router[31]}]]
+set_property port_width 12 [get_debug_ports u_ila_0/probe10]
+connect_debug_port u_ila_0/probe10 [get_nets [list {router_inst/router_core_i/buffer_pushing_i/mem_read_addr[0]} {router_inst/router_core_i/buffer_pushing_i/mem_read_addr[1]} {router_inst/router_core_i/buffer_pushing_i/mem_read_addr[2]} {router_inst/router_core_i/buffer_pushing_i/mem_read_addr[3]} {router_inst/router_core_i/buffer_pushing_i/mem_read_addr[4]} {router_inst/router_core_i/buffer_pushing_i/mem_read_addr[5]} {router_inst/router_core_i/buffer_pushing_i/mem_read_addr[6]} {router_inst/router_core_i/buffer_pushing_i/mem_read_addr[7]} {router_inst/router_core_i/buffer_pushing_i/mem_read_addr[8]} {router_inst/router_core_i/buffer_pushing_i/mem_read_addr[9]} {router_inst/router_core_i/buffer_pushing_i/mem_read_addr[10]} {router_inst/router_core_i/buffer_pushing_i/mem_read_addr[11]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe11]
-set_property port_width 4 [get_debug_ports u_ila_0/probe11]
-connect_debug_port u_ila_0/probe11 [get_nets [list {router_inst/router_core_i/arp_module_inst/arp_read_state[0]} {router_inst/router_core_i/arp_module_inst/arp_read_state[1]} {router_inst/router_core_i/arp_module_inst/arp_read_state[2]} {router_inst/router_core_i/arp_module_inst/arp_read_state[3]}]]
+set_property port_width 8 [get_debug_ports u_ila_0/probe11]
+connect_debug_port u_ila_0/probe11 [get_nets [list {router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tdata[0]} {router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tdata[1]} {router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tdata[2]} {router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tdata[3]} {router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tdata[4]} {router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tdata[5]} {router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tdata[6]} {router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tdata[7]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe12]
-set_property port_width 4 [get_debug_ports u_ila_0/probe12]
-connect_debug_port u_ila_0/probe12 [get_nets [list {router_inst/router_core_i/arp_module_inst/arp_write_state[0]} {router_inst/router_core_i/arp_module_inst/arp_write_state[1]} {router_inst/router_core_i/arp_module_inst/arp_write_state[2]} {router_inst/router_core_i/arp_module_inst/arp_write_state[3]}]]
+set_property port_width 8 [get_debug_ports u_ila_0/probe12]
+connect_debug_port u_ila_0/probe12 [get_nets [list {router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tdata[0]} {router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tdata[1]} {router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tdata[2]} {router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tdata[3]} {router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tdata[4]} {router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tdata[5]} {router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tdata[6]} {router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tdata[7]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe13]
-set_property port_width 12 [get_debug_ports u_ila_0/probe13]
-connect_debug_port u_ila_0/probe13 [get_nets [list {router_inst/router_core_i/buffer_pushing_i/job_cur_mem_addr[0]} {router_inst/router_core_i/buffer_pushing_i/job_cur_mem_addr[1]} {router_inst/router_core_i/buffer_pushing_i/job_cur_mem_addr[2]} {router_inst/router_core_i/buffer_pushing_i/job_cur_mem_addr[3]} {router_inst/router_core_i/buffer_pushing_i/job_cur_mem_addr[4]} {router_inst/router_core_i/buffer_pushing_i/job_cur_mem_addr[5]} {router_inst/router_core_i/buffer_pushing_i/job_cur_mem_addr[6]} {router_inst/router_core_i/buffer_pushing_i/job_cur_mem_addr[7]} {router_inst/router_core_i/buffer_pushing_i/job_cur_mem_addr[8]} {router_inst/router_core_i/buffer_pushing_i/job_cur_mem_addr[9]} {router_inst/router_core_i/buffer_pushing_i/job_cur_mem_addr[10]} {router_inst/router_core_i/buffer_pushing_i/job_cur_mem_addr[11]}]]
+set_property port_width 5 [get_debug_ports u_ila_0/probe13]
+connect_debug_port u_ila_0/probe13 [get_nets [list {router_inst/router_core_i/ipv4_module_inst/ipv4_write_state[0]} {router_inst/router_core_i/ipv4_module_inst/ipv4_write_state[1]} {router_inst/router_core_i/ipv4_module_inst/ipv4_write_state[2]} {router_inst/router_core_i/ipv4_module_inst/ipv4_write_state[3]} {router_inst/router_core_i/ipv4_module_inst/ipv4_write_state[4]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe14]
-set_property port_width 12 [get_debug_ports u_ila_0/probe14]
-connect_debug_port u_ila_0/probe14 [get_nets [list {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr[0]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr[1]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr[2]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr[3]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr[4]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr[5]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr[6]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr[7]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr[8]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr[9]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr[10]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr[11]}]]
+set_property port_width 5 [get_debug_ports u_ila_0/probe14]
+connect_debug_port u_ila_0/probe14 [get_nets [list {router_inst/router_core_i/ipv4_module_inst/ipv4_read_state[0]} {router_inst/router_core_i/ipv4_module_inst/ipv4_read_state[1]} {router_inst/router_core_i/ipv4_module_inst/ipv4_read_state[2]} {router_inst/router_core_i/ipv4_module_inst/ipv4_read_state[3]} {router_inst/router_core_i/ipv4_module_inst/ipv4_read_state[4]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe15]
-set_property port_width 12 [get_debug_ports u_ila_0/probe15]
-connect_debug_port u_ila_0/probe15 [get_nets [list {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr_r[0]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr_r[1]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr_r[2]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr_r[3]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr_r[4]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr_r[5]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr_r[6]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr_r[7]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr_r[8]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr_r[9]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr_r[10]} {router_inst/router_core_i/buffer_pushing_i/job_end_mem_addr_r[11]}]]
+set_property port_width 11 [get_debug_ports u_ila_0/probe15]
+connect_debug_port u_ila_0/probe15 [get_nets [list {router_inst/router_core_i/ipv4_buf_end_addr[1]} {router_inst/router_core_i/ipv4_buf_end_addr[2]} {router_inst/router_core_i/ipv4_buf_end_addr[3]} {router_inst/router_core_i/ipv4_buf_end_addr[4]} {router_inst/router_core_i/ipv4_buf_end_addr[5]} {router_inst/router_core_i/ipv4_buf_end_addr[6]} {router_inst/router_core_i/ipv4_buf_end_addr[7]} {router_inst/router_core_i/ipv4_buf_end_addr[8]} {router_inst/router_core_i/ipv4_buf_end_addr[9]} {router_inst/router_core_i/ipv4_buf_end_addr[10]} {router_inst/router_core_i/ipv4_buf_end_addr[11]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe16]
-set_property port_width 12 [get_debug_ports u_ila_0/probe16]
-connect_debug_port u_ila_0/probe16 [get_nets [list {router_inst/router_core_i/buffer_pushing_i/mem_read_addr[0]} {router_inst/router_core_i/buffer_pushing_i/mem_read_addr[1]} {router_inst/router_core_i/buffer_pushing_i/mem_read_addr[2]} {router_inst/router_core_i/buffer_pushing_i/mem_read_addr[3]} {router_inst/router_core_i/buffer_pushing_i/mem_read_addr[4]} {router_inst/router_core_i/buffer_pushing_i/mem_read_addr[5]} {router_inst/router_core_i/buffer_pushing_i/mem_read_addr[6]} {router_inst/router_core_i/buffer_pushing_i/mem_read_addr[7]} {router_inst/router_core_i/buffer_pushing_i/mem_read_addr[8]} {router_inst/router_core_i/buffer_pushing_i/mem_read_addr[9]} {router_inst/router_core_i/buffer_pushing_i/mem_read_addr[10]} {router_inst/router_core_i/buffer_pushing_i/mem_read_addr[11]}]]
+set_property port_width 8 [get_debug_ports u_ila_0/probe16]
+connect_debug_port u_ila_0/probe16 [get_nets [list {router_inst/cpu_rx_axis_tdata[0]} {router_inst/cpu_rx_axis_tdata[1]} {router_inst/cpu_rx_axis_tdata[2]} {router_inst/cpu_rx_axis_tdata[3]} {router_inst/cpu_rx_axis_tdata[4]} {router_inst/cpu_rx_axis_tdata[5]} {router_inst/cpu_rx_axis_tdata[6]} {router_inst/cpu_rx_axis_tdata[7]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe17]
-set_property port_width 3 [get_debug_ports u_ila_0/probe17]
-connect_debug_port u_ila_0/probe17 [get_nets [list {router_inst/router_core_i/buffer_pushing_i/state[0]} {router_inst/router_core_i/buffer_pushing_i/state[1]} {router_inst/router_core_i/buffer_pushing_i/state[2]}]]
+set_property port_width 32 [get_debug_ports u_ila_0/probe17]
+connect_debug_port u_ila_0/probe17 [get_nets [list {router_inst/lookup_modify_in_addr_router[0]} {router_inst/lookup_modify_in_addr_router[1]} {router_inst/lookup_modify_in_addr_router[2]} {router_inst/lookup_modify_in_addr_router[3]} {router_inst/lookup_modify_in_addr_router[4]} {router_inst/lookup_modify_in_addr_router[5]} {router_inst/lookup_modify_in_addr_router[6]} {router_inst/lookup_modify_in_addr_router[7]} {router_inst/lookup_modify_in_addr_router[8]} {router_inst/lookup_modify_in_addr_router[9]} {router_inst/lookup_modify_in_addr_router[10]} {router_inst/lookup_modify_in_addr_router[11]} {router_inst/lookup_modify_in_addr_router[12]} {router_inst/lookup_modify_in_addr_router[13]} {router_inst/lookup_modify_in_addr_router[14]} {router_inst/lookup_modify_in_addr_router[15]} {router_inst/lookup_modify_in_addr_router[16]} {router_inst/lookup_modify_in_addr_router[17]} {router_inst/lookup_modify_in_addr_router[18]} {router_inst/lookup_modify_in_addr_router[19]} {router_inst/lookup_modify_in_addr_router[20]} {router_inst/lookup_modify_in_addr_router[21]} {router_inst/lookup_modify_in_addr_router[22]} {router_inst/lookup_modify_in_addr_router[23]} {router_inst/lookup_modify_in_addr_router[24]} {router_inst/lookup_modify_in_addr_router[25]} {router_inst/lookup_modify_in_addr_router[26]} {router_inst/lookup_modify_in_addr_router[27]} {router_inst/lookup_modify_in_addr_router[28]} {router_inst/lookup_modify_in_addr_router[29]} {router_inst/lookup_modify_in_addr_router[30]} {router_inst/lookup_modify_in_addr_router[31]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe18]
-set_property port_width 8 [get_debug_ports u_ila_0/probe18]
-connect_debug_port u_ila_0/probe18 [get_nets [list {router_inst/router_core_i/buffer_pushing_i/mem_read_data[0]} {router_inst/router_core_i/buffer_pushing_i/mem_read_data[1]} {router_inst/router_core_i/buffer_pushing_i/mem_read_data[2]} {router_inst/router_core_i/buffer_pushing_i/mem_read_data[3]} {router_inst/router_core_i/buffer_pushing_i/mem_read_data[4]} {router_inst/router_core_i/buffer_pushing_i/mem_read_data[5]} {router_inst/router_core_i/buffer_pushing_i/mem_read_data[6]} {router_inst/router_core_i/buffer_pushing_i/mem_read_data[7]}]]
+set_property port_width 1 [get_debug_ports u_ila_0/probe18]
+connect_debug_port u_ila_0/probe18 [get_nets [list router_inst/router_core_i/buffer_pushing_i/is_last]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe19]
 set_property port_width 1 [get_debug_ports u_ila_0/probe19]
-connect_debug_port u_ila_0/probe19 [get_nets [list router_inst/router_core_i/arp_buf_start]]
+connect_debug_port u_ila_0/probe19 [get_nets [list router_inst/router_core_i/buffer_pushing_i/mem_read_ena]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe20]
 set_property port_width 1 [get_debug_ports u_ila_0/probe20]
-connect_debug_port u_ila_0/probe20 [get_nets [list router_inst/router_core_i/buf_last]]
+connect_debug_port u_ila_0/probe20 [get_nets [list router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tready]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe21]
 set_property port_width 1 [get_debug_ports u_ila_0/probe21]
-connect_debug_port u_ila_0/probe21 [get_nets [list router_inst/router_core_i/buf_ready]]
+connect_debug_port u_ila_0/probe21 [get_nets [list router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tready]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe22]
 set_property port_width 1 [get_debug_ports u_ila_0/probe22]
-connect_debug_port u_ila_0/probe22 [get_nets [list router_inst/router_core_i/buf_start]]
+connect_debug_port u_ila_0/probe22 [get_nets [list router_inst/cpu_tx_axis_tvalid]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe23]
 set_property port_width 1 [get_debug_ports u_ila_0/probe23]
-connect_debug_port u_ila_0/probe23 [get_nets [list router_inst/router_core_i/ipv4_buf_last]]
+connect_debug_port u_ila_0/probe23 [get_nets [list router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tvalid]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe24]
 set_property port_width 1 [get_debug_ports u_ila_0/probe24]
-connect_debug_port u_ila_0/probe24 [get_nets [list router_inst/router_core_i/ipv4_buf_start]]
+connect_debug_port u_ila_0/probe24 [get_nets [list router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tvalid]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe25]
 set_property port_width 1 [get_debug_ports u_ila_0/probe25]
-connect_debug_port u_ila_0/probe25 [get_nets [list router_inst/router_core_i/buffer_pushing_i/is_last]]
+connect_debug_port u_ila_0/probe25 [get_nets [list router_inst/cpu_rx_axis_tlast]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe26]
 set_property port_width 1 [get_debug_ports u_ila_0/probe26]
-connect_debug_port u_ila_0/probe26 [get_nets [list router_inst/router_core_i/buffer_pushing_i/mem_read_ena]]
+connect_debug_port u_ila_0/probe26 [get_nets [list router_inst/cpu_tx_axis_tlast]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe27]
 set_property port_width 1 [get_debug_ports u_ila_0/probe27]
-connect_debug_port u_ila_0/probe27 [get_nets [list router_inst/router_core_i/lookup_table_trie_inst/query_in_ready]]
+connect_debug_port u_ila_0/probe27 [get_nets [list router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tlast]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe28]
 set_property port_width 1 [get_debug_ports u_ila_0/probe28]
-connect_debug_port u_ila_0/probe28 [get_nets [list router_inst/router_core_i/lookup_table_trie_inst/query_out_ready]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe29]
-set_property port_width 1 [get_debug_ports u_ila_0/probe29]
-connect_debug_port u_ila_0/probe29 [get_nets [list router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tlast]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe30]
-set_property port_width 1 [get_debug_ports u_ila_0/probe30]
-connect_debug_port u_ila_0/probe30 [get_nets [list router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tready]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe31]
-set_property port_width 1 [get_debug_ports u_ila_0/probe31]
-connect_debug_port u_ila_0/probe31 [get_nets [list router_inst/router_core_i/eth_mac_wraper_i/rx_axis_fifo_tvalid]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe32]
-set_property port_width 1 [get_debug_ports u_ila_0/probe32]
-connect_debug_port u_ila_0/probe32 [get_nets [list router_inst/router_core_i/buffer_pushing_i/to_cpu]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe33]
-set_property port_width 1 [get_debug_ports u_ila_0/probe33]
-connect_debug_port u_ila_0/probe33 [get_nets [list router_inst/router_core_i/buffer_pushing_i/to_cpu_r]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe34]
-set_property port_width 1 [get_debug_ports u_ila_0/probe34]
-connect_debug_port u_ila_0/probe34 [get_nets [list router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tlast]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe35]
-set_property port_width 1 [get_debug_ports u_ila_0/probe35]
-connect_debug_port u_ila_0/probe35 [get_nets [list router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tready]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe36]
-set_property port_width 1 [get_debug_ports u_ila_0/probe36]
-connect_debug_port u_ila_0/probe36 [get_nets [list router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tvalid]]
+connect_debug_port u_ila_0/probe28 [get_nets [list router_inst/router_core_i/eth_mac_wraper_i/tx_axis_fifo_tlast]]
 create_debug_core u_ila_1 ila
 set_property ALL_PROBE_SAME_MU true [get_debug_cores u_ila_1]
 set_property ALL_PROBE_SAME_MU_CNT 1 [get_debug_cores u_ila_1]
@@ -511,139 +482,47 @@ set_property port_width 1 [get_debug_ports u_ila_1/clk]
 connect_debug_port u_ila_1/clk [get_nets [list clock_gen/inst/clk_out1]]
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe0]
 set_property port_width 32 [get_debug_ports u_ila_1/probe0]
-connect_debug_port u_ila_1/probe0 [get_nets [list {pc_data[0]} {pc_data[1]} {pc_data[2]} {pc_data[3]} {pc_data[4]} {pc_data[5]} {pc_data[6]} {pc_data[7]} {pc_data[8]} {pc_data[9]} {pc_data[10]} {pc_data[11]} {pc_data[12]} {pc_data[13]} {pc_data[14]} {pc_data[15]} {pc_data[16]} {pc_data[17]} {pc_data[18]} {pc_data[19]} {pc_data[20]} {pc_data[21]} {pc_data[22]} {pc_data[23]} {pc_data[24]} {pc_data[25]} {pc_data[26]} {pc_data[27]} {pc_data[28]} {pc_data[29]} {pc_data[30]} {pc_data[31]}]]
+connect_debug_port u_ila_1/probe0 [get_nets [list {CPU/pc_data_i[0]} {CPU/pc_data_i[1]} {CPU/pc_data_i[2]} {CPU/pc_data_i[3]} {CPU/pc_data_i[4]} {CPU/pc_data_i[5]} {CPU/pc_data_i[6]} {CPU/pc_data_i[7]} {CPU/pc_data_i[8]} {CPU/pc_data_i[9]} {CPU/pc_data_i[10]} {CPU/pc_data_i[11]} {CPU/pc_data_i[12]} {CPU/pc_data_i[13]} {CPU/pc_data_i[14]} {CPU/pc_data_i[15]} {CPU/pc_data_i[16]} {CPU/pc_data_i[17]} {CPU/pc_data_i[18]} {CPU/pc_data_i[19]} {CPU/pc_data_i[20]} {CPU/pc_data_i[21]} {CPU/pc_data_i[22]} {CPU/pc_data_i[23]} {CPU/pc_data_i[24]} {CPU/pc_data_i[25]} {CPU/pc_data_i[26]} {CPU/pc_data_i[27]} {CPU/pc_data_i[28]} {CPU/pc_data_i[29]} {CPU/pc_data_i[30]} {CPU/pc_data_i[31]}]]
 create_debug_port u_ila_1 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe1]
 set_property port_width 32 [get_debug_ports u_ila_1/probe1]
-connect_debug_port u_ila_1/probe1 [get_nets [list {mem_addr[0]} {mem_addr[1]} {mem_addr[2]} {mem_addr[3]} {mem_addr[4]} {mem_addr[5]} {mem_addr[6]} {mem_addr[7]} {mem_addr[8]} {mem_addr[9]} {mem_addr[10]} {mem_addr[11]} {mem_addr[12]} {mem_addr[13]} {mem_addr[14]} {mem_addr[15]} {mem_addr[16]} {mem_addr[17]} {mem_addr[18]} {mem_addr[19]} {mem_addr[20]} {mem_addr[21]} {mem_addr[22]} {mem_addr[23]} {mem_addr[24]} {mem_addr[25]} {mem_addr[26]} {mem_addr[27]} {mem_addr[28]} {mem_addr[29]} {mem_addr[30]} {mem_addr[31]}]]
+connect_debug_port u_ila_1/probe1 [get_nets [list {router_controller_inst/mem_read_addr[0]} {router_controller_inst/mem_read_addr[1]} {router_controller_inst/mem_read_addr[2]} {router_controller_inst/mem_read_addr[3]} {router_controller_inst/mem_read_addr[4]} {router_controller_inst/mem_read_addr[5]} {router_controller_inst/mem_read_addr[6]} {router_controller_inst/mem_read_addr[7]} {router_controller_inst/mem_read_addr[8]} {router_controller_inst/mem_read_addr[9]} {router_controller_inst/mem_read_addr[10]} {router_controller_inst/mem_read_addr[11]} {router_controller_inst/mem_read_addr[12]} {router_controller_inst/mem_read_addr[13]} {router_controller_inst/mem_read_addr[14]} {router_controller_inst/mem_read_addr[15]} {router_controller_inst/mem_read_addr[16]} {router_controller_inst/mem_read_addr[17]} {router_controller_inst/mem_read_addr[18]} {router_controller_inst/mem_read_addr[19]} {router_controller_inst/mem_read_addr[20]} {router_controller_inst/mem_read_addr[21]} {router_controller_inst/mem_read_addr[22]} {router_controller_inst/mem_read_addr[23]} {router_controller_inst/mem_read_addr[24]} {router_controller_inst/mem_read_addr[25]} {router_controller_inst/mem_read_addr[26]} {router_controller_inst/mem_read_addr[27]} {router_controller_inst/mem_read_addr[28]} {router_controller_inst/mem_read_addr[29]} {router_controller_inst/mem_read_addr[30]} {router_controller_inst/mem_read_addr[31]}]]
 create_debug_port u_ila_1 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe2]
 set_property port_width 32 [get_debug_ports u_ila_1/probe2]
-connect_debug_port u_ila_1/probe2 [get_nets [list {mem_data_i[0]} {mem_data_i[1]} {mem_data_i[2]} {mem_data_i[3]} {mem_data_i[4]} {mem_data_i[5]} {mem_data_i[6]} {mem_data_i[7]} {mem_data_i[8]} {mem_data_i[9]} {mem_data_i[10]} {mem_data_i[11]} {mem_data_i[12]} {mem_data_i[13]} {mem_data_i[14]} {mem_data_i[15]} {mem_data_i[16]} {mem_data_i[17]} {mem_data_i[18]} {mem_data_i[19]} {mem_data_i[20]} {mem_data_i[21]} {mem_data_i[22]} {mem_data_i[23]} {mem_data_i[24]} {mem_data_i[25]} {mem_data_i[26]} {mem_data_i[27]} {mem_data_i[28]} {mem_data_i[29]} {mem_data_i[30]} {mem_data_i[31]}]]
+connect_debug_port u_ila_1/probe2 [get_nets [list {router_controller_inst/mem_read_data[0]} {router_controller_inst/mem_read_data[1]} {router_controller_inst/mem_read_data[2]} {router_controller_inst/mem_read_data[3]} {router_controller_inst/mem_read_data[4]} {router_controller_inst/mem_read_data[5]} {router_controller_inst/mem_read_data[6]} {router_controller_inst/mem_read_data[7]} {router_controller_inst/mem_read_data[8]} {router_controller_inst/mem_read_data[9]} {router_controller_inst/mem_read_data[10]} {router_controller_inst/mem_read_data[11]} {router_controller_inst/mem_read_data[12]} {router_controller_inst/mem_read_data[13]} {router_controller_inst/mem_read_data[14]} {router_controller_inst/mem_read_data[15]} {router_controller_inst/mem_read_data[16]} {router_controller_inst/mem_read_data[17]} {router_controller_inst/mem_read_data[18]} {router_controller_inst/mem_read_data[19]} {router_controller_inst/mem_read_data[20]} {router_controller_inst/mem_read_data[21]} {router_controller_inst/mem_read_data[22]} {router_controller_inst/mem_read_data[23]} {router_controller_inst/mem_read_data[24]} {router_controller_inst/mem_read_data[25]} {router_controller_inst/mem_read_data[26]} {router_controller_inst/mem_read_data[27]} {router_controller_inst/mem_read_data[28]} {router_controller_inst/mem_read_data[29]} {router_controller_inst/mem_read_data[30]} {router_controller_inst/mem_read_data[31]}]]
 create_debug_port u_ila_1 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe3]
 set_property port_width 32 [get_debug_ports u_ila_1/probe3]
-connect_debug_port u_ila_1/probe3 [get_nets [list {mem_data_o[0]} {mem_data_o[1]} {mem_data_o[2]} {mem_data_o[3]} {mem_data_o[4]} {mem_data_o[5]} {mem_data_o[6]} {mem_data_o[7]} {mem_data_o[8]} {mem_data_o[9]} {mem_data_o[10]} {mem_data_o[11]} {mem_data_o[12]} {mem_data_o[13]} {mem_data_o[14]} {mem_data_o[15]} {mem_data_o[16]} {mem_data_o[17]} {mem_data_o[18]} {mem_data_o[19]} {mem_data_o[20]} {mem_data_o[21]} {mem_data_o[22]} {mem_data_o[23]} {mem_data_o[24]} {mem_data_o[25]} {mem_data_o[26]} {mem_data_o[27]} {mem_data_o[28]} {mem_data_o[29]} {mem_data_o[30]} {mem_data_o[31]}]]
+connect_debug_port u_ila_1/probe3 [get_nets [list {mem_addr[0]} {mem_addr[1]} {mem_addr[2]} {mem_addr[3]} {mem_addr[4]} {mem_addr[5]} {mem_addr[6]} {mem_addr[7]} {mem_addr[8]} {mem_addr[9]} {mem_addr[10]} {mem_addr[11]} {mem_addr[12]} {mem_addr[13]} {mem_addr[14]} {mem_addr[15]} {mem_addr[16]} {mem_addr[17]} {mem_addr[18]} {mem_addr[19]} {mem_addr[20]} {mem_addr[21]} {mem_addr[22]} {mem_addr[23]} {mem_addr[24]} {mem_addr[25]} {mem_addr[26]} {mem_addr[27]} {mem_addr[28]} {mem_addr[29]} {mem_addr[30]} {mem_addr[31]}]]
 create_debug_port u_ila_1 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe4]
-set_property port_width 32 [get_debug_ports u_ila_1/probe4]
-connect_debug_port u_ila_1/probe4 [get_nets [list {pc_addr[0]} {pc_addr[1]} {pc_addr[2]} {pc_addr[3]} {pc_addr[4]} {pc_addr[5]} {pc_addr[6]} {pc_addr[7]} {pc_addr[8]} {pc_addr[9]} {pc_addr[10]} {pc_addr[11]} {pc_addr[12]} {pc_addr[13]} {pc_addr[14]} {pc_addr[15]} {pc_addr[16]} {pc_addr[17]} {pc_addr[18]} {pc_addr[19]} {pc_addr[20]} {pc_addr[21]} {pc_addr[22]} {pc_addr[23]} {pc_addr[24]} {pc_addr[25]} {pc_addr[26]} {pc_addr[27]} {pc_addr[28]} {pc_addr[29]} {pc_addr[30]} {pc_addr[31]}]]
+set_property port_width 7 [get_debug_ports u_ila_1/probe4]
+connect_debug_port u_ila_1/probe4 [get_nets [list {router_controller_inst/router_controller_in_inst/cur_index[0]} {router_controller_inst/router_controller_in_inst/cur_index[1]} {router_controller_inst/router_controller_in_inst/cur_index[2]} {router_controller_inst/router_controller_in_inst/cur_index[3]} {router_controller_inst/router_controller_in_inst/cur_index[4]} {router_controller_inst/router_controller_in_inst/cur_index[5]} {router_controller_inst/router_controller_in_inst/cur_index[6]}]]
 create_debug_port u_ila_1 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe5]
-set_property port_width 5 [get_debug_ports u_ila_1/probe5]
-connect_debug_port u_ila_1/probe5 [get_nets [list {CPU/REGFILE/raddr2[0]} {CPU/REGFILE/raddr2[1]} {CPU/REGFILE/raddr2[2]} {CPU/REGFILE/raddr2[3]} {CPU/REGFILE/raddr2[4]}]]
+set_property port_width 32 [get_debug_ports u_ila_1/probe5]
+connect_debug_port u_ila_1/probe5 [get_nets [list {mem_data_o[0]} {mem_data_o[1]} {mem_data_o[2]} {mem_data_o[3]} {mem_data_o[4]} {mem_data_o[5]} {mem_data_o[6]} {mem_data_o[7]} {mem_data_o[8]} {mem_data_o[9]} {mem_data_o[10]} {mem_data_o[11]} {mem_data_o[12]} {mem_data_o[13]} {mem_data_o[14]} {mem_data_o[15]} {mem_data_o[16]} {mem_data_o[17]} {mem_data_o[18]} {mem_data_o[19]} {mem_data_o[20]} {mem_data_o[21]} {mem_data_o[22]} {mem_data_o[23]} {mem_data_o[24]} {mem_data_o[25]} {mem_data_o[26]} {mem_data_o[27]} {mem_data_o[28]} {mem_data_o[29]} {mem_data_o[30]} {mem_data_o[31]}]]
 create_debug_port u_ila_1 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe6]
-set_property port_width 5 [get_debug_ports u_ila_1/probe6]
-connect_debug_port u_ila_1/probe6 [get_nets [list {CPU/REGFILE/raddr1[0]} {CPU/REGFILE/raddr1[1]} {CPU/REGFILE/raddr1[2]} {CPU/REGFILE/raddr1[3]} {CPU/REGFILE/raddr1[4]}]]
+set_property port_width 32 [get_debug_ports u_ila_1/probe6]
+connect_debug_port u_ila_1/probe6 [get_nets [list {mem_data_i[0]} {mem_data_i[1]} {mem_data_i[2]} {mem_data_i[3]} {mem_data_i[4]} {mem_data_i[5]} {mem_data_i[6]} {mem_data_i[7]} {mem_data_i[8]} {mem_data_i[9]} {mem_data_i[10]} {mem_data_i[11]} {mem_data_i[12]} {mem_data_i[13]} {mem_data_i[14]} {mem_data_i[15]} {mem_data_i[16]} {mem_data_i[17]} {mem_data_i[18]} {mem_data_i[19]} {mem_data_i[20]} {mem_data_i[21]} {mem_data_i[22]} {mem_data_i[23]} {mem_data_i[24]} {mem_data_i[25]} {mem_data_i[26]} {mem_data_i[27]} {mem_data_i[28]} {mem_data_i[29]} {mem_data_i[30]} {mem_data_i[31]}]]
 create_debug_port u_ila_1 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe7]
 set_property port_width 32 [get_debug_ports u_ila_1/probe7]
-connect_debug_port u_ila_1/probe7 [get_nets [list {CPU/REGFILE/rdata1[0]} {CPU/REGFILE/rdata1[1]} {CPU/REGFILE/rdata1[2]} {CPU/REGFILE/rdata1[3]} {CPU/REGFILE/rdata1[4]} {CPU/REGFILE/rdata1[5]} {CPU/REGFILE/rdata1[6]} {CPU/REGFILE/rdata1[7]} {CPU/REGFILE/rdata1[8]} {CPU/REGFILE/rdata1[9]} {CPU/REGFILE/rdata1[10]} {CPU/REGFILE/rdata1[11]} {CPU/REGFILE/rdata1[12]} {CPU/REGFILE/rdata1[13]} {CPU/REGFILE/rdata1[14]} {CPU/REGFILE/rdata1[15]} {CPU/REGFILE/rdata1[16]} {CPU/REGFILE/rdata1[17]} {CPU/REGFILE/rdata1[18]} {CPU/REGFILE/rdata1[19]} {CPU/REGFILE/rdata1[20]} {CPU/REGFILE/rdata1[21]} {CPU/REGFILE/rdata1[22]} {CPU/REGFILE/rdata1[23]} {CPU/REGFILE/rdata1[24]} {CPU/REGFILE/rdata1[25]} {CPU/REGFILE/rdata1[26]} {CPU/REGFILE/rdata1[27]} {CPU/REGFILE/rdata1[28]} {CPU/REGFILE/rdata1[29]} {CPU/REGFILE/rdata1[30]} {CPU/REGFILE/rdata1[31]}]]
+connect_debug_port u_ila_1/probe7 [get_nets [list {pc_addr[0]} {pc_addr[1]} {pc_addr[2]} {pc_addr[3]} {pc_addr[4]} {pc_addr[5]} {pc_addr[6]} {pc_addr[7]} {pc_addr[8]} {pc_addr[9]} {pc_addr[10]} {pc_addr[11]} {pc_addr[12]} {pc_addr[13]} {pc_addr[14]} {pc_addr[15]} {pc_addr[16]} {pc_addr[17]} {pc_addr[18]} {pc_addr[19]} {pc_addr[20]} {pc_addr[21]} {pc_addr[22]} {pc_addr[23]} {pc_addr[24]} {pc_addr[25]} {pc_addr[26]} {pc_addr[27]} {pc_addr[28]} {pc_addr[29]} {pc_addr[30]} {pc_addr[31]}]]
 create_debug_port u_ila_1 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe8]
-set_property port_width 32 [get_debug_ports u_ila_1/probe8]
-connect_debug_port u_ila_1/probe8 [get_nets [list {CPU/pc_data_i[0]} {CPU/pc_data_i[1]} {CPU/pc_data_i[2]} {CPU/pc_data_i[3]} {CPU/pc_data_i[4]} {CPU/pc_data_i[5]} {CPU/pc_data_i[6]} {CPU/pc_data_i[7]} {CPU/pc_data_i[8]} {CPU/pc_data_i[9]} {CPU/pc_data_i[10]} {CPU/pc_data_i[11]} {CPU/pc_data_i[12]} {CPU/pc_data_i[13]} {CPU/pc_data_i[14]} {CPU/pc_data_i[15]} {CPU/pc_data_i[16]} {CPU/pc_data_i[17]} {CPU/pc_data_i[18]} {CPU/pc_data_i[19]} {CPU/pc_data_i[20]} {CPU/pc_data_i[21]} {CPU/pc_data_i[22]} {CPU/pc_data_i[23]} {CPU/pc_data_i[24]} {CPU/pc_data_i[25]} {CPU/pc_data_i[26]} {CPU/pc_data_i[27]} {CPU/pc_data_i[28]} {CPU/pc_data_i[29]} {CPU/pc_data_i[30]} {CPU/pc_data_i[31]}]]
+set_property port_width 1 [get_debug_ports u_ila_1/probe8]
+connect_debug_port u_ila_1/probe8 [get_nets [list CPU/not_align]]
 create_debug_port u_ila_1 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe9]
-set_property port_width 5 [get_debug_ports u_ila_1/probe9]
-connect_debug_port u_ila_1/probe9 [get_nets [list {CPU/REGFILE/waddr[0]} {CPU/REGFILE/waddr[1]} {CPU/REGFILE/waddr[2]} {CPU/REGFILE/waddr[3]} {CPU/REGFILE/waddr[4]}]]
+set_property port_width 1 [get_debug_ports u_ila_1/probe9]
+connect_debug_port u_ila_1/probe9 [get_nets [list bus_inst/uart_rdn]]
 create_debug_port u_ila_1 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe10]
-set_property port_width 32 [get_debug_ports u_ila_1/probe10]
-connect_debug_port u_ila_1/probe10 [get_nets [list {CPU/REGFILE/rdata2[0]} {CPU/REGFILE/rdata2[1]} {CPU/REGFILE/rdata2[2]} {CPU/REGFILE/rdata2[3]} {CPU/REGFILE/rdata2[4]} {CPU/REGFILE/rdata2[5]} {CPU/REGFILE/rdata2[6]} {CPU/REGFILE/rdata2[7]} {CPU/REGFILE/rdata2[8]} {CPU/REGFILE/rdata2[9]} {CPU/REGFILE/rdata2[10]} {CPU/REGFILE/rdata2[11]} {CPU/REGFILE/rdata2[12]} {CPU/REGFILE/rdata2[13]} {CPU/REGFILE/rdata2[14]} {CPU/REGFILE/rdata2[15]} {CPU/REGFILE/rdata2[16]} {CPU/REGFILE/rdata2[17]} {CPU/REGFILE/rdata2[18]} {CPU/REGFILE/rdata2[19]} {CPU/REGFILE/rdata2[20]} {CPU/REGFILE/rdata2[21]} {CPU/REGFILE/rdata2[22]} {CPU/REGFILE/rdata2[23]} {CPU/REGFILE/rdata2[24]} {CPU/REGFILE/rdata2[25]} {CPU/REGFILE/rdata2[26]} {CPU/REGFILE/rdata2[27]} {CPU/REGFILE/rdata2[28]} {CPU/REGFILE/rdata2[29]} {CPU/REGFILE/rdata2[30]} {CPU/REGFILE/rdata2[31]}]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe11]
-set_property port_width 32 [get_debug_ports u_ila_1/probe11]
-connect_debug_port u_ila_1/probe11 [get_nets [list {CPU/REGFILE/wdata[0]} {CPU/REGFILE/wdata[1]} {CPU/REGFILE/wdata[2]} {CPU/REGFILE/wdata[3]} {CPU/REGFILE/wdata[4]} {CPU/REGFILE/wdata[5]} {CPU/REGFILE/wdata[6]} {CPU/REGFILE/wdata[7]} {CPU/REGFILE/wdata[8]} {CPU/REGFILE/wdata[9]} {CPU/REGFILE/wdata[10]} {CPU/REGFILE/wdata[11]} {CPU/REGFILE/wdata[12]} {CPU/REGFILE/wdata[13]} {CPU/REGFILE/wdata[14]} {CPU/REGFILE/wdata[15]} {CPU/REGFILE/wdata[16]} {CPU/REGFILE/wdata[17]} {CPU/REGFILE/wdata[18]} {CPU/REGFILE/wdata[19]} {CPU/REGFILE/wdata[20]} {CPU/REGFILE/wdata[21]} {CPU/REGFILE/wdata[22]} {CPU/REGFILE/wdata[23]} {CPU/REGFILE/wdata[24]} {CPU/REGFILE/wdata[25]} {CPU/REGFILE/wdata[26]} {CPU/REGFILE/wdata[27]} {CPU/REGFILE/wdata[28]} {CPU/REGFILE/wdata[29]} {CPU/REGFILE/wdata[30]} {CPU/REGFILE/wdata[31]}]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe12]
-set_property port_width 5 [get_debug_ports u_ila_1/probe12]
-connect_debug_port u_ila_1/probe12 [get_nets [list {CPU/reg1_addr[0]} {CPU/reg1_addr[1]} {CPU/reg1_addr[2]} {CPU/reg1_addr[3]} {CPU/reg1_addr[4]}]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe13]
-set_property port_width 32 [get_debug_ports u_ila_1/probe13]
-connect_debug_port u_ila_1/probe13 [get_nets [list {CPU/wb_wdata_i[0]} {CPU/wb_wdata_i[1]} {CPU/wb_wdata_i[2]} {CPU/wb_wdata_i[3]} {CPU/wb_wdata_i[4]} {CPU/wb_wdata_i[5]} {CPU/wb_wdata_i[6]} {CPU/wb_wdata_i[7]} {CPU/wb_wdata_i[8]} {CPU/wb_wdata_i[9]} {CPU/wb_wdata_i[10]} {CPU/wb_wdata_i[11]} {CPU/wb_wdata_i[12]} {CPU/wb_wdata_i[13]} {CPU/wb_wdata_i[14]} {CPU/wb_wdata_i[15]} {CPU/wb_wdata_i[16]} {CPU/wb_wdata_i[17]} {CPU/wb_wdata_i[18]} {CPU/wb_wdata_i[19]} {CPU/wb_wdata_i[20]} {CPU/wb_wdata_i[21]} {CPU/wb_wdata_i[22]} {CPU/wb_wdata_i[23]} {CPU/wb_wdata_i[24]} {CPU/wb_wdata_i[25]} {CPU/wb_wdata_i[26]} {CPU/wb_wdata_i[27]} {CPU/wb_wdata_i[28]} {CPU/wb_wdata_i[29]} {CPU/wb_wdata_i[30]} {CPU/wb_wdata_i[31]}]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe14]
-set_property port_width 5 [get_debug_ports u_ila_1/probe14]
-connect_debug_port u_ila_1/probe14 [get_nets [list {CPU/wb_wd_i[0]} {CPU/wb_wd_i[1]} {CPU/wb_wd_i[2]} {CPU/wb_wd_i[3]} {CPU/wb_wd_i[4]}]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe15]
-set_property port_width 5 [get_debug_ports u_ila_1/probe15]
-connect_debug_port u_ila_1/probe15 [get_nets [list {CPU/reg2_addr[0]} {CPU/reg2_addr[1]} {CPU/reg2_addr[2]} {CPU/reg2_addr[3]} {CPU/reg2_addr[4]}]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe16]
-set_property port_width 32 [get_debug_ports u_ila_1/probe16]
-connect_debug_port u_ila_1/probe16 [get_nets [list {CPU/reg1_data[0]} {CPU/reg1_data[1]} {CPU/reg1_data[2]} {CPU/reg1_data[3]} {CPU/reg1_data[4]} {CPU/reg1_data[5]} {CPU/reg1_data[6]} {CPU/reg1_data[7]} {CPU/reg1_data[8]} {CPU/reg1_data[9]} {CPU/reg1_data[10]} {CPU/reg1_data[11]} {CPU/reg1_data[12]} {CPU/reg1_data[13]} {CPU/reg1_data[14]} {CPU/reg1_data[15]} {CPU/reg1_data[16]} {CPU/reg1_data[17]} {CPU/reg1_data[18]} {CPU/reg1_data[19]} {CPU/reg1_data[20]} {CPU/reg1_data[21]} {CPU/reg1_data[22]} {CPU/reg1_data[23]} {CPU/reg1_data[24]} {CPU/reg1_data[25]} {CPU/reg1_data[26]} {CPU/reg1_data[27]} {CPU/reg1_data[28]} {CPU/reg1_data[29]} {CPU/reg1_data[30]} {CPU/reg1_data[31]}]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe17]
-set_property port_width 32 [get_debug_ports u_ila_1/probe17]
-connect_debug_port u_ila_1/probe17 [get_nets [list {CPU/reg2_data[0]} {CPU/reg2_data[1]} {CPU/reg2_data[2]} {CPU/reg2_data[3]} {CPU/reg2_data[4]} {CPU/reg2_data[5]} {CPU/reg2_data[6]} {CPU/reg2_data[7]} {CPU/reg2_data[8]} {CPU/reg2_data[9]} {CPU/reg2_data[10]} {CPU/reg2_data[11]} {CPU/reg2_data[12]} {CPU/reg2_data[13]} {CPU/reg2_data[14]} {CPU/reg2_data[15]} {CPU/reg2_data[16]} {CPU/reg2_data[17]} {CPU/reg2_data[18]} {CPU/reg2_data[19]} {CPU/reg2_data[20]} {CPU/reg2_data[21]} {CPU/reg2_data[22]} {CPU/reg2_data[23]} {CPU/reg2_data[24]} {CPU/reg2_data[25]} {CPU/reg2_data[26]} {CPU/reg2_data[27]} {CPU/reg2_data[28]} {CPU/reg2_data[29]} {CPU/reg2_data[30]} {CPU/reg2_data[31]}]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe18]
-set_property port_width 1 [get_debug_ports u_ila_1/probe18]
-connect_debug_port u_ila_1/probe18 [get_nets [list CPU/CTRL/ex_stall]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe19]
-set_property port_width 1 [get_debug_ports u_ila_1/probe19]
-connect_debug_port u_ila_1/probe19 [get_nets [list CPU/CTRL/id_req]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe20]
-set_property port_width 1 [get_debug_ports u_ila_1/probe20]
-connect_debug_port u_ila_1/probe20 [get_nets [list CPU/CTRL/id_stall]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe21]
-set_property port_width 1 [get_debug_ports u_ila_1/probe21]
-connect_debug_port u_ila_1/probe21 [get_nets [list CPU/CTRL/if_req]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe22]
-set_property port_width 1 [get_debug_ports u_ila_1/probe22]
-connect_debug_port u_ila_1/probe22 [get_nets [list CPU/CTRL/if_stall]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe23]
-set_property port_width 1 [get_debug_ports u_ila_1/probe23]
-connect_debug_port u_ila_1/probe23 [get_nets [list CPU/CTRL/mem_req]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe24]
-set_property port_width 1 [get_debug_ports u_ila_1/probe24]
-connect_debug_port u_ila_1/probe24 [get_nets [list CPU/CTRL/mem_stall]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe25]
-set_property port_width 1 [get_debug_ports u_ila_1/probe25]
-connect_debug_port u_ila_1/probe25 [get_nets [list CPU/not_align]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe26]
-set_property port_width 1 [get_debug_ports u_ila_1/probe26]
-connect_debug_port u_ila_1/probe26 [get_nets [list CPU/CTRL/pc_stall]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe27]
-set_property port_width 1 [get_debug_ports u_ila_1/probe27]
-connect_debug_port u_ila_1/probe27 [get_nets [list CPU/REGFILE/re1]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe28]
-set_property port_width 1 [get_debug_ports u_ila_1/probe28]
-connect_debug_port u_ila_1/probe28 [get_nets [list CPU/REGFILE/re2]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe29]
-set_property port_width 1 [get_debug_ports u_ila_1/probe29]
-connect_debug_port u_ila_1/probe29 [get_nets [list CPU/reg1_read]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe30]
-set_property port_width 1 [get_debug_ports u_ila_1/probe30]
-connect_debug_port u_ila_1/probe30 [get_nets [list CPU/reg2_read]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe31]
-set_property port_width 1 [get_debug_ports u_ila_1/probe31]
-connect_debug_port u_ila_1/probe31 [get_nets [list CPU/CTRL/wb_stall]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe32]
-set_property port_width 1 [get_debug_ports u_ila_1/probe32]
-connect_debug_port u_ila_1/probe32 [get_nets [list CPU/wb_wreg_i]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe33]
-set_property port_width 1 [get_debug_ports u_ila_1/probe33]
-connect_debug_port u_ila_1/probe33 [get_nets [list CPU/REGFILE/we]]
+set_property port_width 1 [get_debug_ports u_ila_1/probe10]
+connect_debug_port u_ila_1/probe10 [get_nets [list bus_inst/uart_wrn]]
 set_property C_CLK_INPUT_FREQ_HZ 300000000 [get_debug_cores dbg_hub]
 set_property C_ENABLE_CLK_DIVIDER false [get_debug_cores dbg_hub]
 set_property C_USER_SCAN_CHAIN 1 [get_debug_cores dbg_hub]

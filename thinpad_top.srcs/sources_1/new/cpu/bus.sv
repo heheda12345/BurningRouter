@@ -59,11 +59,11 @@ module bus(
     input wire lookup_modify_finish,
     input wire lookup_full,
     
-    input wire uart_dataready,
-    input wire uart_tsre,
-    input wire uart_tbre,
-    output logic uart_rdn,
-    output logic uart_wrn,
+    (*mark_debug="true"*)input wire uart_dataready,
+    (*mark_debug="true"*)input wire uart_tsre,
+    (*mark_debug="true"*)input wire uart_tbre,
+    (*mark_debug="true"*)output logic uart_rdn,
+    (*mark_debug="true"*)output logic uart_wrn,
 
     input wire [63:0] timing_mil_secs,
 
@@ -241,7 +241,7 @@ always_comb begin
             mem_data_reg = dtram_data_o;
             mem_stall = mem_extram_stall;
         end else if (mem_sstat)
-            mem_data_reg = {30'b000000000000000000000000000000, uart_dataready, uart_tsre};
+            mem_data_reg = {29'b00000000000000000000000000000, uart_tbre, uart_dataready, uart_tsre};
         else if (mem_rtrbi)
             mem_data_reg = router_in_ind;
         else if (mem_rtss)
