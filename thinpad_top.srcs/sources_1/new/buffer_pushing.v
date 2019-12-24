@@ -88,7 +88,7 @@ always @ (posedge clk) begin
         job_cur_mem_addr <= start_addr;
 end
 assign mem_read_addr = job_cur_mem_addr;
-assign mem_read_ena = state != IDLE && job_cur_mem_addr < job_end_mem_addr;
+assign mem_read_ena = state != IDLE && job_cur_mem_addr != job_end_mem_addr;
 
 assign tx_axis_fifo_tdata = mem_read_data;
 assign cpu_tx_axis_fifo_tdata = mem_read_data;
