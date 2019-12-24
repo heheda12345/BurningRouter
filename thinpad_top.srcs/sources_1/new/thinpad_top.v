@@ -128,7 +128,7 @@ eth_conf conf(
     .done()
 );
 
-reg reset_of_clk10M, reset_of_clk20M;
+reg reset_of_clk10M, reset_of_clk20M, reset_of_clk_eth;
 // 异步复位，同步释放
 always@(posedge clk_10M or negedge locked) begin
     if(~locked) reset_of_clk10M <= 1'b1;
@@ -137,6 +137,10 @@ end
 always@(posedge clk_20M or negedge locked) begin
     if(~locked) reset_of_clk20M <= 1'b1;
     else        reset_of_clk20M <= 1'b0;
+end
+always@(posedge clk_125M or negedge locked) begin
+    if(~locked) reset_of_clk_eth <= 1'b1;
+    else        reset_of_clk_eth <= 1'b0;
 end
 
 always@(posedge clk_10M or posedge reset_of_clk10M) begin
@@ -306,12 +310,13 @@ eth_mac eth_mac_inst (
 wire eth_sync_rst;
 wire eth_sync_rst_n;
 
-eth_mac_reset_sync reset_sync_i(
-    .reset_in(1'b0),
-    .clk(eth_rx_mac_aclk),
-    .enable(1'b1),
-    .reset_out(eth_sync_rst)
-);
+// eth_mac_reset_sync reset_sync_i(
+//     .reset_in(1'b0),
+//     .clk(eth_rx_mac_aclk),
+//     .enable(1'b1),
+//     .reset_out(eth_sync_rst)
+// );
+assign eth_sync_rst = reset_of_clk_eth;
 assign eth_sync_rst_n = ~eth_sync_rst;
 
 wire cpu_rx_qword_tvalid, cpu_tx_qword_tvalid, cpu_rx_qword_tready, cpu_tx_qword_tready;
