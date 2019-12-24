@@ -62,7 +62,7 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
-    if (next_state == IDLE) to_cpu_r <= to_cpu;
+    if (state == IDLE) to_cpu_r <= to_cpu;
 end
 
 always @(*) begin
@@ -95,11 +95,11 @@ assign mem_read_ena = next_state != IDLE && job_cur_mem_addr != job_end_mem_addr
 assign tx_axis_fifo_tdata = mem_read_data;
 assign cpu_tx_axis_fifo_tdata = mem_read_data;
 always @(posedge clk) begin
-    tx_axis_fifo_tvalid <= mem_read_ena && !to_cpu_r;
-    cpu_tx_axis_fifo_tvalid <= mem_read_ena && to_cpu_r;
+    tx_axis_fifo_tvalid <= (mem_read_ena || next_state == OVER) && !to_cpu_r;
+    cpu_tx_axis_fifo_tvalid <= (mem_read_ena || next_state == OVER) && to_cpu_r;
 end
-assign packet_end = is_last && job_cur_mem_addr == job_end_mem_addr;
-assign tx_axis_fifo_tlast = packet_end && tx_axis_fifo_tvalid;
-assign cpu_tx_axis_fifo_tlast = packet_end && cpu_tx_axis_fifo_tvalid;
+assign packet_end = state == OVER;//(last || is_last) && job_cur_mem_addr == job_end_mem_addr;
+assign tx_axis_fifo_tlast = !to_cpu_r && packet_end;
+assign cpu_tx_axis_fifo_tlast = packet_end && to_cpu_r;
 
 endmodule // buffer_pushing
