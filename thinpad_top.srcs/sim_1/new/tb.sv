@@ -342,7 +342,7 @@ assign A_ready = A_valid;
 buffer_pushing buf_pusher(
     .clk(clk_125M),
     .rst(0),
-    .start(A_end_addr == 1),
+    .start(A_end_addr == 2),
     .last(0),
     .end_addr(A_end_addr),
     .mem_read_ena(A_mem_ena),
