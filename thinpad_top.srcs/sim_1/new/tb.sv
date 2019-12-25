@@ -94,66 +94,66 @@ initial begin
     reset_btn <= 1;
     #100
     reset_btn <= 0;
-    // #40000
-    // reset_btn <= 1;
-    // #40000
-    // reset_btn <= 0;
+    #4000
+    reset_btn <= 1;
+    #4000
+    reset_btn <= 0;
 end
 
 // 待测试用户设�???
-thinpad_top dut(
-    .clk_50M(clk_50M),
-    .clk_11M0592(clk_11M0592),
-    .clock_btn(clock_btn),
-    .reset_btn(reset_btn),
-    .touch_btn(touch_btn),
-    .dip_sw(dip_sw),
-    .leds(leds),
-    .dpy1(dpy1),
-    .dpy0(dpy0),
-    .txd(txd),
-    .rxd(rxd),
-    .uart_rdn(uart_rdn),
-    .uart_wrn(uart_wrn),
-    .uart_dataready(uart_dataready),
-    .uart_tbre(uart_tbre),
-    .uart_tsre(uart_tsre),
-    .base_ram_data(base_ram_data),
-    .base_ram_addr(base_ram_addr),
-    .base_ram_ce_n(base_ram_ce_n),
-    .base_ram_oe_n(base_ram_oe_n),
-    .base_ram_we_n(base_ram_we_n),
-    .base_ram_be_n(base_ram_be_n),
-    .ext_ram_data(ext_ram_data),
-    .ext_ram_addr(ext_ram_addr),
-    .ext_ram_ce_n(ext_ram_ce_n),
-    .ext_ram_oe_n(ext_ram_oe_n),
-    .ext_ram_we_n(ext_ram_we_n),
-    .ext_ram_be_n(ext_ram_be_n),
-    .flash_d(flash_d),
-    .flash_a(flash_a),
-    .flash_rp_n(flash_rp_n),
-    .flash_vpen(flash_vpen),
-    .flash_oe_n(flash_oe_n),
-    .flash_ce_n(flash_ce_n),
-    .flash_byte_n(flash_byte_n),
-    .flash_we_n(flash_we_n),
-    .eth_rgmii_rd(eth_rgmii_rd),
-    .eth_rgmii_rx_ctl(eth_rgmii_rx_ctl),
-    .eth_rgmii_rxc(eth_rgmii_rxc),
-    .eth_rgmii_td(eth_rgmii_td),
-    .eth_rgmii_tx_ctl(eth_rgmii_tx_ctl),
-    .eth_rgmii_txc(eth_rgmii_txc)
-    // ,
-    // .cpu_rx_qword_tdata(cpu_rx_qword_tdata),
-    // .cpu_rx_qword_tlast(cpu_rx_qword_tlast),
-    // .cpu_rx_qword_tvalid(cpu_rx_qword_tvalid),
-    // .cpu_rx_qword_tready(cpu_rx_qword_tready),
-    // .cpu_tx_qword_tdata(cpu_tx_qword_tdata),
-    // .cpu_tx_qword_tlast(cpu_tx_qword_tlast),
-    // .cpu_tx_qword_tvalid(cpu_tx_qword_tvalid),
-    // .cpu_tx_qword_tready(cpu_tx_qword_tready)
-);
+// thinpad_top dut(
+//     .clk_50M(clk_50M),
+//     .clk_11M0592(clk_11M0592),
+//     .clock_btn(clock_btn),
+//     .reset_btn(reset_btn),
+//     .touch_btn(touch_btn),
+//     .dip_sw(dip_sw),
+//     .leds(leds),
+//     .dpy1(dpy1),
+//     .dpy0(dpy0),
+//     .txd(txd),
+//     .rxd(rxd),
+//     .uart_rdn(uart_rdn),
+//     .uart_wrn(uart_wrn),
+//     .uart_dataready(uart_dataready),
+//     .uart_tbre(uart_tbre),
+//     .uart_tsre(uart_tsre),
+//     .base_ram_data(base_ram_data),
+//     .base_ram_addr(base_ram_addr),
+//     .base_ram_ce_n(base_ram_ce_n),
+//     .base_ram_oe_n(base_ram_oe_n),
+//     .base_ram_we_n(base_ram_we_n),
+//     .base_ram_be_n(base_ram_be_n),
+//     .ext_ram_data(ext_ram_data),
+//     .ext_ram_addr(ext_ram_addr),
+//     .ext_ram_ce_n(ext_ram_ce_n),
+//     .ext_ram_oe_n(ext_ram_oe_n),
+//     .ext_ram_we_n(ext_ram_we_n),
+//     .ext_ram_be_n(ext_ram_be_n),
+//     .flash_d(flash_d),
+//     .flash_a(flash_a),
+//     .flash_rp_n(flash_rp_n),
+//     .flash_vpen(flash_vpen),
+//     .flash_oe_n(flash_oe_n),
+//     .flash_ce_n(flash_ce_n),
+//     .flash_byte_n(flash_byte_n),
+//     .flash_we_n(flash_we_n),
+//     .eth_rgmii_rd(eth_rgmii_rd),
+//     .eth_rgmii_rx_ctl(eth_rgmii_rx_ctl),
+//     .eth_rgmii_rxc(eth_rgmii_rxc),
+//     .eth_rgmii_td(eth_rgmii_td),
+//     .eth_rgmii_tx_ctl(eth_rgmii_tx_ctl),
+//     .eth_rgmii_txc(eth_rgmii_txc)
+//     // ,
+//     // .cpu_rx_qword_tdata(cpu_rx_qword_tdata),
+//     // .cpu_rx_qword_tlast(cpu_rx_qword_tlast),
+//     // .cpu_rx_qword_tvalid(cpu_rx_qword_tvalid),
+//     // .cpu_rx_qword_tready(cpu_rx_qword_tready),
+//     // .cpu_tx_qword_tdata(cpu_tx_qword_tdata),
+//     // .cpu_tx_qword_tlast(cpu_tx_qword_tlast),
+//     // .cpu_tx_qword_tvalid(cpu_tx_qword_tvalid),
+//     // .cpu_tx_qword_tready(cpu_tx_qword_tready)
+// );
 // 时钟�???
 clock osc(
     .clk_11M0592   (clk_11M0592),
@@ -288,72 +288,72 @@ rgmii_model rgmii(
 
 // wire mem_read_en, out_en;
 // wire [31:0] mem_read_data, mem_read_addr, out_data;
-reg [7:0] MEMORY[0:2047];
-reg A_start = 1;
+// reg [7:0] MEMORY[0:2047];
+// reg A_start = 1;
 
-wire [7:0] cpu_rx_axis_tdata;
-wire cpu_rx_axis_tvalid, cpu_rx_axis_tlast;
-reg [2:0]A_counter = 0;
-wire cpu_rx_axis_tready = cpu_rx_axis_tvalid;
-cpu_interface_model cpu_itf (
-    .clk_cpu(clk_125M),
-    .cpu_rx_axis_tdata(cpu_rx_axis_tdata),
-    .cpu_rx_axis_tlast(cpu_rx_axis_tlast),
-    .cpu_rx_axis_tready(cpu_rx_axis_tready),
-    .cpu_rx_axis_tvalid(cpu_rx_axis_tvalid)
-    // .cpu_rx_qword_tdata(cpu_rx_qword_tdata),
-    // .cpu_rx_qword_tlast(cpu_rx_qword_tlast),
-    // .cpu_rx_qword_tvalid(cpu_rx_qword_tvalid),
-    // .cpu_rx_qword_tready(cpu_rx_qword_tready),
-    // .cpu_tx_qword_tdata(cpu_tx_qword_tdata),
-    // .cpu_tx_qword_tlast(cpu_tx_qword_tlast),
-    // .cpu_tx_qword_tvalid(cpu_tx_qword_tvalid),
-    // .cpu_tx_qword_tready(cpu_tx_qword_tready)
-    // .out_en(out_en),
-    // .out_data(out_data),
-    // .mem_read_en(mem_read_en),
-    // .mem_read_addr(mem_read_addr),
-    // .mem_read_data(mem_read_data)
-);
+// wire [7:0] cpu_rx_axis_tdata;
+// wire cpu_rx_axis_tvalid, cpu_rx_axis_tlast;
+// reg [2:0]A_counter = 0;
+// wire cpu_rx_axis_tready = cpu_rx_axis_tvalid;
+// cpu_interface_model cpu_itf (
+//     .clk_cpu(clk_125M),
+//     .cpu_rx_axis_tdata(cpu_rx_axis_tdata),
+//     .cpu_rx_axis_tlast(cpu_rx_axis_tlast),
+//     .cpu_rx_axis_tready(cpu_rx_axis_tready),
+//     .cpu_rx_axis_tvalid(cpu_rx_axis_tvalid)
+//     // .cpu_rx_qword_tdata(cpu_rx_qword_tdata),
+//     // .cpu_rx_qword_tlast(cpu_rx_qword_tlast),
+//     // .cpu_rx_qword_tvalid(cpu_rx_qword_tvalid),
+//     // .cpu_rx_qword_tready(cpu_rx_qword_tready),
+//     // .cpu_tx_qword_tdata(cpu_tx_qword_tdata),
+//     // .cpu_tx_qword_tlast(cpu_tx_qword_tlast),
+//     // .cpu_tx_qword_tvalid(cpu_tx_qword_tvalid),
+//     // .cpu_tx_qword_tready(cpu_tx_qword_tready)
+//     // .out_en(out_en),
+//     // .out_data(out_data),
+//     // .mem_read_en(mem_read_en),
+//     // .mem_read_addr(mem_read_addr),
+//     // .mem_read_data(mem_read_data)
+// );
 
-reg [11:0] A_end_addr = 0;
+// reg [11:0] A_end_addr = 0;
 
-always @ (posedge clk_125M) begin
-    MEMORY[A_end_addr] <= cpu_rx_axis_tdata;
-    if (cpu_rx_axis_tready) begin
-        A_end_addr <= A_end_addr + 1;
-    end
-    if (cpu_rx_axis_tvalid) A_counter <= A_counter + 1;
-    A_start <= 0;
-end
+// always @ (posedge clk_125M) begin
+//     MEMORY[A_end_addr] <= cpu_rx_axis_tdata;
+//     if (cpu_rx_axis_tready) begin
+//         A_end_addr <= A_end_addr + 1;
+//     end
+//     if (cpu_rx_axis_tvalid) A_counter <= A_counter + 1;
+//     A_start <= 0;
+// end
 
-reg [7:0] A_mem_data;
-wire [11:0] A_mem_addr;
-wire A_mem_ena;
-always @ (posedge clk_125M) begin
-    if (A_mem_ena) begin
-        A_mem_data <= MEMORY[A_mem_addr];
-    end
-end
-wire A_c_ready, A_c_valid;
-assign A_c_ready = A_c_valid;
-wire A_ready, A_valid;
-assign A_ready = A_valid;
-buffer_pushing buf_pusher(
-    .clk(clk_125M),
-    .rst(0),
-    .start(A_end_addr == 2),
-    .last(0),
-    .end_addr(A_end_addr),
-    .mem_read_ena(A_mem_ena),
-    .mem_read_data(A_mem_data),
-    .mem_read_addr(A_mem_addr),
-    .tx_axis_fifo_tvalid(A_valid),
-    .tx_axis_fifo_tready(A_ready),
-    .cpu_tx_axis_fifo_tvalid(A_c_valid),
-    .cpu_tx_axis_fifo_tready(A_c_ready),
-    .to_cpu(0)
-);
+// reg [7:0] A_mem_data;
+// wire [11:0] A_mem_addr;
+// wire A_mem_ena;
+// always @ (posedge clk_125M) begin
+//     if (A_mem_ena) begin
+//         A_mem_data <= MEMORY[A_mem_addr];
+//     end
+// end
+// wire A_c_ready, A_c_valid;
+// assign A_c_ready = A_c_valid;
+// wire A_ready, A_valid;
+// assign A_ready = A_valid;
+// buffer_pushing buf_pusher(
+//     .clk(clk_125M),
+//     .rst(0),
+//     .start(A_end_addr == 2),
+//     .last(0),
+//     .end_addr(A_end_addr),
+//     .mem_read_ena(A_mem_ena),
+//     .mem_read_data(A_mem_data),
+//     .mem_read_addr(A_mem_addr),
+//     .tx_axis_fifo_tvalid(A_valid),
+//     .tx_axis_fifo_tready(A_ready),
+//     .cpu_tx_axis_fifo_tvalid(A_c_valid),
+//     .cpu_tx_axis_fifo_tready(A_c_ready),
+//     .to_cpu(0)
+// );
 // logic bus_stall, bus_stall_reg;
 // initial begin
 //     bus_stall = 0;
@@ -394,42 +394,42 @@ buffer_pushing buf_pusher(
 
 
 // Lookup Table Test
-reg lookup_in_ready;
-wire lookup_out_ready;
-reg [31:0] lookup_in_addr;
-wire [31:0] lookup_out_nexthop;
-wire [1:0] lookup_out_interface;
-lookup_table lut_inst(
-    .lku_clk(clk_125M),
-    .lku_rst(1'b0),
-    .lku_in_addr(lookup_in_addr),
-    .lku_in_ready(lookup_in_ready),
-    .lku_out_nexthop(lookup_out_nexthop),
-    .lku_out_interface(lookup_out_interface),
-    .lku_out_ready(lookup_out_ready),
-    .static_table_addr      ({32'h1f008800, 32'h1f000000, 32'h1f008e00, 32'h1f008f23}),
-    .static_table_mask      ({32'hfffff800, 32'hff000000, 32'hffffff00, 32'hffffffff}),
-    .static_table_nexthop   ({32'h1f016600, 32'h1f017700, 32'h1f018800, 32'h12343210}),
-    .static_table_interface ({2'd1, 2'd2, 2'd0, 2'd3})
-);
-
-initial begin
-    lookup_in_addr = 32'h1f008f23;
-    lookup_in_ready = 1'b1;
-    #100
-    lookup_in_ready = 1'b0;
-    #100
-    lookup_in_ready = 1'b1;
-    #100
-    lookup_in_ready = 1'b0;
-end
-
-// wire lookup_succ;
-// lookup_test ltt_inst(
+// reg lookup_in_ready;
+// wire lookup_out_ready;
+// reg [31:0] lookup_in_addr;
+// wire [31:0] lookup_out_nexthop;
+// wire [1:0] lookup_out_interface;
+// lookup_table lut_inst(
 //     .lku_clk(clk_125M),
-//     .lku_rst(reset_btn),
-//     .succ(lookup_succ)
+//     .lku_rst(1'b0),
+//     .lku_in_addr(lookup_in_addr),
+//     .lku_in_ready(lookup_in_ready),
+//     .lku_out_nexthop(lookup_out_nexthop),
+//     .lku_out_interface(lookup_out_interface),
+//     .lku_out_ready(lookup_out_ready),
+//     .static_table_addr      ({32'h1f008800, 32'h1f000000, 32'h1f008e00, 32'h1f008f23}),
+//     .static_table_mask      ({32'hfffff800, 32'hff000000, 32'hffffff00, 32'hffffffff}),
+//     .static_table_nexthop   ({32'h1f016600, 32'h1f017700, 32'h1f018800, 32'h12343210}),
+//     .static_table_interface ({2'd1, 2'd2, 2'd0, 2'd3})
 // );
+
+// initial begin
+//     lookup_in_addr = 32'h1f008f23;
+//     lookup_in_ready = 1'b1;
+//     #100
+//     lookup_in_ready = 1'b0;
+//     #100
+//     lookup_in_ready = 1'b1;
+//     #100
+//     lookup_in_ready = 1'b0;
+// end
+
+wire lookup_succ;
+lookup_test ltt_inst(
+    .lku_clk(clk_125M),
+    .lku_rst(reset_btn),
+    .succ(lookup_succ)
+);
 
 // reg [5:0] bj_cpu_req = 0, bj_rt_write_req = 0, bj_rt_read_req = 0;
 

@@ -34,7 +34,7 @@ reg[2:0] state, next_state;
 integer cnt, tot_test, cur_test;
 integer input_fd;
 
-lookup_table_trie ltt_inst(
+lookup_table_linear ltt_inst(
     .lku_clk(lku_clk),
     .lku_rst(lku_rst),
 
