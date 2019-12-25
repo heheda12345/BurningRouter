@@ -112,7 +112,7 @@ wire [5:0] arp_request_counter;
 wire arp_request_last;
 reg arp_table_query_out_ready;
 wire [31:0] MY_IPV4_ADDRESS_NEW;
-reg to_read_over, to_read_dest;
+reg to_read_over;
 wire next_busy_writing;
 
 wire body_start;
@@ -122,7 +122,6 @@ always @ (posedge clk) begin
     ipv4_read_state <= rst ? IDLE : next_read_state;
 end
 always @ (*) begin
-    to_read_dest <= 0;
     if (rst) begin
         next_read_state <= IDLE;
     end
@@ -157,15 +156,13 @@ always @ (*) begin
             next_read_state <= rx_axis_fifo_tvalid && header_counter == 12? SRC : CHECKSUM;
         end
         SRC: begin
-            if (rx_axis_fifo_tvalid && header_counter == 16) begin
+            if (rx_axis_fifo_tvalid && header_counter == 16) 
                 next_read_state <= DEST;
-                to_read_dest <= 1;
-            end else  next_read_state <= SRC;
+            else  next_read_state <= SRC;
         end
-        DEST: begin
+        DEST: begin  // dest & variant
             // to_read_dest <= 1;
-            if (rx_axis_fifo_tvalid && header_counter == 20) begin
-                if (header_counter[5:2] == header_length) begin
+            if (rx_axis_fifo_tvalid && header_counter[5:2] == header_length) begin
                     // it is possible that this number overflows. Why do we not check it?
                     // 1. if checksum could have been proved to be right but considered wrong as a result of overflowing, 
                     //    the correct checksum must be 0x1fffe, so checksum[15:0] == checksum[23:16] == 0xffff, where it 
@@ -175,15 +172,7 @@ always @ (*) begin
                     if (checksum[15:0] + checksum[23:16] == 16'hffff) begin
                         next_read_state <= BODY;
                     end else next_read_state <= DISCARD;
-                end else next_read_state <= VARIANT;
-            end else  begin next_read_state <= DEST; to_read_dest <= 1; end
-        end
-        VARIANT: begin
-            if (rx_axis_fifo_tvalid && header_counter[5:2] == header_length) begin
-                if (checksum[15:0] + checksum[23:16] == 16'hffff || from_cpu) begin
-                    next_read_state <= BODY;
-                end else next_read_state <= DISCARD;
-            end else next_read_state <= VARIANT;
+            end else next_read_state <= DEST; 
         end
         BODY: begin
             if (!to_cpu && arp_table_query_out_ready && !arp_table_query_exist) next_read_state <= DISCARD;
@@ -223,7 +212,7 @@ always @(*) begin
     to_read_over <= next_read_state == OVER;
 end
 
-assign body_start = (ipv4_read_state == DEST || ipv4_read_state == VARIANT) && rx_axis_fifo_tvalid 
+assign body_start = ipv4_read_state == DEST && rx_axis_fifo_tvalid 
         && header_counter[5:2] == header_length && checksum[15:0] + checksum[23:16] == 16'hffff;
 assign is_writing = ipv4_write_state != IDLE && ipv4_write_state != OVER;
 
@@ -286,7 +275,7 @@ end
 
 always @ (posedge clk) begin
     if (next_read_state == HEADER_LEN) 
-        header_length <= rx_axis_fifo_tdata[3:0];
+        header_length <= rx_axis_fifo_tdata[3:0] >= 5 ? rx_axis_fifo_tdata[3:0] : 5;
     if (next_read_state == TOTAL_LEN) begin
         if (header_counter == 2) 
             total_length[15:8] <= rx_axis_fifo_tdata;
@@ -440,7 +429,7 @@ async_setter # (.LEN(4), .ADDR_WIDTH(2)) src_ip_setter (
 async_setter # (.LEN(4), .ADDR_WIDTH(2)) dst_ip_setter (
     .value(dst_ip),
     .clk(clk), 
-    .enable(to_read_dest),
+    .enable(header_counter >= 16 && header_counter < 20),
     .data_input(rx_axis_fifo_tdata),
     .index(header_counter[1:0])
 );
