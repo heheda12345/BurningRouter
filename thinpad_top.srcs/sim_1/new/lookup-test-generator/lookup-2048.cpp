@@ -281,20 +281,23 @@ void init() {
 
 
 int main() {
-    int n = 4096;
-    freopen("lookup-2048.in", "w", stdout);
-    printf("%d\n", n);
-    int m = n >> 1;
-    RoutingTableEntry* entry = new RoutingTableEntry[n]; 
-    for (int i=0; i<m; i++) {
-        entry[i].addr = htonl(0x10 << 24 | (i << 8));
-        entry[i].len = 24;
-        entry[i].nexthop = rd();
-        entry[i].nextPort = rd() % 4;
-        entry[i+m] = entry[i];
-        entry[i].ty = 0;
-        entry[i+m].ty = 1;
+    int n = 0;
+    freopen("lookup-255.in", "w", stdout);
+    RoutingTableEntry* entry = new RoutingTableEntry[20000]; 
+    for (int i=0; i<=255; i++) {
+        if (i == 4 || i == 9)
+            continue;
+        entry[n*2].addr = 0xc0a8 << 16 | (i << 8);
+        entry[n*2].len = 24;
+        entry[n*2].nexthop = rd();
+        entry[n*2].nextPort = rd() % 4;
+        entry[n*2+1] = entry[n*2];
+        entry[n*2+1].ty = 0;
+        entry[n*2+1].ty = 1;
+        n++;
     }
+    n <<= 1;
+    printf("%d\n", n);
     random_shuffle(entry, entry+n);
     init();
     for (int i=0; i<n; i++)
