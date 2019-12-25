@@ -35,7 +35,8 @@ module router_core(
     input  [1:0]  lookup_modify_in_nextport,
     input  [6:0]  lookup_modify_in_len,
     output  wire  lookup_modify_finish,
-    output  wire  lookup_full
+    output  wire  lookup_full,
+    output  wire  lookup_error 
 );
 
 
@@ -191,7 +192,7 @@ arp_table arp_table_inst (
     .query_exist(arp_table_query_exist)
 );
 
-lookup_table_trie lookup_table_trie_inst (
+lookup_table_linear lookup_table_trie_inst (
     .lku_clk(axi_tclk), 
     .lku_rst(axi_treset), 
 
@@ -207,7 +208,8 @@ lookup_table_trie lookup_table_trie_inst (
     .modify_in_nextport(lookup_modify_in_nextport),
     .modify_in_len(lookup_modify_in_len),
     .modify_finish(lookup_modify_finish),
-    .full(lookup_full)
+    .full(lookup_full),
+    .error(lookup_error)
 );
 
 buffer_pushing buffer_pushing_i (

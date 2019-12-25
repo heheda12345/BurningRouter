@@ -424,7 +424,8 @@ router router_inst(
     .lookup_modify_in_nextport(lookup_modify_in_nextport),
     .lookup_modify_in_len(lookup_modify_in_len),
     .lookup_modify_finish(lookup_modify_finish),
-    .lookup_full(lookup_full)
+    .lookup_full(lookup_full),
+    .lookup_error(lookup_error)
 );
 
 

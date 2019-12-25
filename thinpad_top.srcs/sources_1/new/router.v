@@ -47,7 +47,7 @@ wire eth_sync_rst = ~eth_sync_rst_n;
 (*mark_debug="true"*)wire lookup_modify_in_ready_router;
 wire [1:0] lookup_modify_in_nextport_router;
 wire [6:0] lookup_modify_in_len_router;
-wire lookup_modify_finish_router, lookup_full_router;
+wire lookup_modify_finish_router, lookup_full_router, lookup_error_router;
 (*mark_debug="true"*)wire ip_modify_req_router;
 
 router_core router_core_i(
@@ -87,7 +87,8 @@ router_core router_core_i(
     .lookup_modify_in_nextport(lookup_modify_in_nextport_router),
     .lookup_modify_in_len(lookup_modify_in_len_router),
     .lookup_modify_finish(lookup_modify_finish_router),
-    .lookup_full(lookup_full_router)
+    .lookup_full(lookup_full_router),
+    .lookup_error(lookup_error_router)
 );
 
 (*mark_debug="true"*)wire [35:0] fifo_cpu2router_din, fifo_router2cpu_dout;
