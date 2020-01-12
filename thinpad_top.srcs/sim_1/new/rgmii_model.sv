@@ -63,7 +63,7 @@ module rgmii_model (
         end
     end
 
-    always packet_clk = #1000 ~packet_clk;
+    always packet_clk = #10000 ~packet_clk;
     always_ff @ (posedge clk_125M) begin
         count <= packet_clk ? count + 1 : 0;
         if (packet_clk && count < frame_size[frame_index] - 1) begin

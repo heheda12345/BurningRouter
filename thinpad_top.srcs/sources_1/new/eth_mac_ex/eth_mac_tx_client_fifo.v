@@ -95,7 +95,6 @@
 //------------------------------------------------------------------------------
 // The module declaration for the Transmitter FIFO
 //------------------------------------------------------------------------------
-`default_nettype wire
 
 (* DowngradeIPIdentifiedWarnings = "yes" *)
 module eth_mac_tx_client_fifo #

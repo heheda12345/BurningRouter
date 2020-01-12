@@ -2,20 +2,20 @@ module regfile(
     input wire clk,
     input wire rst,
 
-    input wire we,
-    input wire [4:0] waddr,
-    input wire [31:0] wdata,
+    (*mark_debug="true"*)input wire we,
+    (*mark_debug="true"*)input wire [4:0] waddr,
+    (*mark_debug="true"*)input wire [31:0] wdata,
 
-    input wire re1,
-    input wire [4:0] raddr1,
-    output reg [31:0] rdata1,
+    (*mark_debug="true"*)input wire re1,
+    (*mark_debug="true"*)input wire [4:0] raddr1,
+    (*mark_debug="true"*)output reg [31:0] rdata1,
 
-    input wire re2,
-    input wire [4:0] raddr2,
-    output reg [31:0] rdata2
+    (*mark_debug="true"*)input wire re2,
+    (*mark_debug="true"*)input wire [4:0] raddr2,
+    (*mark_debug="true"*)output reg [31:0] rdata2
 );
 
-reg[31:0] regs[4:0];
+reg[31:0] regs[31:0];
 
 // write
 always @(posedge clk) begin

@@ -47,7 +47,10 @@ module id(
 
     output reg next_inst_in_delayslot_o,
 
-    output reg stall_req_o
+    output reg stall_req_o,
+    output wire[31:0] inst_o,
+    output wire[31:0] excepttype_o,
+    output wire[31:0] current_inst_address_o
 );
 
 // refer to tsinghua web learning
@@ -71,6 +74,11 @@ assign nxt_nxt_pc = pc_i + 32'h00000008;
 assign add_sign_pc = nxt_pc + {{14{ins_imm[15]}}, ins_imm, 2'b00};
 assign sign_imm = {{16{sign_imm[15]}}, ins_imm};
 
+assign inst_o = inst_i;
+
+reg is_syscall, is_eret;
+assign excepttype_o = {19'b0, is_eret, 3'b0, is_syscall, 8'b0};
+assign current_inst_address_o = pc_i;
 // translate
 always @(*) begin
     if (rst == 1'b1) begin
@@ -86,19 +94,32 @@ always @(*) begin
         imm_reg <= 0;
         branch_flag_o <= 0;
         branch_target_addr_o <= 0;
-        is_in_delayslot_o <= 0;
+        next_inst_in_delayslot_o <= 0;
         link_addr_o <= 0;
+        ram_offset_o <= 0;
+        is_syscall <= 0;
+        is_eret <= 0;
+        // is_syscall & is_eret
     end else begin
+        aluop_o <= 0;
+        alusel_o <= 0;
+        wd_o <= 0;
+        wreg_o <= 0;
+        reg1_read_o <= 0;
+        reg2_read_o <= 0;
         reg1_addr_o <= ins_rs;
         reg2_addr_o <= ins_rt;
+        imm_reg <= 0;
 
         branch_flag_o <= 0;
         branch_target_addr_o <= 0;
-        is_in_delayslot_o <= 0;
-        link_addr_o <= 0;
         next_inst_in_delayslot_o <= 0;
+        link_addr_o <= 0;
         
         ram_offset_o <= 0;
+        is_syscall <= 0;
+        is_eret <= 0;
+        instvalid <= INSTINVALID;
         case (ins_op)
             `EXE_SPECIAL: begin
                 case (ins_func)
@@ -137,9 +158,69 @@ always @(*) begin
                         wd_o <= ins_rd;
                         instvalid <= INSTVALID;
                     end
+                    `EXE_SRA_FUNC: begin
+                        wreg_o <= 1;
+                        aluop_o <= `EXE_SRA_OP;
+                        alusel_o <= `EXE_RES_SHIFT;
+                        reg1_read_o <= 0;
+                        reg2_read_o <= 1;
+                        imm_reg <= {27'b0, ins_sa};
+                        wd_o <= ins_rd;
+                        instvalid <= INSTVALID;
+                    end
+                    `EXE_SLLV_FUNC: begin
+                        wreg_o <= 1;
+                        aluop_o <= `EXE_SLL_OP;
+                        alusel_o <= `EXE_RES_SHIFT;
+                        reg1_read_o <= 1;
+                        reg2_read_o <= 1;
+                        imm_reg <= 0;
+                        wd_o <= ins_rd;
+                        instvalid <= INSTVALID;
+                    end
+                    `EXE_SRLV_FUNC: begin
+                        wreg_o <= 1;
+                        aluop_o <= `EXE_SRL_OP;
+                        alusel_o <= `EXE_RES_SHIFT;
+                        reg1_read_o <= 1;
+                        reg2_read_o <= 1;
+                        imm_reg <= 0;
+                        wd_o <= ins_rd;
+                        instvalid <= INSTVALID;
+                    end
                     `EXE_ADDU_FUNC: begin
                         wreg_o <= 1;
                         aluop_o <= `EXE_ADDU_OP;
+                        alusel_o <= `EXE_RES_ARITHMETIC;
+                        reg1_read_o <= 1;
+                        reg2_read_o <= 1;
+                        imm_reg <= 0;
+                        wd_o <= ins_rd;
+                        instvalid <= INSTVALID;
+                    end
+                    `EXE_SUBU_FUNC: begin
+                        wreg_o <= 1;
+                        aluop_o <= `EXE_SUBU_OP;
+                        alusel_o <= `EXE_RES_ARITHMETIC;
+                        reg1_read_o <= 1;
+                        reg2_read_o <= 1;
+                        imm_reg <= 0;
+                        wd_o <= ins_rd;
+                        instvalid <= INSTVALID;
+                    end
+                    `EXE_SLT_FUNC: begin
+                        wreg_o <= 1;
+                        aluop_o <= `EXE_SLT_OP;
+                        alusel_o <= `EXE_RES_ARITHMETIC;
+                        reg1_read_o <= 1;
+                        reg2_read_o <= 1;
+                        imm_reg <= 0;
+                        wd_o <= ins_rd;
+                        instvalid <= INSTVALID;
+                    end
+                    `EXE_SLTU_FUNC: begin
+                        wreg_o <= 1;
+                        aluop_o <= `EXE_SLTU_OP;
                         alusel_o <= `EXE_RES_ARITHMETIC;
                         reg1_read_o <= 1;
                         reg2_read_o <= 1;
@@ -177,8 +258,100 @@ always @(*) begin
                         wd_o <= ins_rd;
                         instvalid <= INSTVALID;
                     end
+                    `EXE_NOR_FUNC: begin
+                        wreg_o <= 1;
+                        aluop_o <= `EXE_NOR_OP;
+                        alusel_o <= `EXE_RES_LOGIC;
+                        reg1_read_o <= 1;
+                        reg2_read_o <= 1;
+                        imm_reg <= 0;
+                        wd_o <= ins_rd;
+                        instvalid <= INSTVALID;
+                    end
+                    `EXE_SYSCALL_FUNC: begin
+                        wreg_o <= 0;
+                        aluop_o <= `EXE_SYSCALL_OP;
+                        alusel_o <= `EXE_RES_NOP;
+                        reg1_read_o <= 0;
+                        reg2_read_o <= 0;
+                        imm_reg <= {12'b0, inst_i[25:6]};
+                        wd_o <= 0;
+                        instvalid <= INSTVALID;
+                        is_syscall <= 1;
+                    end
+                    `EXE_MOVZ_FUNC: begin
+                        if (reg2_o == 32'h00000000) begin
+                            wreg_o <= 1;
+                        end else begin
+                            wreg_o <= 0;
+                        end
+                        aluop_o <= `EXE_MOVZ_OP;
+                        alusel_o <= `EXE_RES_MOVE;
+                        reg1_read_o <= 1;
+                        reg2_read_o <= 1;
+                        imm_reg <= 0;
+                        wd_o <= ins_rd;
+                        instvalid <= INSTVALID;
+                    end
                     default: begin
                         $display("[id.v] func %h not support", ins_func);
+                    end
+                endcase
+            end
+            `EXE_REGIMM: begin
+                case (ins_rt)
+                    `EXE_BGEZAL: begin
+                        wreg_o <= 1;
+                        aluop_o <= `EXE_BRANCH_OP;
+                        alusel_o <= `EXE_RES_BRANCH;
+                        reg1_read_o <= 1;
+                        reg2_read_o <= 0;
+                        imm_reg <= 0;
+                        wd_o <= 5'b11111;
+                        instvalid <= INSTINVALID;
+                        link_addr_o <= nxt_nxt_pc;
+                        if (reg1_o[31] == 1'b0) begin
+                            branch_flag_o <= 1;
+                            branch_target_addr_o <= add_sign_pc;
+                            next_inst_in_delayslot_o <= 1;
+                        end
+                    end
+                    `EXE_BGEZ: begin
+                        wreg_o <= 0;
+                        aluop_o <= `EXE_BRANCH_OP;
+                        alusel_o <= `EXE_RES_BRANCH;
+                        reg1_read_o <= 1;
+                        reg2_read_o <= 0;
+                        imm_reg <= 0;
+                        wd_o <= 0;
+                        instvalid <= INSTINVALID;
+
+                        link_addr_o <= 0;
+                        if (reg1_o[31] == 1'b0) begin
+                            branch_flag_o <= 1;
+                            branch_target_addr_o <= add_sign_pc;
+                            next_inst_in_delayslot_o <= 1;
+                        end
+                    end
+                    `EXE_BLTZ: begin
+                        wreg_o <= 0;
+                        aluop_o <= `EXE_BRANCH_OP;
+                        alusel_o <= `EXE_RES_BRANCH;
+                        reg1_read_o <= 1;
+                        reg2_read_o <= 0;
+                        imm_reg <= 0;
+                        wd_o <= 0;
+                        instvalid <= INSTINVALID;
+
+                        link_addr_o <= 0;
+                        if (reg1_o[31] == 1'b1) begin
+                            branch_flag_o <= 1;
+                            branch_target_addr_o <= add_sign_pc;
+                            next_inst_in_delayslot_o <= 1;
+                        end
+                    end
+                    default: begin
+                        $display("[id.v] regimm %h not support", ins_rt);
                     end
                 endcase
             end
@@ -225,7 +398,7 @@ always @(*) begin
                 instvalid <= INSTINVALID;
 
                 link_addr_o <= 0;
-                if (reg1_data_i == reg2_data_i) begin
+                if (reg1_o == reg2_o) begin
                     branch_flag_o <= 1;
                     branch_target_addr_o <= add_sign_pc;
                     next_inst_in_delayslot_o <= 1;
@@ -243,7 +416,7 @@ always @(*) begin
                 instvalid <= INSTINVALID;
 
                 link_addr_o <= 0;
-                if (reg1_data_i != reg2_data_i) begin
+                if (reg1_o != reg2_o) begin
                     branch_flag_o <= 1;
                     branch_target_addr_o <= add_sign_pc;
                     next_inst_in_delayslot_o <= 1;
@@ -261,7 +434,7 @@ always @(*) begin
                 instvalid <= INSTINVALID;
 
                 link_addr_o <= 0;
-                if (reg1_data_i[31] == 1'b0 && reg1_data_i != 32'h00000000) begin
+                if (reg1_o[31] == 1'b0 && reg1_o != 32'h00000000) begin
                     branch_flag_o <= 1;
                     branch_target_addr_o <= add_sign_pc;
                     next_inst_in_delayslot_o <= 1;
@@ -271,6 +444,26 @@ always @(*) begin
             `EXE_ADDIU: begin
                 wreg_o <= 1;
                 aluop_o <= `EXE_ADDU_OP;
+                alusel_o <= `EXE_RES_ARITHMETIC;
+                reg1_read_o <= 1;
+                reg2_read_o <= 0;
+                imm_reg <= {{16{ins_imm[15]}}, ins_imm};
+                wd_o <= ins_rt;
+                instvalid <= INSTVALID;
+            end
+            `EXE_SLTI: begin
+                wreg_o <= 1;
+                aluop_o <= `EXE_SLT_OP;
+                alusel_o <= `EXE_RES_ARITHMETIC;
+                reg1_read_o <= 1;
+                reg2_read_o <= 0;
+                imm_reg <= {{16{ins_imm[15]}}, ins_imm};
+                wd_o <= ins_rt;
+                instvalid <= INSTVALID;
+            end
+            `EXE_SLTIU: begin
+                wreg_o <= 1;
+                aluop_o <= `EXE_SLTU_OP;
                 alusel_o <= `EXE_RES_ARITHMETIC;
                 reg1_read_o <= 1;
                 reg2_read_o <= 0;
@@ -327,7 +520,43 @@ always @(*) begin
                 imm_reg <= sign_imm;
                 wd_o <= ins_rt;
                 instvalid <= INSTVALID;
-                
+
+                ram_offset_o <= sign_imm;
+            end
+            `EXE_LBU: begin
+                wreg_o <= 1;
+                aluop_o <= `EXE_LBU_OP;
+                alusel_o <= `EXE_RES_RAM;
+                reg1_read_o <= 1;
+                reg2_read_o <= 0;
+                imm_reg <= sign_imm;
+                wd_o <= ins_rt;
+                instvalid <= INSTVALID;
+
+                ram_offset_o <= sign_imm;
+            end
+            `EXE_LH: begin
+                wreg_o <= 1;
+                aluop_o <= `EXE_LH_OP;
+                alusel_o <= `EXE_RES_RAM;
+                reg1_read_o <= 1;
+                reg2_read_o <= 0;
+                imm_reg <= sign_imm;
+                wd_o <= ins_rt;
+                instvalid <= INSTVALID;
+
+                ram_offset_o <= sign_imm;
+            end
+            `EXE_LHU: begin
+                wreg_o <= 1;
+                aluop_o <= `EXE_LHU_OP;
+                alusel_o <= `EXE_RES_RAM;
+                reg1_read_o <= 1;
+                reg2_read_o <= 0;
+                imm_reg <= sign_imm;
+                wd_o <= ins_rt;
+                instvalid <= INSTVALID;
+
                 ram_offset_o <= sign_imm;
             end
             `EXE_LW: begin
@@ -354,6 +583,18 @@ always @(*) begin
 
                 ram_offset_o <= sign_imm;
             end
+            `EXE_SH: begin
+                wreg_o <= 0;
+                aluop_o <= `EXE_SH_OP;
+                alusel_o <= `EXE_RES_RAM;
+                reg1_read_o <= 1;
+                reg2_read_o <= 1;
+                imm_reg <= sign_imm;
+                wd_o <= 0;
+                instvalid <= INSTVALID;
+
+                ram_offset_o <= sign_imm;
+            end
             `EXE_SW: begin
                 wreg_o <= 0;
                 aluop_o <= `EXE_SW_OP;
@@ -365,6 +606,48 @@ always @(*) begin
                 instvalid <= INSTVALID;
 
                 ram_offset_o <= sign_imm;
+            end
+            `EXE_COP: begin
+                case (ins_rs)
+                    `EXE_MF: begin
+                        wreg_o <= 1;
+                        aluop_o <= `EXE_MFC0_OP;
+                        alusel_o <= `EXE_RES_MOVE;
+                        reg1_read_o <= 0;
+                        reg2_read_o <= 0;
+                        imm_reg <= 0;
+                        wd_o <= ins_rt;
+                        instvalid <= INSTVALID;
+                    end
+                    `EXE_MT: begin
+                        wreg_o <= 0;
+                        aluop_o <= `EXE_MTC0_OP;
+                        alusel_o <= `EXE_RES_MOVE;
+                        reg1_read_o <= 0;
+                        reg2_read_o <= 1;
+                        imm_reg <= 0;
+                        wd_o <= 0;
+                        instvalid <= INSTVALID;
+                    end
+                    `EXE_ERET: begin
+                        if (inst_i != `EXE_ERET_32) begin
+                            $display("[id.v] invalid ere %h", inst_i);
+                        end else begin
+                            wreg_o <= 0;
+                            aluop_o <= `EXE_ERET_OP;
+                            alusel_o <= `EXE_RES_NOP;
+                            reg1_read_o <= 0;
+                            reg2_read_o <= 0;
+                            imm_reg <= 0;
+                            wd_o <= 0;
+                            instvalid <= INSTVALID;
+                            is_eret <= 1;
+                        end
+                    end
+                    default: begin
+                        $display("[id.v] cop0 %h not support", ins_rs);
+                    end
+                endcase
             end
             default: begin
                 $display("[id.v] op %h not support", ins_op);
@@ -408,7 +691,7 @@ always @(*) begin
 end
 
 wire stall_req_reg1, stall_req_reg2, pre_is_load;
-assign pre_is_load = (pre_aluop == `EXE_LB_OP || pre_aluop == `EXE_LW_OP);
+assign pre_is_load = (pre_aluop == `EXE_LB_OP || pre_aluop == `EXE_LBU_OP || pre_aluop == `EXE_LW_OP || pre_aluop == `EXE_LH_OP || pre_aluop == `EXE_LHU_OP);
 assign stall_req_reg1 = reg1_read_o == 1'b1 && pre_wd == reg1_addr_o;
 assign stall_req_reg2 = reg2_read_o == 1'b1 && pre_wd == reg2_addr_o;
 always @(*) begin
@@ -423,7 +706,7 @@ always @(*) begin
     if (rst == 1'b1) begin
         is_in_delayslot_o <= 0;
     end else begin
-        is_in_delayslot_o <= next_inst_in_delayslot_o;
+        is_in_delayslot_o <= is_in_delayslot_i;
     end
 end
 endmodule

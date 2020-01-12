@@ -1,49 +1,49 @@
 `timescale 1ns / 1ps
 module tb;
 
-wire clk_50M, clk_11M0592;
+wire clk_50M, clk_11M0592, clk_125M, clk_125M_90deg;
 
-reg clock_btn = 0;         //BTN5手动时钟按钮开关，带消抖电路，按下时为1
-reg reset_btn = 0;         //BTN6手动复位按钮开关，带消抖电路，按下时为1
+reg clock_btn = 0;         //BTN5手动时钟按钮�???关，带消抖电路，按下时为1
+reg reset_btn = 0;         //BTN6手动复位按钮�???关，带消抖电路，按下时为1
 
 reg[3:0]  touch_btn;  //BTN1~BTN4，按钮开关，按下时为1
-reg[31:0] dip_sw;     //32位拨码开关，拨到“ON”时为1
+reg[31:0] dip_sw;     //32位拨码开关，拨到“ON”时�???1
 
 wire[15:0] leds;       //16位LED，输出时1点亮
 wire[7:0]  dpy0;       //数码管低位信号，包括小数点，输出1点亮
 wire[7:0]  dpy1;       //数码管高位信号，包括小数点，输出1点亮
 
-wire txd;  //直连串口发送端
-wire rxd;  //直连串口接收端
+wire txd;  //直连串口发�?�端
+wire rxd;  //直连串口接收�???
 
-wire[31:0] base_ram_data; //BaseRAM数据，低8位与CPLD串口控制器共享
+wire[31:0] base_ram_data; //BaseRAM数据，低8位与CPLD串口控制器共�???
 wire[19:0] base_ram_addr; //BaseRAM地址
-wire[3:0] base_ram_be_n;  //BaseRAM字节使能，低有效。如果不使用字节使能，请保持为0
-wire base_ram_ce_n;       //BaseRAM片选，低有效
-wire base_ram_oe_n;       //BaseRAM读使能，低有效
-wire base_ram_we_n;       //BaseRAM写使能，低有效
+wire[3:0] base_ram_be_n;  //BaseRAM字节使能，低有效。如果不使用字节使能，请保持�???0
+wire base_ram_ce_n;       //BaseRAM片�?�，低有�???
+wire base_ram_oe_n;       //BaseRAM读使能，低有�???
+wire base_ram_we_n;       //BaseRAM写使能，低有�???
 
 wire[31:0] ext_ram_data; //ExtRAM数据
 wire[19:0] ext_ram_addr; //ExtRAM地址
-wire[3:0] ext_ram_be_n;  //ExtRAM字节使能，低有效。如果不使用字节使能，请保持为0
-wire ext_ram_ce_n;       //ExtRAM片选，低有效
-wire ext_ram_oe_n;       //ExtRAM读使能，低有效
-wire ext_ram_we_n;       //ExtRAM写使能，低有效
+wire[3:0] ext_ram_be_n;  //ExtRAM字节使能，低有效。如果不使用字节使能，请保持�???0
+wire ext_ram_ce_n;       //ExtRAM片�?�，低有�???
+wire ext_ram_oe_n;       //ExtRAM读使能，低有�???
+wire ext_ram_we_n;       //ExtRAM写使能，低有�???
 
-wire [22:0]flash_a;      //Flash地址，a0仅在8bit模式有效，16bit模式无意义
+wire [22:0]flash_a;      //Flash地址，a0仅在8bit模式有效�???16bit模式无意�???
 wire [15:0]flash_d;      //Flash数据
 wire flash_rp_n;         //Flash复位信号，低有效
-wire flash_vpen;         //Flash写保护信号，低电平时不能擦除、烧写
-wire flash_ce_n;         //Flash片选信号，低有效
-wire flash_oe_n;         //Flash读使能信号，低有效
-wire flash_we_n;         //Flash写使能信号，低有效
-wire flash_byte_n;       //Flash 8bit模式选择，低有效。在使用flash的16位模式时请设为1
+wire flash_vpen;         //Flash写保护信号，低电平时不能擦除、烧�???
+wire flash_ce_n;         //Flash片�?�信号，低有�???
+wire flash_oe_n;         //Flash读使能信号，低有�???
+wire flash_we_n;         //Flash写使能信号，低有�???
+wire flash_byte_n;       //Flash 8bit模式选择，低有效。在使用flash�???16位模式时请设�???1
 
-wire uart_rdn;           //读串口信号，低有效
-wire uart_wrn;           //写串口信号，低有效
-wire uart_dataready;     //串口数据准备好
-wire uart_tbre;          //发送数据标志
-wire uart_tsre;          //数据发送完毕标志
+wire uart_rdn;           //读串口信号，低有�???
+wire uart_wrn;           //写串口信号，低有�???
+wire uart_dataready;     //串口数据准备�???
+wire uart_tbre;          //发�?�数据标�???
+wire uart_tsre;          //数据发�?�完毕标�???
 
 wire [3:0] eth_rgmii_rd; //RGMII RX 数据
 wire eth_rgmii_rx_ctl;   //RGMII RX 控制
@@ -52,10 +52,15 @@ wire [3:0] eth_rgmii_td; //RGMII TX 数据
 wire eth_rgmii_tx_ctl;   //RGMII TX 控制
 wire eth_rgmii_txc;      //RGMII TX 时钟
 
-//Windows需要注意路径分隔符的转义，例如"D:\\foo\\bar.bin"
-parameter BASE_RAM_INIT_FILE = "baseram.mem"; //BaseRAM初始化文件，请修改为实际的绝对路径
-parameter EXT_RAM_INIT_FILE = "extram.mem";    //ExtRAM初始化文件，请修改为实际的绝对路径
-parameter FLASH_INIT_FILE = "/tmp/kernel.elf";    //Flash初始化文件，请修改为实际的绝对路径
+wire cpu_rx_qword_tready, cpu_rx_qword_tvalid;
+wire cpu_tx_qword_tready, cpu_tx_qword_tvalid;
+wire [31:0] cpu_rx_qword_tdata, cpu_tx_qword_tdata;
+wire [3:0] cpu_rx_qword_tlast, cpu_tx_qword_tlast;
+
+//Windows�???要注意路径分隔符的转义，例如"D:\\foo\\bar.bin"
+parameter BASE_RAM_INIT_FILE = "baseram.mem"; //BaseRAM初始化文件，请修改为实际的绝对路�???
+parameter EXT_RAM_INIT_FILE = "/tmp/eram.bin";    //ExtRAM初始化文件，请修改为实际的绝对路�???
+parameter FLASH_INIT_FILE = "/tmp/kernel.elf";    //Flash初始化文件，请修改为实际的绝对路�???
 
 assign rxd = 1'b1; //idle state
 
@@ -69,67 +74,87 @@ initial begin
         #100; //等待100ns
         clock_btn = 0; //松开手工时钟按钮
     end
-    // 模拟PC通过串口发送字符
+    // 模拟PC通过串口发�?�字�???
     cpld.pc_send_byte(8'h32);
+    $display("receive: 1");
     #10000;
     cpld.pc_send_byte(8'h33);
+    $display("receive: 2");
 end
+
+/*initial begin
+    #1015
+    reset_btn = 1;
+end
+always @ (posedge clk_50M) begin
+    if (reset_btn == 1) reset_btn = 0;
+end*/
 
 initial begin
-    reset_btn = 1;
-    #200
-    reset_btn = 0;
+    reset_btn <= 1;
+    #100
+    reset_btn <= 0;
+    #4000
+    reset_btn <= 1;
+    #4000
+    reset_btn <= 0;
 end
-// always @ (posedge clk_50M) begin
-//     if (reset_btn == 1) reset_btn = 0;
-// end
 
-// 待测试用户设计
-thinpad_top dut(
-    .clk_50M(clk_50M),
-    .clk_11M0592(clk_11M0592),
-    .clock_btn(clock_btn),
-    .reset_btn(reset_btn),
-    .touch_btn(touch_btn),
-    .dip_sw(dip_sw),
-    .leds(leds),
-    .dpy1(dpy1),
-    .dpy0(dpy0),
-    .txd(txd),
-    .rxd(rxd),
-    .uart_rdn(uart_rdn),
-    .uart_wrn(uart_wrn),
-    .uart_dataready(uart_dataready),
-    .uart_tbre(uart_tbre),
-    .uart_tsre(uart_tsre),
-    .base_ram_data(base_ram_data),
-    .base_ram_addr(base_ram_addr),
-    .base_ram_ce_n(base_ram_ce_n),
-    .base_ram_oe_n(base_ram_oe_n),
-    .base_ram_we_n(base_ram_we_n),
-    .base_ram_be_n(base_ram_be_n),
-    .ext_ram_data(ext_ram_data),
-    .ext_ram_addr(ext_ram_addr),
-    .ext_ram_ce_n(ext_ram_ce_n),
-    .ext_ram_oe_n(ext_ram_oe_n),
-    .ext_ram_we_n(ext_ram_we_n),
-    .ext_ram_be_n(ext_ram_be_n),
-    .flash_d(flash_d),
-    .flash_a(flash_a),
-    .flash_rp_n(flash_rp_n),
-    .flash_vpen(flash_vpen),
-    .flash_oe_n(flash_oe_n),
-    .flash_ce_n(flash_ce_n),
-    .flash_byte_n(flash_byte_n),
-    .flash_we_n(flash_we_n),
-    .eth_rgmii_rd(eth_rgmii_rd),
-    .eth_rgmii_rx_ctl(eth_rgmii_rx_ctl),
-    .eth_rgmii_rxc(eth_rgmii_rxc),
-    .eth_rgmii_td(eth_rgmii_td),
-    .eth_rgmii_tx_ctl(eth_rgmii_tx_ctl),
-    .eth_rgmii_txc(eth_rgmii_txc)
-);
-// 时钟源
+// 待测试用户设�???
+// thinpad_top dut(
+//     .clk_50M(clk_50M),
+//     .clk_11M0592(clk_11M0592),
+//     .clock_btn(clock_btn),
+//     .reset_btn(reset_btn),
+//     .touch_btn(touch_btn),
+//     .dip_sw(dip_sw),
+//     .leds(leds),
+//     .dpy1(dpy1),
+//     .dpy0(dpy0),
+//     .txd(txd),
+//     .rxd(rxd),
+//     .uart_rdn(uart_rdn),
+//     .uart_wrn(uart_wrn),
+//     .uart_dataready(uart_dataready),
+//     .uart_tbre(uart_tbre),
+//     .uart_tsre(uart_tsre),
+//     .base_ram_data(base_ram_data),
+//     .base_ram_addr(base_ram_addr),
+//     .base_ram_ce_n(base_ram_ce_n),
+//     .base_ram_oe_n(base_ram_oe_n),
+//     .base_ram_we_n(base_ram_we_n),
+//     .base_ram_be_n(base_ram_be_n),
+//     .ext_ram_data(ext_ram_data),
+//     .ext_ram_addr(ext_ram_addr),
+//     .ext_ram_ce_n(ext_ram_ce_n),
+//     .ext_ram_oe_n(ext_ram_oe_n),
+//     .ext_ram_we_n(ext_ram_we_n),
+//     .ext_ram_be_n(ext_ram_be_n),
+//     .flash_d(flash_d),
+//     .flash_a(flash_a),
+//     .flash_rp_n(flash_rp_n),
+//     .flash_vpen(flash_vpen),
+//     .flash_oe_n(flash_oe_n),
+//     .flash_ce_n(flash_ce_n),
+//     .flash_byte_n(flash_byte_n),
+//     .flash_we_n(flash_we_n),
+//     .eth_rgmii_rd(eth_rgmii_rd),
+//     .eth_rgmii_rx_ctl(eth_rgmii_rx_ctl),
+//     .eth_rgmii_rxc(eth_rgmii_rxc),
+//     .eth_rgmii_td(eth_rgmii_td),
+//     .eth_rgmii_tx_ctl(eth_rgmii_tx_ctl),
+//     .eth_rgmii_txc(eth_rgmii_txc)
+//     // ,
+//     // .cpu_rx_qword_tdata(cpu_rx_qword_tdata),
+//     // .cpu_rx_qword_tlast(cpu_rx_qword_tlast),
+//     // .cpu_rx_qword_tvalid(cpu_rx_qword_tvalid),
+//     // .cpu_rx_qword_tready(cpu_rx_qword_tready),
+//     // .cpu_tx_qword_tdata(cpu_tx_qword_tdata),
+//     // .cpu_tx_qword_tlast(cpu_tx_qword_tlast),
+//     // .cpu_tx_qword_tvalid(cpu_tx_qword_tvalid),
+//     // .cpu_tx_qword_tready(cpu_tx_qword_tready)
+// );
+// 时钟�???
 clock osc(
     .clk_11M0592   (clk_11M0592),
     .clk_50M       (clk_50M),
@@ -203,7 +228,7 @@ initial begin
     $stop;
 end
 
-// 从文件加载 BaseRAM
+// 从文件加�??? BaseRAM
 initial begin 
     reg [31:0] tmp_array[0:1048575];
     integer n_File_ID, n_Init_Size;
@@ -218,7 +243,6 @@ initial begin
     end
     $display("BaseRAM Init Size(words): %d",n_Init_Size);
     for (integer i = 0; i < n_Init_Size; i++) begin
-        $display("BaseRam init %h", tmp_array[i]);
         base1.mem_array0[i] = tmp_array[i][24+:8];
         base1.mem_array1[i] = tmp_array[i][16+:8];
         base2.mem_array0[i] = tmp_array[i][8+:8];
@@ -226,7 +250,7 @@ initial begin
     end
 end
 
-// 从文件加载 ExtRAM
+// 从文件加�??? ExtRAM
 initial begin 
     reg [31:0] tmp_array[0:1048575];
     integer n_File_ID, n_Init_Size;
@@ -262,45 +286,164 @@ rgmii_model rgmii(
     .rgmii_tx_ctl(eth_rgmii_tx_ctl)
 );
 
-// Lookup Table Test
-reg lookup_in_ready;
-wire lookup_out_ready;
-reg [31:0] lookup_in_addr;
-wire [31:0] lookup_out_nexthop;
-wire [1:0] lookup_out_interface;
-lookup_table lut_inst(
-    .lku_clk(clk_125M),
-    .lku_rst(1'b0),
-    .lku_in_addr(lookup_in_addr),
-    .lku_in_ready(lookup_in_ready),
-    .lku_out_nexthop(lookup_out_nexthop),
-    .lku_out_interface(lookup_out_interface),
-    .lku_out_ready(lookup_out_ready),
-    .static_table_addr      ({32'h1f008800, 32'h1f000000, 32'h1f008e00, 32'h1f008f23}),
-    .static_table_mask      ({32'hfffff800, 32'hff000000, 32'hffffff00, 32'hffffffff}),
-    .static_table_nexthop   ({32'h1f016600, 32'h1f017700, 32'h1f018800, 32'h12343210}),
-    .static_table_interface ({2'd1, 2'd2, 2'd0, 2'd3})
-);
+// wire mem_read_en, out_en;
+// wire [31:0] mem_read_data, mem_read_addr, out_data;
+// reg [7:0] MEMORY[0:2047];
+// reg A_start = 1;
 
-initial begin
-    lookup_in_addr = 32'h1f008f23;
-    lookup_in_ready = 1'b1;
-    #100
-    lookup_in_ready = 1'b0;
-    #100
-    lookup_in_ready = 1'b1;
-    #100
-    lookup_in_ready = 1'b0;
-end
-
-// wire lookup_succ;
-// lookup_test ltt_inst(
-//     .lku_clk(clk_125M),
-//     .succ(lookup_succ)
+// wire [7:0] cpu_rx_axis_tdata;
+// wire cpu_rx_axis_tvalid, cpu_rx_axis_tlast;
+// reg [2:0]A_counter = 0;
+// wire cpu_rx_axis_tready = cpu_rx_axis_tvalid;
+// cpu_interface_model cpu_itf (
+//     .clk_cpu(clk_125M),
+//     .cpu_rx_axis_tdata(cpu_rx_axis_tdata),
+//     .cpu_rx_axis_tlast(cpu_rx_axis_tlast),
+//     .cpu_rx_axis_tready(cpu_rx_axis_tready),
+//     .cpu_rx_axis_tvalid(cpu_rx_axis_tvalid)
+//     // .cpu_rx_qword_tdata(cpu_rx_qword_tdata),
+//     // .cpu_rx_qword_tlast(cpu_rx_qword_tlast),
+//     // .cpu_rx_qword_tvalid(cpu_rx_qword_tvalid),
+//     // .cpu_rx_qword_tready(cpu_rx_qword_tready),
+//     // .cpu_tx_qword_tdata(cpu_tx_qword_tdata),
+//     // .cpu_tx_qword_tlast(cpu_tx_qword_tlast),
+//     // .cpu_tx_qword_tvalid(cpu_tx_qword_tvalid),
+//     // .cpu_tx_qword_tready(cpu_tx_qword_tready)
+//     // .out_en(out_en),
+//     // .out_data(out_data),
+//     // .mem_read_en(mem_read_en),
+//     // .mem_read_addr(mem_read_addr),
+//     // .mem_read_data(mem_read_data)
 // );
 
-// cpu_test cpu_inst(
-//     .clk(clk_125M)
+// reg [11:0] A_end_addr = 0;
+
+// always @ (posedge clk_125M) begin
+//     MEMORY[A_end_addr] <= cpu_rx_axis_tdata;
+//     if (cpu_rx_axis_tready) begin
+//         A_end_addr <= A_end_addr + 1;
+//     end
+//     if (cpu_rx_axis_tvalid) A_counter <= A_counter + 1;
+//     A_start <= 0;
+// end
+
+// reg [7:0] A_mem_data;
+// wire [11:0] A_mem_addr;
+// wire A_mem_ena;
+// always @ (posedge clk_125M) begin
+//     if (A_mem_ena) begin
+//         A_mem_data <= MEMORY[A_mem_addr];
+//     end
+// end
+// wire A_c_ready, A_c_valid;
+// assign A_c_ready = A_c_valid;
+// wire A_ready, A_valid;
+// assign A_ready = A_valid;
+// buffer_pushing buf_pusher(
+//     .clk(clk_125M),
+//     .rst(0),
+//     .start(A_end_addr == 2),
+//     .last(0),
+//     .end_addr(A_end_addr),
+//     .mem_read_ena(A_mem_ena),
+//     .mem_read_data(A_mem_data),
+//     .mem_read_addr(A_mem_addr),
+//     .tx_axis_fifo_tvalid(A_valid),
+//     .tx_axis_fifo_tready(A_ready),
+//     .cpu_tx_axis_fifo_tvalid(A_c_valid),
+//     .cpu_tx_axis_fifo_tready(A_c_ready),
+//     .to_cpu(0)
+// );
+// logic bus_stall, bus_stall_reg;
+// initial begin
+//     bus_stall = 0;
+// end
+// always bus_stall = #123 ~bus_stall;
+// always_ff @ (posedge clk_50M) begin
+//     bus_stall_reg <= bus_stall;
+// end
+// router_controller_out router_controller_out_inst
+// (
+//     .clk(clk_50M),
+//     .rst(reset_btn),
+//     .bus_stall(bus_stall_reg),
+//     // .out_state(out_state),
+//     .out_en(out_en),
+//     .out_data(out_data),
+//     .mem_read_en(mem_read_en),
+//     .mem_read_addr(mem_read_addr),
+//     .mem_read_data(mem_read_data),
+//     .cpu_tx_qword_tdata(cpu_tx_qword_tdata),
+//     .cpu_tx_qword_tlast(cpu_tx_qword_tlast),
+//     .cpu_tx_qword_tready(cpu_tx_qword_tready),
+//     .cpu_tx_qword_tvalid(cpu_tx_qword_tvalid)
+// );
+// assign cpu_tx_qword_tready = cpu_tx_qword_tvalid;
+
+// pkg_classify pkg_inst(
+//     .axi_tclk(clk_125M), // i 
+//     .axi_tresetn(1), // i
+//     //.enable_address_swap(1'b1), // i
+//     .MY_MAC_ADDRESS(48'h020203030000),
+
+//     .rx_axis_fifo_tdata(cpu_rx_axis_tdata), // i
+//     .rx_axis_fifo_tvalid(cpu_rx_axis_tvalid), // i
+//     .rx_axis_fifo_tlast(cpu_rx_axis_tlast), // i
+//     .rx_axis_fifo_tready(cpu_rx_axis_tready) // o
+// );
+
+
+// Lookup Table Test
+// reg lookup_in_ready;
+// wire lookup_out_ready;
+// reg [31:0] lookup_in_addr;
+// wire [31:0] lookup_out_nexthop;
+// wire [1:0] lookup_out_interface;
+// lookup_table lut_inst(
+//     .lku_clk(clk_125M),
+//     .lku_rst(1'b0),
+//     .lku_in_addr(lookup_in_addr),
+//     .lku_in_ready(lookup_in_ready),
+//     .lku_out_nexthop(lookup_out_nexthop),
+//     .lku_out_interface(lookup_out_interface),
+//     .lku_out_ready(lookup_out_ready),
+//     .static_table_addr      ({32'h1f008800, 32'h1f000000, 32'h1f008e00, 32'h1f008f23}),
+//     .static_table_mask      ({32'hfffff800, 32'hff000000, 32'hffffff00, 32'hffffffff}),
+//     .static_table_nexthop   ({32'h1f016600, 32'h1f017700, 32'h1f018800, 32'h12343210}),
+//     .static_table_interface ({2'd1, 2'd2, 2'd0, 2'd3})
+// );
+
+// initial begin
+//     lookup_in_addr = 32'h1f008f23;
+//     lookup_in_ready = 1'b1;
+//     #100
+//     lookup_in_ready = 1'b0;
+//     #100
+//     lookup_in_ready = 1'b1;
+//     #100
+//     lookup_in_ready = 1'b0;
+// end
+
+wire lookup_succ;
+lookup_test ltt_inst(
+    .lku_clk(clk_125M),
+    .lku_rst(reset_btn),
+    .succ(lookup_succ)
+);
+
+// reg [5:0] bj_cpu_req = 0, bj_rt_write_req = 0, bj_rt_read_req = 0;
+
+// always_ff @ (posedge clk_50M) bj_rt_read_req = bj_rt_read_req < 12 ? bj_rt_read_req + 1 : 0;
+// always_ff @ (posedge clk_50M) bj_rt_write_req = bj_rt_write_req < 14 ? bj_rt_write_req + 1 : 0;
+// always_ff @ (posedge clk_50M) bj_cpu_req = bj_cpu_req < 16 ? bj_cpu_req + 1 : 0;
+
+// // bus judger test
+// bus_judger bus_judger_inst(
+//     .clk(clk_50M),
+//     .rst(0),
+//     .cpu_mem_req(bj_cpu_req < 6),
+//     .router_write_req(bj_rt_write_req < 7),
+//     .router_read_req(bj_rt_read_req < 8)
 // );
 
 endmodule

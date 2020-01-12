@@ -1,1 +1,0 @@
-g++ to-binary.cpp -o to-binary.out && ./to-binary.out < load-dependency && cp bin.out ../baseram.mem && echo "end"

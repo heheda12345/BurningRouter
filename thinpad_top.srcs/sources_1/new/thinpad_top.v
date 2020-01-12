@@ -81,6 +81,19 @@ module thinpad_top(
     output wire video_vsync,       //场同步（垂直同步）信号
     output wire video_clk,         //像素时钟输出
     output wire video_de           //行数据有效信号，用于区分消隐区
+
+    // for debug
+    // in the future these interfaces will be removed
+    // CPU receiving FIFO
+    // output wire [31:0] cpu_rx_qword_tdata,
+    // output wire [3:0] cpu_rx_qword_tlast,
+    // output wire cpu_rx_qword_tvalid,
+    // input wire cpu_rx_qword_tready,
+    // // CPU transmitting FIFO
+    // input wire [31:0] cpu_tx_qword_tdata,
+    // input wire [3:0] cpu_tx_qword_tlast,
+    // input wire cpu_tx_qword_tvalid,
+    // output wire cpu_tx_qword_tready
 );
 
 /* =========== Demo code begin =========== */
@@ -115,11 +128,19 @@ eth_conf conf(
     .done()
 );
 
-reg reset_of_clk10M;
+reg reset_of_clk10M, reset_of_clk20M, reset_of_clk_eth;
 // 异步复位，同步释放
 always@(posedge clk_10M or negedge locked) begin
     if(~locked) reset_of_clk10M <= 1'b1;
     else        reset_of_clk10M <= 1'b0;
+end
+always@(posedge clk_20M or negedge locked) begin
+    if(~locked) reset_of_clk20M <= 1'b1;
+    else        reset_of_clk20M <= 1'b0;
+end
+always@(posedge clk_125M or negedge locked) begin
+    if(~locked) reset_of_clk_eth <= 1'b1;
+    else        reset_of_clk_eth <= 1'b0;
 end
 
 always@(posedge clk_10M or posedge reset_of_clk10M) begin
@@ -131,8 +152,17 @@ always@(posedge clk_10M or posedge reset_of_clk10M) begin
     end
 end
 
-assign uart_rdn = 1'b1;
-assign uart_wrn = 1'b1;
+// 不使用内存、串口时，禁用其使能信号
+// assign base_ram_ce_n = 1'b1;
+// assign base_ram_oe_n = 1'b1;
+// assign base_ram_we_n = 1'b1;
+
+// assign ext_ram_ce_n = 1'b1;
+// assign ext_ram_oe_n = 1'b1;
+// assign ext_ram_we_n = 1'b1;
+
+// assign uart_rdn = 1'b1;
+// assign uart_wrn = 1'b1;
 
 // 数码管连接关系示意图，dpy1同理
 // p=dpy0[0] // ---a---
@@ -154,18 +184,18 @@ reg[15:0] led_bits;
 assign leds = led_bits;
 wire [15:0] led_debug;
 
-// always@(posedge clock_btn or posedge reset_btn) begin
-//     if(reset_btn)begin //复位按下，设置LED和数码管为初始值
-//         number<=0;
-//         led_bits <= 16'h1;
-//     end
-//     else begin //每次按下时钟按钮，数码管显示值加1，LED循环左移
-//         number <= number+1;
-//         led_bits <= {led_bits[14:0],led_bits[15]};
-//     end
-// end
+/*always@(posedge clock_btn or posedge reset_btn) begin
+    if(reset_btn)begin //复位按下，设置LED和数码管为初始值
+        number<=0;
+        led_bits <= 16'h1;
+    end
+    else begin //每次按下时钟按钮，数码管显示值加1，LED循环左移
+        number <= number+1;
+        led_bits <= {led_bits[14:0],led_bits[15]};
+    end
+end*/
 always @ (posedge clk_125M) begin
-    led_bits <= led_debug;
+    // led_bits <= led_debug;
 end
 
 //直连串口接收发送演示，从直连串口收到的数据再发送出去
@@ -275,67 +305,240 @@ eth_mac eth_mac_inst (
     // transmit 1Gb/s | vlan | enable
     .tx_configuration_vector(80'b10000000000110)
 );
-// /* =========== Demo code end =========== */
+/* =========== Demo code end =========== */
 
 wire eth_sync_rst;
 wire eth_sync_rst_n;
 
-eth_mac_reset_sync reset_sync_i(
-    .reset_in(1'b0),
-    .clk(eth_rx_mac_aclk),
-    .enable(1'b1),
-    .reset_out(eth_sync_rst)
-);
+// eth_mac_reset_sync reset_sync_i(
+//     .reset_in(1'b0),
+//     .clk(eth_rx_mac_aclk),
+//     .enable(1'b1),
+//     .reset_out(eth_sync_rst)
+// );
+assign eth_sync_rst = reset_of_clk_eth;
 assign eth_sync_rst_n = ~eth_sync_rst;
 
-eth_mac_wrapper eth_mac_wraper_i(
-    .rx_mac_aclk(eth_rx_mac_aclk),
-    .rx_mac_resetn(eth_sync_rst_n),
-    .rx_axis_mac_tdata(eth_rx_axis_mac_tdata),
-    .rx_axis_mac_tvalid(eth_rx_axis_mac_tvalid),
-    .rx_axis_mac_tlast(eth_rx_axis_mac_tlast),
-    .rx_axis_mac_tuser(eth_rx_axis_mac_tuser),
+wire cpu_rx_qword_tvalid, cpu_tx_qword_tvalid, cpu_rx_qword_tready, cpu_tx_qword_tready;
+wire [31:0] cpu_rx_qword_tdata, cpu_tx_qword_tdata;
+wire [3:0] cpu_rx_qword_tlast, cpu_tx_qword_tlast;
+// ******for simulation******
+// reg bus_stall, bus_stall_reg;
+// initial begin
+//     bus_stall = 0;
+// end
+// always bus_stall = #876 ~bus_stall;
+// always @ (posedge clk_50M) begin
+//     bus_stall_reg <= bus_stall;
+// end
+// ***********end************
 
-    .tx_mac_aclk(eth_tx_mac_aclk),
-    .tx_mac_resetn(eth_sync_rst_n),
-    .tx_axis_mac_tdata(eth_tx_axis_mac_tdata),
-    .tx_axis_mac_tvalid(eth_tx_axis_mac_tvalid),
-    .tx_axis_mac_tlast(eth_tx_axis_mac_tlast),
-    .tx_axis_mac_tready(eth_tx_axis_mac_tready),
-    .tx_axis_mac_tuser(eth_tx_axis_mac_tuser), 
+
+localparam BUFFER_SIZE_INDEX = 7;
+
+wire router_write_stall, router_read_stall;
+wire [BUFFER_SIZE_INDEX-1:0] router_in_index;
+wire router_mem_we, router_mem_oe;
+wire router_in_restart_clr, router_in_restart;
+wire [1:0] router_out_state, router_out_en;
+wire [31:0] router_mem_waddr, router_mem_wdata;
+wire [31:0] router_mem_oaddr, router_mem_odata;
+wire [31:0] router_out_data;
+
+wire clk_cpu = clk_10M;
+wire rst_cpu = reset_of_clk10M;
+
+router_controller #(.BUFFER_IND(BUFFER_SIZE_INDEX)) router_controller_inst
+(
+    .clk(clk_cpu),
+    .rst(rst_cpu),
+    .write_stall(router_write_stall),
+    .read_stall(router_read_stall),
+    .in_index(router_in_index),       // o
+    .in_restart(router_in_restart),   // o
+    .in_restart_clear(router_in_restart_clr),// i
+    .mem_write_en(router_mem_we),     // o
+    .mem_write_addr(router_mem_waddr),// o
+    .mem_write_data(router_mem_wdata),// o
     
-    .led_debug(led_debug)
+    .out_state(router_out_state),     // o
+    .out_en(router_out_en),           // i
+    .out_data(router_out_data),       // i
+    .mem_read_en(router_mem_oe),      // o
+    .mem_read_addr(router_mem_oaddr), // o
+    .mem_read_data(router_mem_odata), // i
+
+    // cpu receiving
+    .cpu_rx_qword_tdata(cpu_rx_qword_tdata),   // i
+    .cpu_rx_qword_tlast(cpu_rx_qword_tlast),   // i
+    .cpu_rx_qword_tvalid(cpu_rx_qword_tvalid), // i
+    .cpu_rx_qword_tready(cpu_rx_qword_tready), // o
+    // cpu transmitting
+    .cpu_tx_qword_tdata(cpu_tx_qword_tdata),  // o
+    .cpu_tx_qword_tlast(cpu_tx_qword_tlast),  // o
+    .cpu_tx_qword_tvalid(cpu_tx_qword_tvalid),// o
+    .cpu_tx_qword_tready(cpu_tx_qword_tready) // i
 );
 
 
-// base ram saves instructions
-assign base_ram_data = 32'bz;
-assign base_ram_oe_n = 1'b0;
-assign base_ram_we_n = 1'b1;
-assign base_ram_be_n = 4'b0000;
-assign base_ram_ce_n = 1'b0;
+wire [31:0] lookup_modify_in_addr, lookup_modify_in_nexthop;
+wire lookup_modify_in_ready;
+wire [1:0] lookup_modify_in_nextport;
+wire [6:0] lookup_modify_in_len;
+wire lookup_modify_finish, lookup_full;
+wire ip_modify_req;
 
-//ext ram is cpu's ram
+router router_inst(
+    .eth_rx_mac_aclk(eth_rx_mac_aclk),
+    .eth_tx_mac_aclk(eth_tx_mac_aclk),
+    .cpu_clk(clk_cpu),
+    .eth_sync_rst_n(eth_sync_rst_n),
+    .cpu_rst(rst_cpu),
+
+    .eth_rx_axis_mac_tdata(eth_rx_axis_mac_tdata),
+    .eth_rx_axis_mac_tvalid(eth_rx_axis_mac_tvalid),
+    .eth_rx_axis_mac_tlast(eth_rx_axis_mac_tlast),
+    .eth_rx_axis_mac_tuser(eth_rx_axis_mac_tuser),
+
+    .eth_tx_axis_mac_tdata(eth_tx_axis_mac_tdata),
+    .eth_tx_axis_mac_tvalid(eth_tx_axis_mac_tvalid),
+    .eth_tx_axis_mac_tlast(eth_tx_axis_mac_tlast),
+    .eth_tx_axis_mac_tready(eth_tx_axis_mac_tready),
+    .eth_tx_axis_mac_tuser(eth_tx_axis_mac_tuser),
+
+    // transmitted by CPU
+    .cpu_rx_qword_tdata(cpu_rx_qword_tdata),
+    .cpu_rx_qword_tlast(cpu_rx_qword_tlast),
+    .cpu_rx_qword_tvalid(cpu_rx_qword_tvalid),
+    .cpu_rx_qword_tready(cpu_rx_qword_tready),
+    // received by CPU
+    .cpu_tx_qword_tdata(cpu_tx_qword_tdata),
+    .cpu_tx_qword_tlast(cpu_tx_qword_tlast),
+    .cpu_tx_qword_tvalid(cpu_tx_qword_tvalid),
+    .cpu_tx_qword_tready(cpu_tx_qword_tready),
+    
+    .ip_modify_req(ip_modify_req),
+    .lookup_modify_in_addr(lookup_modify_in_addr),
+    .lookup_modify_in_nexthop(lookup_modify_in_nexthop),
+    .lookup_modify_in_ready(lookup_modify_in_ready),
+    .lookup_modify_in_nextport(lookup_modify_in_nextport),
+    .lookup_modify_in_len(lookup_modify_in_len),
+    .lookup_modify_finish(lookup_modify_finish),
+    .lookup_full(lookup_full),
+    .lookup_error(lookup_error)
+);
+
+
+
+// cpu
 assign ext_ram_ce_n = 1'b0;
 
-wire [3:0] ram_be;
-wire ram_we, ram_oe;
-assign ext_ram_be_n = ~ram_be;
-assign ext_ram_we_n = ~ram_we;
-assign ext_ram_oe_n = ~ram_oe;
+/*mark_debug="true"*/wire [3:0] mem_be;
+/*mark_debug="true"*/wire pc_stall, mem_we, mem_oe, mem_stall;
+// assign ext_ram_be_n = ~ram_be;
+// assign ext_ram_we_n = ~ram_we;
+// assign ext_ram_oe_n = ~ram_oe;
+(*mark_debug="true"*)wire [31:0] pc_data, mem_data_i, mem_data_o;
+(*mark_debug="true"*)wire [31:0] pc_addr, mem_addr;
+
+wire [15:0] cpu_out;
+wire [15:0] bus_out;
+always @(cpu_out) begin
+    led_bits <= cpu_out;
+end
+
+wire [63:0] timing_mils;
+// Needs to be turned down to little in simulation
+timer #(.FREQ(10000)) timer_inst (
+    .clk(clk_cpu),
+    .rst(rst_cpu),
+    .out(timing_mils)
+);
+
+bus bus_inst(
+    .clk(clk_cpu),
+    .rst(rst_cpu),
+
+    .pcram_data(base_ram_data),
+    .pcram_addr(base_ram_addr),
+    .pcram_be_n(base_ram_be_n),
+    .pcram_we_n(base_ram_we_n),
+    .pcram_oe_n(base_ram_oe_n),
+    .pcram_ce_n(base_ram_ce_n),
+
+    .dtram_data(ext_ram_data),
+    .dtram_addr(ext_ram_addr),
+    .dtram_be_n(ext_ram_be_n),
+    .dtram_we_n(ext_ram_we_n),
+    .dtram_oe_n(ext_ram_oe_n),
+
+    .router_in_ind({32'b0, router_in_index}),
+    .router_out_state(router_out_state),
+    .router_out_en(router_out_en),
+    .router_out_data(router_out_data),
+    
+    .router_ip_modify_req(ip_modify_req),
+    .lookup_modify_in_addr(lookup_modify_in_addr),
+    .lookup_modify_in_nexthop(lookup_modify_in_nexthop),
+    .lookup_modify_in_ready(lookup_modify_in_ready),
+    .lookup_modify_in_nextport(lookup_modify_in_nextport),
+    .lookup_modify_in_len(lookup_modify_in_len),
+    .lookup_modify_finish(lookup_modify_finish),
+    .lookup_full(lookup_full),
+
+    .timing_mil_secs(timing_mils),
+    .router_in_restart(router_in_restart),
+    .router_in_restart_clr(router_in_restart_clr),
+
+    .pc_data(pc_data),
+    .pc_addr(pc_addr),
+    .pc_stall(pc_stall),
+
+    .mem_data_i(mem_data_i),
+    .mem_data_o(mem_data_o),
+    .mem_addr_i(mem_addr),
+    .mem_be_i(mem_be),
+    .mem_oe_i(mem_oe),
+    .mem_we_i(mem_we),
+    .mem_stall(mem_stall),
+    .router_we(router_mem_we),
+    .router_addr_i(router_mem_waddr),
+    .router_data_i(router_mem_wdata),
+    .router_write_stall(router_write_stall),
+    .router_oe(router_mem_oe),
+    .router_addr_o(router_mem_oaddr),
+    .router_data_o(router_mem_odata),
+    .router_read_stall(router_read_stall),
+
+    .uart_dataready(uart_dataready),
+    .uart_tsre(uart_tsre),
+    .uart_tbre(uart_tbre),
+    .uart_rdn(uart_rdn),
+    .uart_wrn(uart_wrn),
+    .leds(bus_out)
+);
 
 cpu CPU(
-    .clk(clk_10M),
-    .rst(reset_btn),
+    .clk(clk_cpu),
+    .rst(rst_cpu),
 
-    .pc_data_i(base_ram_data),
-    .pc_addr_o(base_ram_addr),
+    .pc_data_i(pc_data),
+    .pc_addr_o(pc_addr),
+    .if_stall_req(pc_stall),
+    .mem_stall_req(mem_stall),
+    .int_i({3'b0, uart_dataready, 2'b0}),
 
-    .ram_data_i(ext_ram_data),
-    .ram_addr_o(ext_ram_addr),
-    .ram_be_o(ram_be),
-    .ram_we_o(ram_we),
-    .ram_oe_o(ram_oe)
+    .ram_data_o(mem_data_i),
+    .ram_data_i(mem_data_o),
+    .ram_addr_o(mem_addr),
+    .ram_be_o(mem_be),
+    .ram_we_o(mem_we),
+    .ram_oe_o(mem_oe),
+    .leds(cpu_out)
 );
+
+always @(posedge clk_cpu) begin
+    number <= pc_data[7:0];
+end
 
 endmodule
