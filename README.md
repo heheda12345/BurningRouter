@@ -1,6 +1,6 @@
 # Burning Router
 
-'Burning Router' is a project of THU Computer Organization & Theroy of Computer Network course united experiment. 
+Burning Router is a project of THU Computer Organization & Theroy of Computer Network course united experiment. 
 
 ## How to run
 
